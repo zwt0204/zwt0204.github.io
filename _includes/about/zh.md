@@ -1,1 +1,16 @@
-> 像人一样思考
+# 资源链接
+- [红色石头](https://redstonewill.com/1861/)
+- [黄海广git](https://github.com/fengdu78?tab=repositories)
+- [latex在线编辑](http://latex.codecogs.com/eqneditor/editor.php)
+- [周志华机器学习笔记](https://github.com/Vay-keen/Machine-learning-learning-notes)
+- [深度学习花书笔记](https://github.com/DiscoverML/simplified-deeplearning)
+- [深度学习花书在线阅读](https://discoverml.github.io/simplified-deeplearning/)
+- [动手学习深度学习torch版本](https://github.com/zwt0204/d2l-pytorch)
+- [中文NLP资料](https://github.com/fighting41love/funNLP)
+- [强化学习入门](https://www.cnblogs.com/jinxulin/tag/Reinforcement%20learning/)
+- [吴恩达深度学习笔记](https://github.com/fengdu78/deeplearning_ai_books/tree/master/markdown)
+- [chatbot-list](https://github.com/lizhe2004/chatbot-list)
+- [tf2.0模型代码](https://github.com/dragen1860/TensorFlow-2.x-Tutorials)
+- [tf2.0教程](https://github.com/dragen1860/Deep-Learning-with-TensorFlow-book)
+- [apachecn](https://docs.apachecn.org/)
+- [斯坦福 cs234 强化学习中文讲义](https://github.com/apachecn/stanford-cs234-notes-zh)
