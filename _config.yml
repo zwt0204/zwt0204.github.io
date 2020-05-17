@@ -1,5 +1,5 @@
 # Site settings
-title: Blog
+title: 张伟涛的博客
 SEOTitle: 张伟涛
 header-img: img/logo.jpg
 email: zwtxauat@gmail.com
@@ -60,7 +60,7 @@ kramdown:
 
 
 # Disqus settings
-disqus_username: hux
+#disqus_username: hux
 
 # Netease settings
 netease_comment: false
@@ -79,7 +79,7 @@ ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "像人一样思考"
+sidebar-about-description: "记录轨迹"
 sidebar-avatar: /img/logo.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
