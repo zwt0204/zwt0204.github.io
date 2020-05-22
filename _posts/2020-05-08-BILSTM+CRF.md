@@ -7,7 +7,7 @@ author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
 catalog: false
 tags:
-    - NER
+    - 信息抽取
 ---
 * TOC
 {:toc}
