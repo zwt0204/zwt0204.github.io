@@ -37,26 +37,26 @@ $$
 crf层学习句子的约束条件、约束条件为自动学习
 ## 状态分数
 1. 状态分数（发射分数），是bilstm的输出。
-2. 假设编号$B-person-0, i_person-1, B-organization-2, i-organization-3, o-4$
-3. $x_{iy_j}$表示状态分数，i表示单词的索引，$y_j$表示类别的索引，则$X_{i=1,y_j=2}=x_{w_1, B_{organization}}=0.1$表示单词$w_1$被预测为$B_organization$的分数为0.1
+2. 假设编号$$B-person-0, i_person-1, B-organization-2, i-organization-3, o-4$$
+3. $$x_{iy_j}$$表示状态分数，i表示单词的索引，$$y_j$$表示类别的索引，则$$X_{i=1,y_j=2}=x_{w_1, B_{organization}}=0.1$$表示单词$$w_1$$被预测为$$B_organization$$的分数为0.1
 
 ## 转移分数
 
-1. $t_{y_i,y_j}$表示转移分数
-2. $t_{B_{person},i_{person}}=0.9$表示从类别$B_{person}$转到$i_{person}$的分数时0.9
+1. $$t_{y_i,y_j}$$表示转移分数
+2. $$t_{B_{person},i_{person}}=0.9$$表示从类别$$B_{person}$$转到$$i_{person}$$的分数时0.9
 3. 为了完善转移矩阵添加开始结束标签START，END。
 4. 转移矩阵中就可以看出来有用的约束，比如单词以B开头或者O开始，不会以I开头等
 5. 随机初始化转移矩阵，在训练过程总自己学习。
 
 ## CRF损失函数
 1. 由两部分组成，真实路径和所有路径的总分数，理论上真实路径的分数应该是所有路径中分数最高的那个。
-2. 假设编号$B-person-0, i_person-1, B-organization-2, i-organization-3, o-4，START-5.END-6$
-3. 公式为：$Loss = \frac{RealPath}{p_1+p_2,...+p_n}$
+2. 假设编号$$B-person-0, i_person-1, B-organization-2, i-organization-3, o-4，START-5.END-6$$
+3. 公式为：$$Loss = \frac{RealPath}{p_1+p_2,...+p_n}$$
 ### 真实路径分数
-1. 公式$RealPath = 转移分数+状态分数$
+1. 公式$$RealPath = 转移分数+状态分数$$
 2. 状态分数来自bilstm，转移分数来自crf
 ### 所有路径的总分
-1. 转换loss函数为:$logLoss = log \frac{RealPath}{p_1 + p_2,...,p_n}$
+1. 转换loss函数为:$$logLoss = log \frac{RealPath}{p_1 + p_2,...,p_n}$$
 2. 最小化损失函数，所以转换负号
 $$
 logLoss = - log \frac{RealPath}{p_1 + p_2,...,p_n} = \\
