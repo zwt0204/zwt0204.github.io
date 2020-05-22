@@ -3,6 +3,7 @@ layout:     post
 title:      "BILSTM+CRF"
 subtitle:   " \"信息抽取\""
 date:       2020-05-18 18:00:00
+mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
 catalog: false
@@ -65,9 +66,9 @@ logLoss = - log \frac{RealPath}{p_1 + p_2,...,p_n} = \\
 = - (S_{RealPath} - log(e^{S_1}+e^{S_2},..,+e^{S_n})) \\
 = - (\sum_{i=1}^N x_{i,y_i} + \sum_{i=1}^{N-1}t_{y_i,y_{i+1}} - log(e^{S_1}+e^{S_2},..,+e^{S_n}))
 $$
-3. 现在只需要计算$log(e^{S_1}+e^{S_2},..,+e^{S_n})$即可
+3. 现在只需要计算$$log(e^{S_1}+e^{S_2},..,+e^{S_n})$$即可
 
-4. 先计算$w_0$,再计算$w_1,w_2$。
+4. 先计算$$w_0$,再计算$w_1,w_2$$。
    $$
    w_0:\\
    obs = [x_{01}, x_{02}] \\
