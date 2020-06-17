@@ -2,7 +2,7 @@
 layout:     post
 title:      "sqlalchemy"
 subtitle:   " \"ORM（Object-Relational Mapping）\""
-date:       2020-06-016 18:00:00
+date:       2020-06-16 18:00:00
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
