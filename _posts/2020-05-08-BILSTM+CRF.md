@@ -53,9 +53,11 @@ crf层学习句子的约束条件、约束条件为自动学习
 1. 由两部分组成，真实路径和所有路径的总分数，理论上真实路径的分数应该是所有路径中分数最高的那个。
 2. 假设编号$$B-person-0, i_person-1, B-organization-2, i-organization-3, o-4，START-5.END-6$$
 3. 公式为：$$Loss = \frac{RealPath}{p_1+p_2,...+p_n}$$
+
 ### 真实路径分数
 1. 公式$$RealPath = 转移分数+状态分数$$
 2. 状态分数来自bilstm，转移分数来自crf
+
 ### 所有路径的总分
 1. 转换loss函数为:$$logLoss = log \frac{RealPath}{p_1 + p_2,...,p_n}$$
 2. 最小化损失函数，所以转换负号
@@ -117,6 +119,7 @@ $$
 \end{array}
 $$
 6. 这样就可以算出了crfloss
+
 ### 预测
 维特比解码:
 ![](https://zwt0204.github.io//img/维特比1.png)
