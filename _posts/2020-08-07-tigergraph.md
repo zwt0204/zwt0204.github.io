@@ -13,7 +13,9 @@ tags:
 * TOC
 {:toc}
 # 安装以及基本操作
+
 ## 安装
+
 [下载地址](https://www.tigergraph.com.cn/developer-download/)
 安装：
 ```
@@ -23,6 +25,7 @@ sudo ./install.sh
 ```
 
 ## 基本操作
+
 数据准备：
 ```
 person.csv
@@ -80,3 +83,10 @@ The job load_social is created.
 run loading job load_social
 ```
 
+数据查询：
+```
+查询person顶点的个数
+SELECT count(*) FROM person
+查询指定定顶点的详细信息
+SELECT * FROM person WHERE primary_id=="Tom"
+```
