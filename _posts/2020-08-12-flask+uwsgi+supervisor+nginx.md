@@ -135,7 +135,8 @@ server {
     listen      80;
     server_name  10.12.28.27;  # 服务器ip,
     charset    utf-8;
-
+     access_log      /root/robot/zwt/myBlog/nginx_access.log;
+    error_log       /root/robot/zwt/myBlog/nginx_error.log;
     client_max_body_size 100M;
 
     location / {
