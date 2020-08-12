@@ -89,4 +89,85 @@ run loading job load_social
 SELECT count(*) FROM person
 查询指定定顶点的详细信息
 SELECT * FROM person WHERE primary_id=="Tom"
+SELECT name FROM person WHERE state=="ca"
+SELECT name, age FROM person WHERE age > 30
 ```
+
+选择边：
+```
+语法：source_type -(edge_type)-> target_type
+查找与tom链接有friendship关系的person节点
+SELECT * FROM person-(friendship)->person WHERE from_id =="Tom"
+查找与tom节点有边链接的节点
+SELECT * FROM person-(ANY)->ANY WHERE from_id =="Tom"
+
+注意：
+1. 必须指定源顶点类型
+2. 必须指定from_id条件
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
