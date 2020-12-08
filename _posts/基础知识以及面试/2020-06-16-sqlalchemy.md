@@ -250,6 +250,8 @@ sql过滤：session.query(User).filter("id>:id").params(id=1).all()
 关键查询：session.query(User, Address).filter(User.id == Address.user_id).all()；session.query(User).join(User.addresses).all()；session.query(User).outerjoin(User.addresses).all()
 记录总数：session.query(func.count(User.id))
 返回限制字段：session.query(Person.name, Person.created_at,Person.updated_at).filter_by(name="zhongwei").order_by(Person.created_at).first()
+正则匹配
+session.query(User).filter(User.district.op('regexp')(r'[\u4e00-\u9fa5]+').all()
 ```
 
 # 批量增加
