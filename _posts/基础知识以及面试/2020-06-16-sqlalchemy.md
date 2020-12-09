@@ -252,6 +252,8 @@ sql过滤：session.query(User).filter("id>:id").params(id=1).all()
 返回限制字段：session.query(Person.name, Person.created_at,Person.updated_at).filter_by(name="zhongwei").order_by(Person.created_at).first()
 正则匹配
 session.query(User).filter(User.district.op('regexp')(r'[\u4e00-\u9fa5]+').all()
+去重
+df.drop_duplicates(subset=['method','year'],keep='first',inplace=True)
 ```
 
 # 批量增加
