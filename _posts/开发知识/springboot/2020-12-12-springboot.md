@@ -41,6 +41,17 @@ com.example.myproject.web：用于编写Web层相关的实现，比如：Spring 
 
 默认从root package下扫描进行包的加载，如果和root package放在同级别，扫描不到，就需要通过配置来指定加载的目录。
 
+也有可能是entity、dao、controller、service的机构：
+```
+dao层：持久层，主要是和数据库进行交互，也称为mapper层
+entity层：实体层，数据库在项目中的类 也会叫pojo或者model层
+service层：业务层控制业务，完成功能设计，
+cotroller层：控制层，请求和响应的控制
+
+Controller负责具体的业务模块流程的控制；Service层负责业务模块的逻辑应用设计
+总结：具体的一个项目中有：controller层调用了Service层的方法，Service层调用Dao层的方法，其中调用的参数是使用Entity层进行传递的。
+```
+
 ## 多模块结构
 
 
@@ -163,7 +174,18 @@ ctrl+shift+A 输入maven 选择 add maven projects 选择项目中的pom文件 �
 ```
 pom导入相关模块有问题
 ```
-
+多模块中很多jar包找不到
+```
+我自己这边的问题是，parent中的springboot version不对，因为是导入别人的项目，所以需要修改下springboot的版本。
+```
+文件中出现java file outside of source code
+```
+将java文件夹设置为源目录
+```
+junit启动报错 Unable to find a @SpringBootConfiguration:
+```
+项目目录与测试目录不一致
+```
 
 # 参考
 1. [工程结构](http://blog.didispace.com/spring-boot-learning-21-1-2/)
