@@ -13,25 +13,29 @@ tags:
 * TOC
 {:toc}
 
-- 环境准备
-    - 安装docker
-    - docker pull tensorflow/serving
-    - 新建文件夹tmp/tfserving
-    - git clone https://github.com/tensorflow/serving
-- 模型训练保存
+# 环境准备
+
+```
+安装docker
+docker pull tensorflow/serving
+新建文件夹tmp/tfserving
+git clone https://github.com/tensorflow/serving
+```
+模型训练保存
 ```
 model_output_dir = "D:\zwt\work_test\qa_robot_test\logs\\1"
 tf.saved_model.simple_save(session, model_output_dir, inputs={"char_inputs": self.model.char_inputs},
                 outputs={"outputs": self.model.prediction})
-```
 
-- 在tmp文件夹下新建文件，命名为模型名称，将模型文件copy到新建文件夹下
-- 启动服务：
-    
+在tmp文件夹下新建文件，命名为模型名称，将模型文件copy到新建文件夹下
+```
+-启动服务：
+```
     - docker run -t --rm -p 8500:8500 -p 8501:8501 --mount type=bind,source=D:\\zwt\\docker\\tmp\\transformer\\,target=/models/transformer  -e MODEL_NAME=transformer  tensorflow/serving &
-- 测试是否启动
-    - curl http://localhost:8501/v1/models/transformer
-    ```
+```
+测试是否启动
+curl http://localhost:8501/v1/models/transformer
+```
     显示{"model_version_status": [
   {
    "version": "1",
@@ -39,9 +43,9 @@ tf.saved_model.simple_save(session, model_output_dir, inputs={"char_inputs": sel
    "status": {
     "error_code": "OK",
     "error_message": ""} }}
-  ```
-    - curl http://localhost:8501/v1/models/transformer/metadata
-    ```
+```
+curl http://localhost:8501/v1/models/transformer/metadata
+```
     {"model_spec":{"name": "transformer","signature_name": "","version": "1"},"metadata": {"signature_def":{"signature_def": {
   "serving_default": {
    "inputs": {
@@ -78,12 +82,12 @@ tf.saved_model.simple_save(session, model_output_dir, inputs={"char_inputs": sel
      "name": "Sigmoid:0"
     }  }, "method_name": "tensorflow/serving/predict"
   }}}}}
-    ```
-- 命令框模型调用：
+```
+命令框模型调用：
 ```
 curl -d "{\"instances\": [[45, 181, 121, 22, 246, 88, 146, 25, 16, 117, 145, 231, 187, 157, 206, 191, 77, 236, 124, 68, 198, 19, 84, 193, 251, 7, 105, 229, 119, 243, 103, 90, 250, 82, 138, 9, 1, 240, 242, 133, 214, 216, 111, 189, 54, 212, 209, 169, 167, 179, 13, 249, 99, 95, 137, 55, 199, 237, 159, 183, 15, 150, 76, 104, 2, 27, 220, 149, 38, 3, 86, 8, 23, 235, 83, 12, 190, 239, 5, 140, 155, 114, 53, 135, 148, 141, 89, 232, 219, 226, 62, 33, 116, 46, 225, 49, 154, 4, 234, 222, 59, 217, 184, 163, 196, 213, 48, 42, 122, 101, 170, 233, 158, 35, 30, 52, 197, 178, 210, 56, 165, 120, 106, 129, 172, 32, 176, 18, 28, 26, 174, 221, 173, 20, 60, 40, 123, 161, 66, 72, 134, 29, 69, 100, 180, 152, 200, 11, 51, 151, 238, 252, 41, 160, 215, 218, 131, 21, 58, 203, 34, 102, 75, 207, 255, 175, 201, 164, 81, 47, 139, 162, 244, 126, 211, 192, 6, 57, 182, 195, 73, 254, 143, 70, 125, 185, 227, 130, 228, 153, 94, 248, 144, 127, 91, 202, 96, 92, 17, 98, 65, 67, 241, 87, 80, 224, 24, 147, 166, 230, 78, 112, 97, 118, 204, 186, 107, 108, 253, 43, 74, 10, 37, 245, 208, 14, 194, 110, 64, 113, 128, 79, 115, 223, 171, 247, 61, 142, 109, 132, 63, 36, 205, 31, 93, 0, 136, 177, 71, 156, 44, 188, 50, 168, 85, 39]]}" -X POST http://localhost:8501/v1/models/transformer:predict
 ```
-- restful接口访问
+restful接口访问
 ```
 import requests
 import json
@@ -119,8 +123,7 @@ param = json.dumps(pdata)
 res = requests.post('http://localhost:8501/v1/models/transformer:predict', data=param)
 print(res.text)
 ```
-
-- grpc访问：
+grpc访问：
 ```
 import numpy as np
 import tensorflow as tf
@@ -149,10 +152,12 @@ print(res_list)
 ```
 
 
-- 多模型配置：
-    - 在tmp文件夹下新建multiModel文件，在其中分别存放保存好的模型
-    - 在multiModel文件夹下新建model.config文件
-    - 文件中写入
+多模型配置：
+```
+在tmp文件夹下新建multiModel文件，在其中分别存放保存好的模型
+在multiModel文件夹下新建model.config文件
+```
+文件中写入
 ```
 model_config_list:{
     config:{
@@ -203,7 +208,7 @@ version_labels {
   value: 43
 }
 ```
-- 如果需要版本控制，加入上述文件后访问的时候需要
+如果需要版本控制，加入上述文件后访问的时候需要
 ```
 启动命令后加上  --model_config_file=/models/models/models.config
 访问时：http://localhost:8501/v1/models/model1/versions/1:predict
