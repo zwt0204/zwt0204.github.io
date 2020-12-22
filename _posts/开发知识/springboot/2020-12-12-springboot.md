@@ -13,6 +13,7 @@ tags:
 {:toc}
 
 # 项目结构
+
 ## 一般结构
 
 ```
@@ -185,6 +186,10 @@ pom导入相关模块有问题
 junit启动报错 Unable to find a @SpringBootConfiguration:
 ```
 项目目录与测试目录不一致
+```
+No qualifying bean of type
+```
+大概率是Mapper中没有注解，所以在Mapper中加入import org.apache.ibatis.annotations.Mapper注解
 ```
 
 # 参考
