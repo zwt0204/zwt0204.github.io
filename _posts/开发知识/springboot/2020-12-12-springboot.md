@@ -191,6 +191,10 @@ No qualifying bean of type
 ```
 大概率是Mapper中没有注解，所以在Mapper中加入import org.apache.ibatis.annotations.Mapper注解
 ```
+Compilation of Maven projects is supported only if external build is started from an IDE.
+```
+如果是 idea 的话，右击 pom.xml 文件，选择最下面的 “ Add as maven build file”，然后编译器会重新构建，就好了
+```
 
 # 参考
 1. [工程结构](http://blog.didispace.com/spring-boot-learning-21-1-2/)
