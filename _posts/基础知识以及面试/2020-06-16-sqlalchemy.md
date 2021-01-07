@@ -2,7 +2,7 @@
 layout:     post
 title:      "sqlalchemy"
 subtitle:   " \"ORM（Object-Relational Mapping）\""
-date:       2020-06-16 18:00:00
+date:       2021-01-05 18:00:00
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -265,6 +265,21 @@ df = pd.read_csv('../pd.csv', sep='\t')
 
 # temp为list，元素为所添加的对象
 sess.add_all(temp)
+```
+
+# 其他操作
+
+建立索引：
+```
+建表的时候增加index=True
+或者：
+pid_index = Index('mymodel_url_idx', BaseGoodsCorrect.pid)
+pid_index.create(bind=engine)
+```
+
+删除单张表：
+```
+BaseGoodsCorrect.__table__.drop(engine)
 ```
 
 

@@ -28,3 +28,10 @@ tags:
 ```
 在运行起来之后，通常url中回加有相应war包的名称，默认起来会是provider的url，自行调换看consumer。
 ```
+# Resource文件
+
+读取resource下的文件
+```
+File file = ResourceUtils.getFile("classpath:excleTemplate/test.xlsx");
+InputStream inputStream = new FileInputStream(file);
+```
