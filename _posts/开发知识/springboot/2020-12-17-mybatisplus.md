@@ -51,6 +51,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 # 一些操作
 mybatis设置创建时间和更新时间自动填入：
 ```
-第一种：数据库中设置，设置为datetime，默认为CURRENT_TIMESTA,根据当前时间戳更新。
+第一种：数据库中设置，设置为datetime，默认为CURRENT_TIMESTAMP,根据当前时间戳更新。
 第二种：代码中操作，第一种不要操作，在mapper中相应字段添加注解@TableField(.. , update="now()") 使用数据库时间
 ```
+
