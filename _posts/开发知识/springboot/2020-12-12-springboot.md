@@ -196,5 +196,20 @@ Compilation of Maven projects is supported only if external build is started fro
 如果是 idea 的话，右击 pom.xml 文件，选择最下面的 “ Add as maven build file”，然后编译器会重新构建，就好了
 ```
 
+# 包冲突问题
+
+```
+<exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
+```
+
 # 参考
 1. [工程结构](http://blog.didispace.com/spring-boot-learning-21-1-2/)
