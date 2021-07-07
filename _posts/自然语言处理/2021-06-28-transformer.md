@@ -39,7 +39,12 @@ $$
 $$
 Decoder结构：
 ![](../../img/transformer2.png)
-其中最主要的与encoder的区别在于Encoder-Decnoder Attention表示当前翻译和编码的特征向量之间的关系。
+Decoder 由 6 个完全相同的 Decoder Layer 组成，每个 Decoder Layer 由三个 Sub-Layer 组成：
+```
+1.Maked Multi-Head Attention，相比于 Encoder 的 Attention，它加入了掩码，遮住当前单词后面的内容；
+2.Multi-Head Attention，用 Encoder 的输出作为 Key 和 Value，Query 由 Decoder 提供；
+3.Feed Forward，与 Encoder 的一致，都是全连接层。Decoder 也采用了残差连接和 Layer Normalization，与 Encoder 一致。
+```
 ![](../..//img/transformer9.png)
 # 输入编码
 首先基于外部预训练的词向量来初始化特征向量或者是随机初始化。在论文中所给出的维度是512。在encoder的输入端，特征向量作为整体的输入。对于其他层的输入则是下层网络的输出。如图所示：
@@ -102,3 +107,4 @@ $$
 
 # 参考
 1.[详解Transformer](https://zhuanlan.zhihu.com/p/48508221)
+2.[回顾transformer](https://mp.weixin.qq.com/s/wC5-9Elc0LtHH484W5oNDQ)
