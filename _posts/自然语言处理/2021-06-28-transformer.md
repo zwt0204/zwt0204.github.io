@@ -1,8 +1,8 @@
 ---
 layout:     post
 title:      "transformer"
-subtitle:   " \"fasttext\""
-date:       2021-06-28 15:30:00 
+subtitle:   " \"transformer\""
+date:       2023-07-22 15:30:00 
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -66,7 +66,7 @@ Decoder 由 6 个完全相同的 Decoder Layer 组成，每个 Decoder Layer 由
 注意的是在self中加入了残差网络来解决深度学习中的退化问题，同时为了模型更快速稳定加入了Layer Normalization。$LayerNorm(x+SubLayer(x))$
 ![](../..//img/transformer7.png)
 # multi-head Atterntion
-Multi-Head Attention相当于 [公式] 个不同的self-attention的集成（ensemble）具体可以分为三个步骤：
+Multi-Head Attention相当于 8 个不同的self-attention的集成（ensemble）具体可以分为三个步骤：
 第一步：将输入分别输入到8个相同的selfattention结构中，得到8个加权的特征矩阵
 第二步：将8个特征向量拼接
 第三步：拼接后的特征向量经过一层全连接转换为z
@@ -93,6 +93,24 @@ P E(\text { pos }, 2 i+1)=\cos \left(\frac{\text { pos }}{10000 \frac{2 i}{d_{\t
 $$
 其中pos表示单词的位置，i表示单词的维度。
 设计此公式的目的是考虑单词之间的相对位置。根据公式$\sin (\alpha+\beta)=\sin \alpha \cos \beta+\cos \alpha \sin \beta, \cos (\alpha+\beta)=\cos \alpha \cos \beta-\sin \alpha \sin \beta$可以看出来，位置k+p的位置向量可以通过位置k的特征向量线性变化而来，这就可以辅助模型来捕获单词之间的相对位置。
+# 并行
+## encoder
+encoder并行可以直观的解释为：主要是自注意层的并行化，自注意力就是基于$x_i$之间两两相关性作为权重的一种加权平均，进而将每一个$x_i$都映射到$z_i$。假设有两个词$x_1,x_2$，自注意力机制首先计算$x_1$与$x_1,x_2$的相关性，记作$\alpha_{11},\alpha_{12}$，$z_1 =\alpha_{11} * x_1 + \alpha_{12} * x_2 $,同样的方式也可以得到$z_2$。此时可以说$z_1,z_2$已经考虑了其他元素之间的依赖关系。
+## decoder
+注意：这个并行化只是在训练的阶段有效，预测阶段是顺序执行的
+decoder并行依赖于两个关键点：
+1.teacher force
+2.masked self attention
+teacher force表示：
+```
+在训练的时候强制使用正确的单词，而不是上一轮的预测结果。
+示例：
+假设第一轮解码器输入<start>和编码器的输出，解码器输出为I
+第二轮的时候输入<start> I 和编码器的输出，解码器输出为want
+第三轮的时候解码器的输入仍然是<start> I love和编码器的输出
+```
+通过此种方式可以避免中间预测结果错误导致后续序列的预测，同时可以加快训练速度。
+Transformer实现Decoder部分训练并行化，就是一次性将整个目标句子（假设长度为4）输入给decoder，然后利用masked自注意力算法计算出 $z_{1:4}$ ，往后面网络继续传递，最后计算出4个预测值，分别对应4个时刻的输出。
 
 # 总结
 优点：
@@ -108,3 +126,4 @@ $$
 # 参考
 1.[详解Transformer](https://zhuanlan.zhihu.com/p/48508221)
 2.[回顾transformer](https://mp.weixin.qq.com/s/wC5-9Elc0LtHH484W5oNDQ)
+3.[并行化](https://www.zhihu.com/question/307197229/answer/1859981235)
