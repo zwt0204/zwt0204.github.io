@@ -2,7 +2,7 @@
 layout:     post
 title:      "transformer"
 subtitle:   " \"transformer\""
-date:       2023-07-22 15:30:00 
+date:       2024-03-09 10:46:00 
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -17,19 +17,20 @@ tags:
 核心的原因在于考虑到rnn在计算中限制的顺序性，在具体的计算过程中没有办法并行化：
 ```
 1.t时刻依赖t-1时刻的结果，限制并行
-2.顺序计算过程中导致的信息丢失
+2.顺序计算过程中导致的信息丢失(梯度消失问题)
 ```
 论文中的定义：
 ```
 Transformer is the first transduction model relying entirely on self-attention to compute representations of its input and output without using sequence aligned RNNs or convolution
 ```
 # Transformer整体结构
-
+![](../../img/自然语言处理/transformer.png)
+整体架构如上图，包括编码层和解码层，每一块又是N个block堆叠。
 ![](../../img/transformer.png)
-如上如所示：整体的transformer的结构是基于6层的编码层和6层的解码层组成，和seq2seq模型结构类似，只是在具体的编码解码模块做了替换。
+整体的transformer的结构是基于6层的编码层和6层的解码层组成，是一个典型的seq2seq模型结，只是在具体的编码解码模块做了替换。
 Encoder结构：
-![](../../img/transformer1.png)
-其中seif-attention的计算：
+![](../../img/自然语言处理/transformer1.png)
+其中self-attention的计算：
 $$
 \operatorname{Attention}(Q, K, V)=\operatorname{softmax}\left(\frac{Q K^{T}}{\sqrt{d_{k}}}\right) V
 $$
@@ -38,39 +39,48 @@ $$
 \operatorname{FFN}(Z)=\max \left(0, Z W_{1}+b_{1}\right) W_{2}+b_{2}
 $$
 Decoder结构：
-![](../../img/transformer2.png)
+![](../../img/自然语言处理/transformer2.png)
 Decoder 由 6 个完全相同的 Decoder Layer 组成，每个 Decoder Layer 由三个 Sub-Layer 组成：
+
 ```
 1.Maked Multi-Head Attention，相比于 Encoder 的 Attention，它加入了掩码，遮住当前单词后面的内容；
 2.Multi-Head Attention，用 Encoder 的输出作为 Key 和 Value，Query 由 Decoder 提供；
 3.Feed Forward，与 Encoder 的一致，都是全连接层。Decoder 也采用了残差连接和 Layer Normalization，与 Encoder 一致。
 ```
-![](../..//img/transformer9.png)
+![](../../img/自然语言处理/transformer9.png)
+==注意编码层最终的输出才输入到解码层中，同时是输入到解码层的每一层中==
+
 # 输入编码
-首先基于外部预训练的词向量来初始化特征向量或者是随机初始化。在论文中所给出的维度是512。在encoder的输入端，特征向量作为整体的输入。对于其他层的输入则是下层网络的输出。如图所示：
-![](../../img/transformer3.png)
+
+首先基于外部预训练的词向量来初始化特征向量或者是随机初始化（论文中是==Xavier==初始化）。维度是512。在encoder的输入端，特征向量作为整体的输入。对于其他层的输入则是下层网络的输出。如图所示：
+![](../../img/自然语言处理/transformer3.png)÷
+==注意：每个token都共享block的参数，并行处理。如上图的thinking和machines是同时共享参数进行处理的。==
 
 # self-Attention
-![](../..//img/transformer4.png)
-在self-attention中，每一个单词会被表示为三个不同的向量，分别微Query，Key，Value，长度均为64。生成的方式是基于三个不同的权值矩阵与输入相乘得到，三个矩阵都是512*64维。
-![](../..//img/transformer5.png)
+
+![](../../img/自然语言处理/transformer4.png)
+在self-attention中，每一个单词会被表示为三个不同的向量，分别是Query，Key，Value，长度均为64（因为8个头的缘故）。生成的方式是基于三个不同的权值矩阵与输入相乘得到，三个矩阵都是512*64维。
+![](../../img/自然语言处理/transformer5.png)
 整体的计算过程如下：
 第一步：将输入转为向量模式
 第二步：根据输入得到q，k，v三个向量
-第三步：计算每个向量的score，score=q.k
-第四步：为了梯度计算的稳定，将score归一化，除以$\sqrt d_k$
-第五步：对score施加以softmax
-第六步：第五步计算结果与v点乘，得到加权的每个输入向量的评分v
-第七步：相加之后得到最终的输出结果$z=\sum v$
-![](../..//img/transformer6.png)
-注意的是在self中加入了残差网络来解决深度学习中的退化问题，同时为了模型更快速稳定加入了Layer Normalization。$LayerNorm(x+SubLayer(x))$
-![](../..//img/transformer7.png)
+
+###### 第三步：计算每个向量的score，$score=q.k^T$
+
+第四步：为了梯度计算的稳定，将score归一化，除以$\sqrt d_k$(==为了使得score的值不极端，平滑一点==)
+第五步：对score进行softmax计算
+第六步：第五步计算结果与v点乘，得到加权的每个输入向量$z=\sum v$
+![](../../img/自然语言处理/transformer6.png)
+==注意:==在self中加入了残差网络来解决深层网络的梯度消失导致的退化问题，同时为了模型更快速稳定加入了Layer Normalization。$LayerNorm(x+SubLayer(x))$
+![](../../img/自然语言处理/transformer7.png)
+
 # multi-head Atterntion
 Multi-Head Attention相当于 8 个不同的self-attention的集成（ensemble）具体可以分为三个步骤：
 第一步：将输入分别输入到8个相同的selfattention结构中，得到8个加权的特征矩阵
 第二步：将8个特征向量拼接
 第三步：拼接后的特征向量经过一层全连接转换为z
-![](../..//img/transformer8.png)
+![](../../img/自然语言处理/transformer8.png)
+
 # Encoder-Decoder Attention
 这个是在解码器中多出来的一部分，在其内部，q来自于解码器的上一个输出，k，v泽来自于编码器的输出。
 注意在进行机器翻译的工作时：
@@ -83,7 +93,7 @@ Multi-Head Attention相当于 8 个不同的self-attention的集成（ensemble�
 # 位置编码
 当前已经介绍的内容并没有涉及到模型对序列化顺序的处理能力，也就是说句子顺序打乱并不会影响模型的结果，从这个角度分析，其只能说是一个更为强大的词袋模型。
 为了解决顺序性问题，transformer中引入了位置编码。位置编码的引入有两种，一种是根据数据取学习，一种是自己设计编码规则。在transformer中是基于第二种所设计的。
-![](../..//img/transformer10.png)
+![](../../img/自然语言处理/transformer10.png)
 在论文中给出的公式为：
 $$
 \begin{gathered}
