@@ -127,3 +127,4 @@ Transformer实现Decoder部分训练并行化，就是一次性将整个目标�
 1.[详解Transformer](https://zhuanlan.zhihu.com/p/48508221)
 2.[回顾transformer](https://mp.weixin.qq.com/s/wC5-9Elc0LtHH484W5oNDQ)
 3.[并行化](https://www.zhihu.com/question/307197229/answer/1859981235)
+4.[详解2](https://zhuanlan.zhihu.com/p/338817680)
