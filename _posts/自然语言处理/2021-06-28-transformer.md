@@ -64,23 +64,19 @@ Decoder 由 6 个完全相同的 Decoder Layer 组成，每个 Decoder Layer 由
 整体的计算过程如下：
 第一步：将输入转为向量模式
 第二步：根据输入得到q，k，v三个向量
-
-###### 第三步：计算每个向量的score，$score=q.k^T$
-
+第三步：计算每个向量的score，$score=q.k^T$
 第四步：为了梯度计算的稳定，将score归一化，除以$\sqrt d_k$(==为了使得score的值不极端，平滑一点==)
 第五步：对score进行softmax计算
 第六步：第五步计算结果与v点乘，得到加权的每个输入向量$z=\sum v$
 ![](../../img/自然语言处理/transformer6.png)
 ==注意:==在self中加入了残差网络来解决深层网络的梯度消失导致的退化问题，同时为了模型更快速稳定加入了Layer Normalization。$LayerNorm(x+SubLayer(x))$
 ![](../../img/自然语言处理/transformer7.png)
-
 # multi-head Atterntion
 Multi-Head Attention相当于 8 个不同的self-attention的集成（ensemble）具体可以分为三个步骤：
 第一步：将输入分别输入到8个相同的selfattention结构中，得到8个加权的特征矩阵
 第二步：将8个特征向量拼接
 第三步：拼接后的特征向量经过一层全连接转换为z
 ![](../../img/自然语言处理/transformer8.png)
-
 # Encoder-Decoder Attention
 这个是在解码器中多出来的一部分，在其内部，q来自于解码器的上一个输出，k，v泽来自于编码器的输出。
 注意在进行机器翻译的工作时：
