@@ -119,9 +119,7 @@ class MultiHeadAttention(nn.Module):
         self.linear_value = nn.Linear(d_model, d_model)
 
         # 自注意力机制的 QKV 同源，线性变换
-
         self.linear_out = nn.Linear(d_model, d_model)
-
         self.dropout = nn.Dropout(p=dropout)
         self.attn = None
 
@@ -188,6 +186,23 @@ teacher force表示：
 ```
 通过此种方式可以避免中间预测结果错误导致后续序列的预测，同时可以加快训练速度。
 Transformer实现Decoder部分训练并行化，就是一次性将整个目标句子（假设长度为4）输入给decoder，然后利用masked自注意力算法计算出 $z_{1:4}$ ，往后面网络继续传递，最后计算出4个预测值，分别对应4个时刻的输出。
+# 参数计算
+假设层数为l，隐藏层维度为h，头数为a，词表大小为V，批次大小为b，序列长度为s。
+## 参数量
+1. 自注意层参数为Q、K、V的权重菊展和偏置，以及输出权重矩阵Wo和偏置，4个权重矩阵都是h*h，偏置都是h，则参数量为$4h^2$
+2. MLP层是两个线性层，一般会将维度从h映射为4h，然后再从4h映射到h，则第一层的权重为h*4h，第二层为4h*h，偏置都为h，则参数量为$8h^2+5h$
+3. 还有两个层归一化模块，含有两个参数$\gamma、\beta$分别表示缩放参数和平移参数，都为h，则参数量为2 * 2h
+4. 所以每个transformer层有$12h^2+13h$
+5. 还有embedding层参数为V*h
+6. 总参数量为$l(12h^2+13h)+Vh$
+## 训练所占显存
+一般显存占用分布在模型参数、前向计算产生的中间激活、后向传递的梯度和优化器状态。假设采用AdamW优化器、混合精度训练、模型参数量为a。
+float16占2bytes，float32占4bytes
+1. 梯度量为a
+2. AdamW量为2a
+3. fp16进行参数的前后向传递，fp32进行优化器状态的更新，则每个参数占用(2+4)+(2+4)+(4+4)=20bytes。第一个2+4表示权重，前向计算fp16，更新fp32，第二个表示梯度，后向计算fp16，更新fp32，最后两个表示优化器状态。
+## 推理所占显存
+推理过程中没有优化器状态和梯度，则只有模型参数占显存。如果使用fp16则占显存2abytes。如果使用kv cache（将attention的k，v缓存起来）来加速，则需要多一部分显存。
 
 # 总结
 优点：
@@ -206,3 +221,4 @@ Transformer实现Decoder部分训练并行化，就是一次性将整个目标�
 3.[并行化](https://www.zhihu.com/question/307197229/answer/1859981235)
 4.[详解2](https://zhuanlan.zhihu.com/p/338817680)
 5.[代码](https://www.cnblogs.com/nickchen121/p/16526123.html)
+6.[参数量计算](https://zhuanlan.zhihu.com/p/624740065)
