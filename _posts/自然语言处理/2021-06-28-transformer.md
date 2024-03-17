@@ -57,7 +57,6 @@ Decoder 由 6 个完全相同的 Decoder Layer 组成，每个 Decoder Layer 由
 ==注意：每个token都共享block的参数，并行处理。如上图的thinking和machines是同时共享参数进行处理的。==
 
 # self-Attention
-
 ![](../../img/自然语言处理/transformer4.png)
 在self-attention中，每一个单词会被表示为三个不同的向量，分别是Query，Key，Value，长度均为64（因为8个头的缘故）。生成的方式是基于三个不同的权值矩阵与输入相乘得到，三个矩阵都是512*64维。
 ![](../../img/自然语言处理/transformer5.png)
@@ -71,12 +70,84 @@ Decoder 由 6 个完全相同的 Decoder Layer 组成，每个 Decoder Layer 由
 ![](../../img/自然语言处理/transformer6.png)
 ==注意:==在self中加入了残差网络来解决深层网络的梯度消失导致的退化问题，同时为了模型更快速稳定加入了Layer Normalization。$LayerNorm(x+SubLayer(x))$
 ![](../../img/自然语言处理/transformer7.png)
+
+```python
+def self_attention(query, key, value, dropout=None, mask=None):
+    d_k = query.size(-1)
+    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+    # mask的操作在QK之后，softmax之前
+    if mask is not None:
+        mask.cuda()
+        scores = scores.masked_fill(mask == 0, -1e9)
+    self_attn = F.softmax(scores, dim=-1)
+    if dropout is not None:
+        self_attn = dropout(self_attn)
+    return torch.matmul(self_attn, value), self_attn
+```
+
 # multi-head Atterntion
 Multi-Head Attention相当于 8 个不同的self-attention的集成（ensemble）具体可以分为三个步骤：
 第一步：将输入分别输入到8个相同的selfattention结构中，得到8个加权的特征矩阵
 第二步：将8个特征向量拼接
 第三步：拼接后的特征向量经过一层全连接转换为z
 ![](../../img/自然语言处理/transformer8.png)
+
+```python
+class MultiHeadAttention(nn.Module):
+
+    def __init__(self):
+        super(MultiHeadAttention, self).__init__()
+
+    def forward(self,  head, d_model, query, key, value, dropout=0.1,mask=None):
+        """
+        :param head: 头数，默认 8
+        :param d_model: 输入的维度 512
+        :param query: Q
+        :param key: K
+        :param value: V
+        :param dropout:
+        :param mask:
+        :return:
+        """
+        assert (d_model % head == 0)
+        self.d_k = d_model // head
+        self.head = head
+        self.d_model = d_model
+
+        self.linear_query = nn.Linear(d_model, d_model)
+        self.linear_key = nn.Linear(d_model, d_model)
+        self.linear_value = nn.Linear(d_model, d_model)
+
+        # 自注意力机制的 QKV 同源，线性变换
+
+        self.linear_out = nn.Linear(d_model, d_model)
+
+        self.dropout = nn.Dropout(p=dropout)
+        self.attn = None
+
+        # if mask is not None:
+        #     # 多头注意力机制的线性变换层是4维，是把query[batch, frame_num, d_model]变成[batch, -1, head, d_k]
+        #     # 再1，2维交换变成[batch, head, -1, d_k], 所以mask要在第一维添加一维，与后面的self attention计算维度一样
+        #     mask = mask.unsqueeze(1)
+        n_batch = query.size(0)
+        # 多头需要对这个 X 切分成多头
+        # query==key==value
+        # [b,1,512]
+        # [b,8,1,64]
+
+        # [b,32,512]
+        # [b,8,32,64]
+        query = self.linear_query(query).view(n_batch, -1, self.head, self.d_k).transpose(1, 2)  # [b, 8, 32, 64]
+        key = self.linear_key(key).view(n_batch, -1, self.head, self.d_k).transpose(1, 2)  # [b, 8, 32, 64]
+        value = self.linear_value(value).view(n_batch, -1, self.head, self.d_k).transpose(1, 2)  # [b, 8, 32, 64]
+        x, self.attn = self_attention(query, key, value, dropout=self.dropout, mask=mask)
+        # [b,8,32,64]
+        # [b,32,512]
+        # 变为三维， 或者说是concat head
+        x = x.transpose(1, 2).contiguous().view(n_batch, -1, self.head * self.d_k)
+
+        return self.linear_out(x)
+```
 # Encoder-Decoder Attention
 这个是在解码器中多出来的一部分，在其内部，q来自于解码器的上一个输出，k，v泽来自于编码器的输出。
 注意在进行机器翻译的工作时：
@@ -134,3 +205,4 @@ Transformer实现Decoder部分训练并行化，就是一次性将整个目标�
 2.[回顾transformer](https://mp.weixin.qq.com/s/wC5-9Elc0LtHH484W5oNDQ)
 3.[并行化](https://www.zhihu.com/question/307197229/answer/1859981235)
 4.[详解2](https://zhuanlan.zhihu.com/p/338817680)
+5.[代码](https://www.cnblogs.com/nickchen121/p/16526123.html)
