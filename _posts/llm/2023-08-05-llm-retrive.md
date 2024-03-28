@@ -15,6 +15,7 @@ tags:
 # 概述
 从技术上讲，语言建模（LM）是提高机器语言智能的主要方法之一。一般来说，LM 旨在对词序列的生成概率进行建模，以预测未来（或缺失）tokens 的概率。语言建模的研究在文献中受到了广泛关注，可以分为四个主要发展阶段：统计语言模型、神经语言模型、预训练语言模型、大语言模型。
 ![](../../img/大模型/LLMs.png)
+
 # 背景
 通常，LLM 是指包含数千亿（或更多）参数的 Transformer语言模型4，这些模型是在大规模文本数据上进行训练的 ，例如 GPT-3，PaLM，Galactica和 LLaMA 。LLM 展现了理解自然语言和解决复杂任务（通过文本生成）的强大能力。
 大模型扩展法则：LLM 主要建立在 Transformer架构上 ，其中多头注意力层堆叠在非常深的神经网络中。现有的 LLM 采用类似的 Transformer 架构和与小型语言模型相同的预训练目标（如语言建模）。然而，LLM 大幅度扩展了模型规模、数据规模和总计算量（数量级）。[KM 扩展法则](https://arxiv.org/abs/2001.08361)、[Chinchilla 扩展法则](https://arxiv.org/abs/2203.15556)
@@ -44,17 +45,22 @@ Transformers、DeepSpeed、Megatron-LM、JAX、Colossal-AI、BMTrain、FastMoE
 通用文本数据：网页数据、对话数据、书籍
 专用文本数据：多语言文本、科学文本、代码
 ![](../../img/大模型/数据源.png)
+
 ## 数据预处理
 ![](../../img/大模型/数据预处理.png)
+
 ## 架构
 主流架构：
 ![](../../img/大模型/主流架构.png)
+
 架构详细配置：
 ![](../../img/大模型/架构详细配置.png)
+
 建议配置：选择前置的 RMS进行层标准化，并选择 SwiGLU 或 GeGLU 作为激活函数。此外，在位置编码方面，RoPE 或 ALiBi 是更好的选择。
 预训练任务：语言建模、去噪自编码
 ## 模型训练
 ![](../../img/大模型/参数细节.png)
+
 3D并行：
 ```
 流水线并行：将 LLM 的不同层分配到多个 GPU 上
@@ -63,13 +69,9 @@ Transformers、DeepSpeed、Megatron-LM、JAX、Colossal-AI、BMTrain、FastMoE
 ```
 一个3D并行的例子：模型被分成4个stage，流水线并行度为4；每台机器有8张GPU，张量并行度为4，数据并行度为2；GPU分配如下图：
 ![](../../img/大模型/3D并行.png)
+
 混合精度训练：
 ![](../../img/大模型/混合精度训练.png)
-# 大模型适配微调
-
-
-
-
 
 # 参考
 1.[llm综述](https://github.com/RUCAIBox/LLMSurvey)

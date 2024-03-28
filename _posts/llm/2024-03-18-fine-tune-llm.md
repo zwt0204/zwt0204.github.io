@@ -15,10 +15,12 @@ tags:
 # 为什么需要高效微调
 自然语言处理的任务中，从bert出现之后，基本的流程就是预训练+微调。微调需要针对每个下游任务来进行，同时微调后的模型和原始模型是一样大的。这种形式对于bert、gpt来说还勉强可以接受，但是对于再大的模型如gpt3(175B)等就是一个很大的挑战了。
 所以我们需要一些可以快速的微调类似gpt3类的大模型，同时也不需要太多的存储。
+
 # Adapter Tuning
 2019年谷歌提出[Parameter-Efficient Transfer Learning for NLP](https://arxiv.org/pdf/1902.00751.pdf)提出针对bert的微调。
 出发点：针对特定的下游任务通过全参微调过于低效，如果固定预训练模型的某些层又难以达到好的效果，于是提出Adapter结构。
 ![](../../img/大模型/peft/adapter.jpeg)
+
 将Adapter嵌入到Transformer中，训练时固定原模型参数，只对新增的结构进行调节。
 
 ```
@@ -32,6 +34,7 @@ tags:
 2021年斯坦福[Prefix-Tuning: Optimizing Continuous Prompts for Generation](https://aclanthology.org/2021.acl-long.353.pdf)
 与全参数微调不同，是在输入侧构造一段和任务相关的virtual tokens作为prefix，训练中只更新这部分参数。
 ![](../../img/大模型/peft/prefix.jpeg)
+
 同时，为了防止直接更新 Prefix 的参数导致训练不稳定的情况，在Prefix层前面加MLP 结构(相当于将Prefix分解为更小维度的Input与MLP的组合后输出的结果)，训练完成后，只保留Prefix的参数。
 
 # prompt tuning
@@ -40,6 +43,7 @@ prefix tuning的简化版本，只在输入层加入prompt tokens，同时不加
 
 固定预训练参数，为每一个任务额外添加一个或多个 embedding，之后拼接 query 正常输入 LLM，并只训练这些 embedding。左图为单任务全参数微调，右图为 Prompt tuning。
 ![](../../img/大模型/peft/prompt-tuning.jpeg)
+
 结论：
 ```
 1. Prompt 长度影响：模型参数达到一定量级时，Prompt 长度为1也能达到不错的效果，Prompt 长度为20就能达到极好效果。
@@ -52,6 +56,7 @@ prefix tuning的简化版本，只在输入层加入prompt tokens，同时不加
 [P-Tuning](https://arxiv.org/abs/2103.10385)方法的提出主要是为了解决这样一个问题：大模型的 Prompt 构造方式严重影响下游任务的效果。
 P-tuning重新审视了关于模版的定义，放弃了“模版由自然语言构成”这一常规要求，从而将模版的构建转化为连续参数优化问题，虽然简单，但却有效。
 ![](../../img/大模型/peft/p-tuning-v1.jpeg)
+
 P-Tuning 提出将Prompt转换为可以学习的 Embedding 层，只是考虑到直接对Embedding参数进行优化会存在这样两个挑战：
 
 ```
@@ -84,6 +89,7 @@ prefix tuning在所有layer都加入了prompt，而P-Tuning只在输入层。P-T
 # lora
 
 ![](../../img/大模型/peft/lora.png)
+
 [lora](https://arxiv.org/pdf/2106.09685.pdf)提出的依据：模型是过参数化的，它们有更小的内在维度，模型主要依赖于这个低的内在维度（low intrinsic dimension）去做任务适配。
 
 ## 基础
@@ -112,6 +118,7 @@ $$
 ## 训练策略
 加入学习率调度器通常可以稳定训练，余弦退火是一种常用的学习率调度器，首先从一个较高的学习率开始平滑递减，以一种类似余弦函数的方式逼近零点，在使用的时候通常是半周期的变体，即在训练过程中只完成半个余弦周期，如下图所示：
 ![](../../img/大模型/peft/余弦退火.png)
+
 经验：对于SGD提升比较明显，但是对Adam，AdamW影响较小。
 
 ==？为什么不使用SGD作为优化函数，其相对Adam等优化器节省了多余参数的存储，可以降低对GPU显存的使用==
@@ -126,6 +133,7 @@ lora在前向传播的时候引入了扩展系数，用于将lora的权重应用
 如果是SGD的话，学习率0.1。动量0.9
 # qlora
 ![](../../img/大模型/peft/qlora.png)
+
 [论文](https://arxiv.org/abs/2305.14314)
 创新点：
 ```
@@ -148,6 +156,7 @@ FP16：半精度浮点数，用5bit 表示指数，10bit 表示小数。FP16 表
 BF16：是对FP32单精度浮点数截断数据，用8bit 表示指数，7bit 表示小数。BF16 可表示的整数范围与FP32一样广泛。但只有新的硬件(A100\3090\4090等)才支持，V100/昇腾910等不支持
 
 ![](../../img/大模型/peft/量化.jpeg)
+
 量化的本质实际是从一种数据类型舍入到另一种数据类型，通常包含量化和反量化两步：
 假如我们有两组数据类型A、B，A可以表示的数值为[0, 1, 2, 3, 4, 5]，B可以表示的数值为[0, 2, 4]。我们要做的便是：
 ```
@@ -165,6 +174,7 @@ BF16：是对FP32单精度浮点数截断数据，用8bit 表示指数，7bit �
 
 借鉴[LLM.int8](https://arxiv.org/pdf/2208.07339.pdf)中的vector-wise想量化+混合精度分解。
 ![](../../img/大模型/peft/block-wise.jpeg)
+
 如上图所示：先找到离群点，离群点通过fp16计算，其他的通过int8量化计算，最终再反量化回去和离群点相加处理。
 ## 4-bit NormalFloat
 是一种建立在分位数量化技术的基础之上的一种信息理论上最优的数据类型。
