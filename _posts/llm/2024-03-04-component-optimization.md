@@ -38,6 +38,15 @@ AdamW相对与Adam的改动是其将权重衰减项从梯度的计算中拿出�
 ==为什么要用这些占显存很大的优化器，基本扩大模型参数了四倍==
 
 ## SwiGLU 
+### GLU
+[GLU](https://arxiv.org/pdf/1612.08083.pdf) 全称为 Gated Linear Unit，即门控线性单元函数。
+公式：
+$$
+\begin{aligned} \operatorname{GLU}(x) & =A \otimes \sigma(B) \\ & =(x \cdot W+b) \otimes \sigma(x \cdot V+c) \end{aligned}
+$$
+输入x经过两个独立的卷积或者是MLP层，得到向量A，B，此时，向量A和B的计算公式为$A = x.W+b，B=x.V + c$。然后向量B经过一个sigmod函数之后，$\sigma(B)$中的每个元素都变为0-1之间的值，这就起来到控制信息是否通过的作用。将向量A与之逐元素相乘之后就得到了GLU层的最终输出结果。
+GLU正式使用的时候计算公式为$GLU(x) = x \otimes \sigma(g(x))$,其中$g(x)$表示x经过MLP或者卷积的结果。当$\sigma(g(x))$趋于0表示对x阻断，趋于1表示允许x通过。
+### SwiGLU
 
 ## causal multi-head attention
 
