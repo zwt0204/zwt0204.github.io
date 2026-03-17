@@ -755,7 +755,22 @@ samp {
 }
 .post-container ul,
 .post-container ol {
-  margin-bottom: 40px;
+  margin-bottom: 18px;
+}
+.post-container ul + p,
+.post-container ol + p {
+  margin-top: 10px;
+}
+.post-container p + blockquote {
+  margin-top: 8px;
+}
+.post-container blockquote + h1,
+.post-container blockquote + h2,
+.post-container blockquote + h3,
+.post-container blockquote + h4,
+.post-container blockquote + h5,
+.post-container blockquote + h6 {
+  margin-top: 20px;
 }
 @media screen and (max-width: 768px) {
   .post-container ul,
