@@ -1,0 +1,19 @@
+{
+  "industry": null,
+  "language": "en",
+  "style": null,
+  "style_suggestions": [],
+  "base_confirmed": false,
+  "product_source_mode": null,
+  "product_upload_status": "not_started",
+  "product_ds_criteria": {
+    "category": null,
+    "market": null,
+    "price_range": null,
+    "style_constraints": null,
+    "quantity_target": null
+  },
+  "no_product_site_type": null,
+  "product_phase_confirmed": false,
+  "build_payload_ready": false
+}
