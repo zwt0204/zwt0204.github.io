@@ -10,11 +10,10 @@ baseurl: ""                             # for example, '/blog' if your blog host
 
 # homepage copy
 home-subtitle: "AI · NLP · ML · Engineering"
-home-hero-title: "Build, Learn, and Ship Practical AI Systems"
-home-hero-desc: "聚焦自然语言处理、机器学习、深度学习与工程实践，持续记录值得沉淀的方法、经验、系统设计与项目思考。"
-home-primary-cta-text: "Read Latest Posts"
-home-primary-cta-link: "/archive/"
-home-secondary-cta-text: "About Me"
+home-hero-title: "Practical AI Notes, Systems, and Engineering"
+home-hero-desc: "围绕 NLP、LLM、机器学习与工程实践，持续沉淀值得复用的方法、系统设计、实验记录与项目思考。"
+home-primary-cta-text: "Explore Posts"
+home-secondary-cta-text: "Know More"
 home-secondary-cta-link: "/about/"
 
 # Publish posts or collection documents with a future date.

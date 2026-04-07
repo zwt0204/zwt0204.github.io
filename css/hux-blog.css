@@ -1417,22 +1417,22 @@ samp {
 .intro-header .site-heading,
 .intro-header .post-heading,
 .intro-header .page-heading {
-  padding: 85px 0 55px;
+  padding: 74px 0 44px;
   color: white;
 }
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading,
   .intro-header .post-heading,
   .intro-header .page-heading {
-    padding: 150px 0;
+    padding: 118px 0 108px;
   }
 }
 .intro-header .site-heading {
-  padding: 95px 0 70px;
+  padding: 82px 0 54px;
 }
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading {
-    padding: 150px 0;
+    padding: 122px 0 112px;
   }
 }
 .intro-header .site-heading,
@@ -1452,11 +1452,12 @@ samp {
      */
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Arial", "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", "Microsoft JhengHei", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans CN", "Noto Sans SC", "Source Han Sans TC", "Noto Sans CJK TC", "WenQuanYi Micro Hei", SimSun, sans-serif;
   line-height: 1.7;
-  font-size: 18px;
-  line-height: 1.1;
+  font-size: 17px;
+  line-height: 1.45;
   display: block;
   font-weight: 300;
-  margin: 10px 0 0;
+  max-width: 760px;
+  margin: 14px auto 0;
 }
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading h1,
