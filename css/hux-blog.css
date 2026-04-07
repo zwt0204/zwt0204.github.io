@@ -1347,6 +1347,8 @@ samp {
   }
 }
 .intro-header {
+  position: relative;
+  overflow: hidden;
   background: no-repeat center center;
   background-color: #cccccc;
   background-attachment: scroll;
@@ -1356,6 +1358,30 @@ samp {
   -o-background-size: cover;
   margin-bottom: 0px;
   /* 0 on mobile, modify by Hux */
+}
+.intro-header:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 78% 22%, rgba(56, 189, 248, 0.26), transparent 26%),
+    radial-gradient(circle at 22% 78%, rgba(37, 99, 235, 0.20), transparent 30%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.58), rgba(2, 6, 23, 0.74));
+  pointer-events: none;
+}
+.intro-header:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.28;
+  mask-image: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.08));
+  pointer-events: none;
+}
+.intro-header .container {
+  position: relative;
+  z-index: 2;
 }
 .intro-header.style-text {
   background: none;
