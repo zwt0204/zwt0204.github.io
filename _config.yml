@@ -8,6 +8,11 @@ keyword: "自然语言处理、机器学习、知识图谱、对话系统、深�
 url: "https://zwt0204.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
+# homepage copy
+home-subtitle: "NLP · Machine Learning · Deep Learning · Engineering Notes"
+home-hero-title: "把学习记录，做成可持续积累的技术博客。"
+home-hero-desc: "聚焦自然语言处理、机器学习、深度学习与工程实践，记录值得长期沉淀的方法、经验和项目思考。"
+
 # Publish posts or collection documents with a future date.
 future: true
 
