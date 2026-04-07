@@ -1,10 +1,18 @@
 ---
 layout: page
-description: "记录"
+description: "聚焦 NLP、机器学习、深度学习与工程实践的学习记录与项目笔记"
 ---
 
+<div class="home-hero-card">
+    <span class="home-hero-badge">{{ site.home-subtitle }}</span>
+    <h1 class="home-hero-title">{{ site.home-hero-title }}</h1>
+    <p class="home-hero-desc">{{ site.home-hero-desc }}</p>
+</div>
+
+<div class="home-section-title">Latest Posts</div>
+
 {% for post in paginator.posts %}
-<div class="post-preview">
+<div class="post-preview post-preview-card">
     <a href="{{ post.url | prepend: site.baseurl }}">
         <h2 class="post-title">
             {{ post.title }}
@@ -16,20 +24,18 @@ description: "记录"
         {% endif %}
         <div class="post-content-preview">
             {% if post.lang == 'en' %}
-                {{ post.content | strip_html | truncate:300 }}
+                {{ post.content | strip_html | truncate:260 }}
             {% else %}
-                {{ post.content | strip_html | truncate:200 }}
+                {{ post.content | strip_html | truncate:160 }}
             {% endif %}
         </div>
     </a>
     <p class="post-meta">
-        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B %-d, %Y" }}
+        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} · {{ post.date | date: "%B %-d, %Y" }}
     </p>
 </div>
-<hr>
 {% endfor %}
 
-<!-- Pager -->
 {% if paginator.total_pages > 1 %}
 <ul class="pager">
     {% if paginator.previous_page %}
