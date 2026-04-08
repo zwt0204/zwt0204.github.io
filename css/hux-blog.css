@@ -170,6 +170,7 @@
   line-height: 1.18;
   font-weight: 800;
   letter-spacing: -0.02em;
+  text-shadow: 0 0 28px rgba(56, 189, 248, 0.12), 0 2px 12px rgba(2, 6, 23, 0.34);
 }
 .home-hero-desc {
   position: relative;
@@ -229,7 +230,8 @@
   padding: 12px 14px;
   border: 1px solid rgba(148, 163, 184, 0.14);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.05);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .home-hero-stat-label {
   display: block;
@@ -250,6 +252,19 @@
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.02em;
+  position: relative;
+  padding-left: 14px;
+}
+.home-section-title:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #38bdf8, #2563eb);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.22);
 }
 .post-preview-card {
   margin-bottom: 22px;

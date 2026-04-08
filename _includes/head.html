@@ -60,6 +60,111 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0f172a 0%, #111827 18%, #f8fafc 46%);
+        }
+
+        .navbar-custom {
+            background: rgba(2, 6, 23, 0.68);
+            border-bottom: 1px solid rgba(96, 165, 250, 0.16);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 12px 36px rgba(2, 6, 23, 0.20);
+        }
+
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav li a {
+            color: rgba(226, 232, 240, 0.92);
+        }
+
+        .navbar-custom .navbar-brand:hover,
+        .navbar-custom .nav li a:hover,
+        .navbar-custom .nav li a:focus {
+            color: #7dd3fc;
+        }
+
+        header.intro-header.page-header {
+            overflow: hidden;
+            border-bottom: 1px solid rgba(125, 211, 252, 0.12);
+            box-shadow: inset 0 -80px 120px rgba(2, 6, 23, 0.34);
+        }
+
+        header.intro-header.page-header .header-mask {
+            background:
+                radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.18), transparent 30%),
+                radial-gradient(circle at 80% 25%, rgba(59, 130, 246, 0.20), transparent 28%),
+                linear-gradient(180deg, rgba(2, 6, 23, 0.48), rgba(2, 6, 23, 0.70));
+        }
+
+        header.intro-header.page-header .site-heading h1 {
+            color: #f8fafc;
+            text-shadow: 0 0 24px rgba(56, 189, 248, 0.18), 0 2px 14px rgba(2, 6, 23, 0.45);
+        }
+
+        header.intro-header.page-header .site-heading .subheading {
+            color: rgba(226, 232, 240, 0.90);
+            text-shadow: 0 2px 14px rgba(2, 6, 23, 0.42);
+        }
+
+        .home-hero-card {
+            border: 1px solid rgba(96, 165, 250, 0.18);
+            box-shadow: 0 24px 60px rgba(2, 6, 23, 0.30), 0 0 0 1px rgba(56, 189, 248, 0.05) inset;
+        }
+
+        .home-hero-card:before {
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.42), rgba(56, 189, 248, 0));
+        }
+
+        .home-hero-card:after {
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.30), rgba(99, 102, 241, 0));
+        }
+
+        .home-hero-grid {
+            opacity: 0.9;
+        }
+
+        .hero-core-card,
+        .home-hero-stat,
+        .post-preview-card,
+        .sidebar-container .short-about,
+        .sidebar-container .featured-tags {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .hero-core-card {
+            border: 1px solid rgba(125, 211, 252, 0.22);
+            box-shadow: 0 24px 60px rgba(2, 6, 23, 0.34), 0 0 26px rgba(56, 189, 248, 0.10);
+        }
+
+        .home-hero-btn-primary {
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.32), 0 0 24px rgba(56, 189, 248, 0.16);
+        }
+
+        .post-preview-card {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        .post-preview-card:hover {
+            border-color: rgba(56, 189, 248, 0.32);
+            box-shadow: 0 20px 44px rgba(37, 99, 235, 0.12);
+        }
+
+        .sidebar-container .short-about,
+        .sidebar-container .featured-tags,
+        .sidebar-container .friends {
+            padding: 16px 18px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+    </style>
+
     <!-- ga & ba script hoook -->
     <script></script>
 </head>
