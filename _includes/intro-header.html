@@ -91,7 +91,25 @@
 {% endif %}
 
 {% if include.type == 'page' %}
-<header class="intro-header" style="background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')">
+<style type="text/css">
+    header.intro-header.page-header{
+        position: relative;
+        background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}');
+    }
+    header.intro-header.page-header .header-mask{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(2, 6, 23, 0.42), rgba(2, 6, 23, 0.58));
+    }
+    header.intro-header.page-header .site-heading h1,
+    header.intro-header.page-header .site-heading .subheading{
+        text-shadow: 0 2px 14px rgba(2, 6, 23, 0.45);
+    }
+</style>
+<header class="intro-header page-header">
+  <div class="header-mask"></div>
   <div class="container">
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
