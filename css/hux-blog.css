@@ -1677,16 +1677,16 @@ samp {
   }
 }
 .navbar-custom {
-  background: rgba(2, 6, 23, 0.08);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.82), rgba(2, 6, 23, 0.58));
   border: none;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 3;
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
+  z-index: 6;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 10px 30px rgba(2, 6, 23, 0.16);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   /* Hux learn from
      *     TypeIsBeautiful,
      *     [This Post](http://zhuanlan.zhihu.com/ibuick/20186806) etc.
@@ -1715,29 +1715,49 @@ samp {
 }
 @media only screen and (min-width: 768px) {
   .navbar-custom {
-    background: linear-gradient(180deg, rgba(2, 6, 23, 0.46), rgba(2, 6, 23, 0.10));
-    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    background: linear-gradient(180deg, rgba(2, 6, 23, 0.88), rgba(2, 6, 23, 0.62));
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
   }
   .navbar-custom body {
     font-size: 20px;
   }
   .navbar-custom .navbar-brand {
-    color: rgba(255, 255, 255, 0.96);
+    color: rgba(255, 255, 255, 0.98);
     padding: 20px;
     line-height: 20px;
-    text-shadow: 0 0 18px rgba(56, 189, 248, 0.12);
+    text-shadow: 0 0 18px rgba(56, 189, 248, 0.16);
   }
   .navbar-custom .navbar-brand:hover,
   .navbar-custom .navbar-brand:focus {
     color: #ffffff;
   }
   .navbar-custom .nav li a {
-    color: rgba(255, 255, 255, 0.86);
+    color: rgba(255, 255, 255, 0.96);
     padding: 20px;
+    position: relative;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.10);
   }
   .navbar-custom .nav li a:hover,
   .navbar-custom .nav li a:focus {
     color: #ffffff;
+  }
+  .navbar-custom .nav li a:after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 14px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.85), transparent);
+    opacity: 0;
+    transform: scaleX(0.72);
+    transform-origin: center;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .navbar-custom .nav li a:hover:after,
+  .navbar-custom .nav li a:focus:after {
+    opacity: 1;
+    transform: scaleX(1);
   }
   .navbar-custom .nav li a:active {
     background: none;
@@ -1781,11 +1801,11 @@ samp {
     /* when the user scrolls down, we hide the header right above the viewport */
     position: fixed;
     top: -61px;
-    background: rgba(3, 10, 28, 0.78);
-    border-bottom: 1px solid rgba(96, 165, 250, 0.16);
-    box-shadow: 0 10px 32px rgba(2, 6, 23, 0.18);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(3, 10, 28, 0.90);
+    border-bottom: 1px solid rgba(96, 165, 250, 0.20);
+    box-shadow: 0 10px 32px rgba(2, 6, 23, 0.22);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     -webkit-transition: -webkit-transform 0.3s;
     -moz-transition: -moz-transform 0.3s;
     transition: transform 0.3s;
@@ -1798,7 +1818,7 @@ samp {
     color: #7dd3fc;
   }
   .navbar-custom.is-fixed .nav li a {
-    color: rgba(226, 232, 240, 0.86);
+    color: rgba(241, 245, 249, 0.96);
   }
   .navbar-custom.is-fixed .nav li a:hover,
   .navbar-custom.is-fixed .nav li a:focus {
