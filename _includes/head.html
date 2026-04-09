@@ -197,6 +197,26 @@
             pointer-events: none;
         }
 
+        .home-hero-card-tech .hero-orbit,
+        .home-hero-card-tech .hero-core-card,
+        .home-hero-card-tech .hero-core-status-dot,
+        .home-hero-card-tech .hero-signal {
+            animation: heroPulse 6.8s ease-in-out infinite;
+        }
+
+        .home-hero-card-tech .hero-orbit-md {
+            animation-duration: 7.8s;
+        }
+
+        .home-hero-card-tech .hero-orbit-sm,
+        .home-hero-card-tech .hero-core-status-dot {
+            animation-duration: 5.8s;
+        }
+
+        .home-hero-card-tech .home-hero-scanline {
+            animation: heroSweep 9s ease-in-out infinite;
+        }
+
         .home-hero-btn-primary {
             box-shadow: 0 12px 30px rgba(37, 99, 235, 0.32), 0 0 24px rgba(56, 189, 248, 0.16);
         }
@@ -221,6 +241,38 @@
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.72);
             box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        @keyframes heroPulse {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+                opacity: 0.92;
+            }
+            50% {
+                transform: translate3d(0, -4px, 0) scale(1.015);
+                opacity: 1;
+            }
+        }
+
+        @keyframes heroSweep {
+            0%, 100% {
+                transform: rotate(16deg) translate3d(0, 0, 0);
+                opacity: 0.48;
+            }
+            50% {
+                transform: rotate(16deg) translate3d(18px, -8px, 0);
+                opacity: 0.88;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .home-hero-card-tech .hero-orbit,
+            .home-hero-card-tech .hero-core-card,
+            .home-hero-card-tech .hero-core-status-dot,
+            .home-hero-card-tech .hero-signal,
+            .home-hero-card-tech .home-hero-scanline {
+                animation: none !important;
+            }
         }
     </style>
 

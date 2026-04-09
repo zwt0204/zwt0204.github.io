@@ -66,6 +66,17 @@
   mask-image: linear-gradient(to bottom right, rgba(255,255,255,0.75), rgba(255,255,255,0.15));
   pointer-events: none;
 }
+.home-hero-scanline {
+  position: absolute;
+  inset: -20% auto auto -12%;
+  width: 52%;
+  height: 160%;
+  transform: rotate(16deg);
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0), rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.08), rgba(56, 189, 248, 0));
+  filter: blur(8px);
+  opacity: 0.7;
+  pointer-events: none;
+}
 .home-hero-content {
   position: relative;
   z-index: 2;
@@ -95,6 +106,28 @@
 .hero-orbit-sm {
   width: 160px;
   height: 160px;
+}
+.hero-signal {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.hero-signal-1 {
+  width: 220px;
+  height: 2px;
+  top: 88px;
+  right: -12px;
+  transform: rotate(-12deg);
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0), rgba(56, 189, 248, 0.9), rgba(56, 189, 248, 0));
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+}
+.hero-signal-2 {
+  width: 2px;
+  height: 180px;
+  left: 52%;
+  bottom: 24px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0), rgba(125, 211, 252, 0.9), rgba(99, 102, 241, 0));
+  box-shadow: 0 0 18px rgba(125, 211, 252, 0.28);
 }
 .hero-core-card {
   position: relative;
@@ -158,6 +191,27 @@
 }
 .hero-core-bars span:nth-child(3) {
   width: 78%;
+}
+.hero-core-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 7px 10px;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 999px;
+  color: rgba(186, 230, 253, 0.92);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(15, 23, 42, 0.34);
+}
+.hero-core-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
 }
 .home-hero-badge {
   position: relative;
@@ -318,6 +372,11 @@
     grid-template-columns: 1fr;
     gap: 22px;
   }
+  .home-hero-scanline {
+    width: 68%;
+    left: -24%;
+    opacity: 0.52;
+  }
   .home-hero-visual {
     min-height: 220px;
   }
@@ -332,6 +391,16 @@
   .hero-orbit-sm {
     width: 120px;
     height: 120px;
+  }
+  .hero-signal-1 {
+    width: 160px;
+    top: 62px;
+    right: 0;
+  }
+  .hero-signal-2 {
+    height: 120px;
+    left: 56%;
+    bottom: 16px;
   }
   .hero-core-card {
     width: 210px;
