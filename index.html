@@ -4,6 +4,11 @@ hide-header: true
 description: "聚焦 NLP、机器学习、深度学习与工程实践的学习记录与项目笔记"
 ---
 
+{% assign featured_post = paginator.posts.first %}
+{% if featured_post %}
+{% assign featured_type = featured_post.categories[0] | default: featured_post.tags[0] | default: 'note' %}
+{% endif %}
+
 <div class="home-hero-card home-hero-card-tech">
     <div class="home-hero-grid"></div>
     <div class="home-hero-scanline"></div>
@@ -61,75 +66,129 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
     </div>
 </div>
 
-<div class="home-section-title">Research Feed</div>
-
-{% assign featured_post = paginator.posts.first %}
-{% if featured_post %}
-{% assign featured_type = featured_post.categories[0] | default: featured_post.tags[0] | default: 'note' %}
-<div class="dashboard-featured-card dashboard-type-theme dashboard-type-theme-{{ featured_type | slugify }}">
-    <div class="dashboard-featured-head">
-        <span class="dashboard-kicker">Featured Note</span>
-        <span class="dashboard-type"><span class="dashboard-type-icon">▣</span>{{ featured_type | upcase }}</span>
-        <span class="dashboard-featured-status">ACTIVE</span>
-    </div>
-    <a class="dashboard-featured-link" href="{{ featured_post.url | prepend: site.baseurl }}">
-        <h2 class="dashboard-featured-title">{{ featured_post.title }}</h2>
-        {% if featured_post.subtitle %}
-        <div class="dashboard-featured-subtitle">{{ featured_post.subtitle | strip_html }}</div>
-        {% endif %}
-        <div class="dashboard-featured-desc">
-            {% if featured_post.lang == 'en' %}
-                {{ featured_post.content | strip_html | truncate:320 }}
-            {% else %}
-                {{ featured_post.content | strip_html | truncate:220 }}
-            {% endif %}
+<div class="home-section-shell">
+    <div class="home-section-head">
+        <div>
+            <div class="home-section-kicker">Dashboard Surface</div>
+            <div class="home-section-title">Research Feed</div>
         </div>
-    </a>
-    <div class="dashboard-featured-meta">
-        <span>{{ featured_post.date | date: "%Y-%m-%d" }}</span>
-        <span>·</span>
-        <span>{% if featured_post.author %}{{ featured_post.author }}{% else %}{{ site.title }}{% endif %}</span>
-        {% if featured_post.tags and featured_post.tags.size > 0 %}
-        <span>·</span>
-        <span>{{ featured_post.tags | join: ' · ' }}</span>
-        {% endif %}
+        <div class="home-section-meta">Latest notes · experiments · engineering logs</div>
     </div>
-</div>
-{% endif %}
 
-<div class="dashboard-feed">
-{% for post in paginator.posts offset:1 %}
-    {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
-    <article class="dashboard-feed-item post-preview-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}">
-        <div class="dashboard-feed-rail">
-            <span class="dashboard-feed-type"><span class="dashboard-type-icon">▣</span>{{ post_type | upcase }}</span>
-        </div>
-        <div class="dashboard-feed-main">
-            <div class="dashboard-feed-meta-row">
-                <span class="dashboard-feed-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-                <span class="dashboard-feed-divider">/</span>
-                <span class="dashboard-feed-status">{{ post_type | upcase }} MODE</span>
-                {% if post.tags and post.tags.size > 0 %}
-                <span class="dashboard-feed-divider">/</span>
-                <span class="dashboard-feed-tags">{{ post.tags | slice: 0, 3 | join: ' · ' }}</span>
-                {% endif %}
-            </div>
-            <a class="dashboard-feed-link" href="{{ post.url | prepend: site.baseurl }}">
-                <h3 class="dashboard-feed-title">{{ post.title }}</h3>
-                {% if post.subtitle %}
-                <div class="dashboard-feed-subtitle">{{ post.subtitle | strip_html }}</div>
-                {% endif %}
-                <div class="dashboard-feed-desc">
-                    {% if post.lang == 'en' %}
-                        {{ post.content | strip_html | truncate:220 }}
-                    {% else %}
-                        {{ post.content | strip_html | truncate:130 }}
+    <div class="home-dashboard-grid">
+        <div class="home-dashboard-main">
+            {% if featured_post %}
+            <div class="dashboard-featured-card dashboard-type-theme dashboard-type-theme-{{ featured_type | slugify }}">
+                <div class="dashboard-featured-head">
+                    <span class="dashboard-kicker">Featured Note</span>
+                    <span class="dashboard-type"><span class="dashboard-type-icon">▣</span>{{ featured_type | upcase }}</span>
+                    <span class="dashboard-featured-status">ACTIVE</span>
+                </div>
+                <a class="dashboard-featured-link" href="{{ featured_post.url | prepend: site.baseurl }}">
+                    <h2 class="dashboard-featured-title">{{ featured_post.title }}</h2>
+                    {% if featured_post.subtitle %}
+                    <div class="dashboard-featured-subtitle">{{ featured_post.subtitle | strip_html }}</div>
+                    {% endif %}
+                    <div class="dashboard-featured-desc">
+                        {% if featured_post.lang == 'en' %}
+                            {{ featured_post.content | strip_html | truncate:320 }}
+                        {% else %}
+                            {{ featured_post.content | strip_html | truncate:220 }}
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="dashboard-featured-meta">
+                    <span>{{ featured_post.date | date: "%Y-%m-%d" }}</span>
+                    <span>·</span>
+                    <span>{% if featured_post.author %}{{ featured_post.author }}{% else %}{{ site.title }}{% endif %}</span>
+                    {% if featured_post.tags and featured_post.tags.size > 0 %}
+                    <span>·</span>
+                    <span>{{ featured_post.tags | join: ' · ' }}</span>
                     {% endif %}
                 </div>
-            </a>
+            </div>
+            {% endif %}
+
+            <div class="dashboard-feed-shell">
+                <div class="dashboard-feed-shell-head">
+                    <div class="dashboard-feed-shell-title">Stream Log</div>
+                    <div class="dashboard-feed-shell-desc">Recent entries from notes, project logs, papers, and implementation traces.</div>
+                </div>
+
+                <div class="dashboard-feed">
+                {% for post in paginator.posts offset:1 %}
+                    {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
+                    <article class="dashboard-feed-item post-preview-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}">
+                        <div class="dashboard-feed-rail">
+                            <span class="dashboard-feed-type"><span class="dashboard-type-icon">▣</span>{{ post_type | upcase }}</span>
+                        </div>
+                        <div class="dashboard-feed-main">
+                            <div class="dashboard-feed-meta-row">
+                                <span class="dashboard-feed-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+                                <span class="dashboard-feed-divider">/</span>
+                                <span class="dashboard-feed-status">{{ post_type | upcase }} MODE</span>
+                                {% if post.tags and post.tags.size > 0 %}
+                                <span class="dashboard-feed-divider">/</span>
+                                <span class="dashboard-feed-tags">{{ post.tags | slice: 0, 3 | join: ' · ' }}</span>
+                                {% endif %}
+                            </div>
+                            <a class="dashboard-feed-link" href="{{ post.url | prepend: site.baseurl }}">
+                                <h3 class="dashboard-feed-title">{{ post.title }}</h3>
+                                {% if post.subtitle %}
+                                <div class="dashboard-feed-subtitle">{{ post.subtitle | strip_html }}</div>
+                                {% endif %}
+                                <div class="dashboard-feed-desc">
+                                    {% if post.lang == 'en' %}
+                                        {{ post.content | strip_html | truncate:220 }}
+                                    {% else %}
+                                        {{ post.content | strip_html | truncate:130 }}
+                                    {% endif %}
+                                </div>
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+                </div>
+            </div>
         </div>
-    </article>
-{% endfor %}
+
+        <aside class="home-dashboard-aside">
+            <div class="home-panel home-panel-system">
+                <div class="home-panel-label">System Panel</div>
+                <h3 class="home-panel-title">Current Scope</h3>
+                <div class="home-panel-desc">围绕 AI、NLP、机器学习与工程实践，沉淀可复用的方法、实验和系统设计。</div>
+                <div class="home-panel-list">
+                    <div class="home-panel-item">
+                        <span class="home-panel-item-key">Topics</span>
+                        <strong>NLP · LLM · ML</strong>
+                    </div>
+                    <div class="home-panel-item">
+                        <span class="home-panel-item-key">Modes</span>
+                        <strong>Paper / Build / Log</strong>
+                    </div>
+                    <div class="home-panel-item">
+                        <span class="home-panel-item-key">Status</span>
+                        <strong>Active research archive</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="home-panel home-panel-tags">
+                <div class="home-panel-label">Topic Map</div>
+                <h3 class="home-panel-title">Navigation Tags</h3>
+                <div class="home-topic-cloud">
+                    <span class="home-topic-pill">NLP</span>
+                    <span class="home-topic-pill">LLM</span>
+                    <span class="home-topic-pill">Machine Learning</span>
+                    <span class="home-topic-pill">Engineering</span>
+                    <span class="home-topic-pill">Agents</span>
+                    <span class="home-topic-pill">Papers</span>
+                    <span class="home-topic-pill">Projects</span>
+                    <span class="home-topic-pill">Logs</span>
+                </div>
+            </div>
+        </aside>
+    </div>
 </div>
 
 {% if paginator.total_pages > 1 %}
