@@ -25,9 +25,11 @@
                     </li>
                     {% for page in site.pages %}
                     {% if page.title and page.hide-in-nav != true %}
+                    {% unless page.url contains '/github/' %}
                     <li>
                         <a href="{{ page.url | prepend: site.baseurl }}">{{ page.title }}</a>
                     </li>
+                    {% endunless %}
                     {% endif %}
                     {% endfor %}
                 </ul>
