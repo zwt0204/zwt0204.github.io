@@ -8,7 +8,7 @@
 .home-hero-card {
   position: relative;
   overflow: hidden;
-  margin: 10px 0 36px;
+  margin: 88px 0 36px;
   padding: 34px 34px;
   border: 1px solid rgba(191, 219, 254, 0.40);
   border-radius: 24px;
@@ -695,6 +695,7 @@
 }
 @media (max-width: 767px) {
   .home-hero-card {
+    margin-top: 104px;
     padding: 24px 18px;
     border-radius: 18px;
   }
