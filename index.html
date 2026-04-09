@@ -60,7 +60,7 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
 {% assign featured_post = paginator.posts.first %}
 {% if featured_post %}
 {% assign featured_type = featured_post.categories[0] | default: featured_post.tags[0] | default: 'note' %}
-<div class="dashboard-featured-card">
+<div class="dashboard-featured-card dashboard-type-theme dashboard-type-theme-{{ featured_type | slugify }}">
     <div class="dashboard-featured-head">
         <span class="dashboard-kicker">Featured Note</span>
         <span class="dashboard-type">{{ featured_type | upcase }}</span>
@@ -93,7 +93,7 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
 <div class="dashboard-feed">
 {% for post in paginator.posts offset:1 %}
     {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
-    <article class="dashboard-feed-item post-preview-card">
+    <article class="dashboard-feed-item post-preview-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}">
         <div class="dashboard-feed-rail">
             <span class="dashboard-feed-type">{{ post_type | upcase }}</span>
         </div>
