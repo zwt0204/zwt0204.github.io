@@ -8,6 +8,7 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
 {% if featured_post %}
 {% assign featured_type = featured_post.categories[0] | default: featured_post.tags[0] | default: 'note' %}
 {% endif %}
+{% assign total_posts = site.posts | size %}
 
 <div class="home-hero-card home-hero-card-tech">
     <div class="home-hero-grid"></div>
@@ -39,6 +40,20 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                 <span class="home-hero-console-line"></span>
                 <span class="home-hero-console-line home-hero-console-line-short"></span>
                 <span class="home-hero-console-code">feed.sync(status: stable)</span>
+            </div>
+            <div class="home-hero-strip">
+                <div class="home-hero-strip-item">
+                    <span class="home-hero-strip-key">Archive</span>
+                    <strong>{{ total_posts }} posts indexed</strong>
+                </div>
+                <div class="home-hero-strip-item">
+                    <span class="home-hero-strip-key">Signal</span>
+                    <strong>{% if featured_post %}{{ featured_type | upcase }} highlighted{% else %}stable{% endif %}</strong>
+                </div>
+                <div class="home-hero-strip-item">
+                    <span class="home-hero-strip-key">Mode</span>
+                    <strong>Research / Build / Review</strong>
+                </div>
             </div>
         </div>
         <div class="home-hero-visual" aria-hidden="true">
@@ -157,6 +172,20 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                 <div class="home-panel-label">System Panel</div>
                 <h3 class="home-panel-title">Current Scope</h3>
                 <div class="home-panel-desc">围绕 AI、NLP、机器学习与工程实践，沉淀可复用的方法、实验和系统设计。</div>
+                <div class="home-panel-metrics">
+                    <div class="home-panel-metric">
+                        <span class="home-panel-metric-key">Archive</span>
+                        <strong>{{ total_posts }}</strong>
+                    </div>
+                    <div class="home-panel-metric">
+                        <span class="home-panel-metric-key">Focus</span>
+                        <strong>AI</strong>
+                    </div>
+                    <div class="home-panel-metric">
+                        <span class="home-panel-metric-key">State</span>
+                        <strong>Online</strong>
+                    </div>
+                </div>
                 <div class="home-panel-list">
                     <div class="home-panel-item">
                         <span class="home-panel-item-key">Topics</span>
@@ -186,6 +215,7 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                     <span class="home-topic-pill">Projects</span>
                     <span class="home-topic-pill">Logs</span>
                 </div>
+                <div class="home-panel-footnote">A lightweight map of the main research and build tracks represented in this archive.</div>
             </div>
         </aside>
     </div>
