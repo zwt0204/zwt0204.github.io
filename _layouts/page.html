@@ -3,7 +3,9 @@ layout: default
 ---
 
 <!-- Page Header -->
+{% unless page.hide-header %}
 {% include intro-header.html type='page' %}
+{% endunless %}
 
 <!-- Main Content -->
 <div class="container">
