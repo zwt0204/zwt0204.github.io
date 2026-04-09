@@ -30,6 +30,11 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                     <strong>Articles · Experiments · Engineering</strong>
                 </div>
             </div>
+            <div class="home-hero-console" aria-hidden="true">
+                <span class="home-hero-console-line"></span>
+                <span class="home-hero-console-line home-hero-console-line-short"></span>
+                <span class="home-hero-console-code">feed.sync(status: stable)</span>
+            </div>
         </div>
         <div class="home-hero-visual" aria-hidden="true">
             <div class="hero-orbit hero-orbit-lg"></div>
@@ -65,6 +70,7 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
     <div class="dashboard-featured-head">
         <span class="dashboard-kicker">Featured Note</span>
         <span class="dashboard-type"><span class="dashboard-type-icon">▣</span>{{ featured_type | upcase }}</span>
+        <span class="dashboard-featured-status">ACTIVE</span>
     </div>
     <a class="dashboard-featured-link" href="{{ featured_post.url | prepend: site.baseurl }}">
         <h2 class="dashboard-featured-title">{{ featured_post.title }}</h2>
