@@ -55,32 +55,73 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
     </div>
 </div>
 
-<div class="home-section-title">Latest Posts</div>
+<div class="home-section-title">Research Feed</div>
 
-{% for post in paginator.posts %}
-<div class="post-preview post-preview-card">
-    <a href="{{ post.url | prepend: site.baseurl }}">
-        <h2 class="post-title">
-            {{ post.title }}
-        </h2>
-        {% if post.subtitle %}
-        <h3 class="post-subtitle">
-            {{ post.subtitle }}
-        </h3>
+{% assign featured_post = paginator.posts.first %}
+{% if featured_post %}
+{% assign featured_type = featured_post.categories[0] | default: featured_post.tags[0] | default: 'note' %}
+<div class="dashboard-featured-card">
+    <div class="dashboard-featured-head">
+        <span class="dashboard-kicker">Featured Note</span>
+        <span class="dashboard-type">{{ featured_type | upcase }}</span>
+    </div>
+    <a class="dashboard-featured-link" href="{{ featured_post.url | prepend: site.baseurl }}">
+        <h2 class="dashboard-featured-title">{{ featured_post.title }}</h2>
+        {% if featured_post.subtitle %}
+        <div class="dashboard-featured-subtitle">{{ featured_post.subtitle | strip_html }}</div>
         {% endif %}
-        <div class="post-content-preview">
-            {% if post.lang == 'en' %}
-                {{ post.content | strip_html | truncate:260 }}
+        <div class="dashboard-featured-desc">
+            {% if featured_post.lang == 'en' %}
+                {{ featured_post.content | strip_html | truncate:320 }}
             {% else %}
-                {{ post.content | strip_html | truncate:160 }}
+                {{ featured_post.content | strip_html | truncate:220 }}
             {% endif %}
         </div>
     </a>
-    <p class="post-meta">
-        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} · {{ post.date | date: "%B %-d, %Y" }}
-    </p>
+    <div class="dashboard-featured-meta">
+        <span>{{ featured_post.date | date: "%Y-%m-%d" }}</span>
+        <span>·</span>
+        <span>{% if featured_post.author %}{{ featured_post.author }}{% else %}{{ site.title }}{% endif %}</span>
+        {% if featured_post.tags and featured_post.tags.size > 0 %}
+        <span>·</span>
+        <span>{{ featured_post.tags | join: ' · ' }}</span>
+        {% endif %}
+    </div>
 </div>
+{% endif %}
+
+<div class="dashboard-feed">
+{% for post in paginator.posts offset:1 %}
+    {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
+    <article class="dashboard-feed-item post-preview-card">
+        <div class="dashboard-feed-rail">
+            <span class="dashboard-feed-type">{{ post_type | upcase }}</span>
+        </div>
+        <div class="dashboard-feed-main">
+            <div class="dashboard-feed-meta-row">
+                <span class="dashboard-feed-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+                {% if post.tags and post.tags.size > 0 %}
+                <span class="dashboard-feed-divider">/</span>
+                <span class="dashboard-feed-tags">{{ post.tags | slice: 0, 3 | join: ' · ' }}</span>
+                {% endif %}
+            </div>
+            <a class="dashboard-feed-link" href="{{ post.url | prepend: site.baseurl }}">
+                <h3 class="dashboard-feed-title">{{ post.title }}</h3>
+                {% if post.subtitle %}
+                <div class="dashboard-feed-subtitle">{{ post.subtitle | strip_html }}</div>
+                {% endif %}
+                <div class="dashboard-feed-desc">
+                    {% if post.lang == 'en' %}
+                        {{ post.content | strip_html | truncate:220 }}
+                    {% else %}
+                        {{ post.content | strip_html | truncate:130 }}
+                    {% endif %}
+                </div>
+            </a>
+        </div>
+    </article>
 {% endfor %}
+</div>
 
 {% if paginator.total_pages > 1 %}
 <ul class="pager">
