@@ -15,7 +15,11 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
     <div class="home-hero-scanline"></div>
     <div class="home-hero-layout">
         <div class="home-hero-content">
-            <span class="home-hero-badge">{{ site.home-subtitle }}</span>
+            <div class="home-hero-eyebrow">
+                <span class="home-hero-badge">{{ site.home-subtitle }}</span>
+                <span class="home-hero-eyebrow-sep"></span>
+                <span class="home-hero-eyebrow-text">Research home · systemized notes · engineering archive</span>
+            </div>
             <h1 class="home-hero-title">{{ site.home-hero-title }}</h1>
             <p class="home-hero-desc">{{ site.home-hero-desc }}</p>
             <div class="home-hero-actions">
@@ -62,19 +66,36 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
             <div class="hero-orbit hero-orbit-sm"></div>
             <div class="hero-signal hero-signal-1"></div>
             <div class="hero-signal hero-signal-2"></div>
-            <div class="hero-core-card">
-                <div class="hero-core-line hero-core-line-accent"></div>
-                <div class="hero-core-chip">AI BLOG</div>
-                <div class="hero-core-title">zwt0204</div>
-                <div class="hero-core-meta">NLP · Machine Learning · Engineering</div>
-                <div class="hero-core-bars">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+            <div class="hero-visual-stack">
+                <div class="hero-core-card">
+                    <div class="hero-core-line hero-core-line-accent"></div>
+                    <div class="hero-core-chip">AI BLOG</div>
+                    <div class="hero-core-title">zwt0204</div>
+                    <div class="hero-core-meta">NLP · Machine Learning · Engineering</div>
+                    <div class="hero-core-bars">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="hero-core-status">
+                        <span class="hero-core-status-dot"></span>
+                        <span>SYSTEM ONLINE</span>
+                    </div>
                 </div>
-                <div class="hero-core-status">
-                    <span class="hero-core-status-dot"></span>
-                    <span>SYSTEM ONLINE</span>
+                <div class="hero-side-panel">
+                    <div class="hero-side-panel-label">Surface Snapshot</div>
+                    <div class="hero-side-panel-item">
+                        <span>Featured</span>
+                        <strong>{% if featured_post %}{{ featured_type | upcase }}{% else %}READY{% endif %}</strong>
+                    </div>
+                    <div class="hero-side-panel-item">
+                        <span>Archive</span>
+                        <strong>{{ total_posts }}</strong>
+                    </div>
+                    <div class="hero-side-panel-item">
+                        <span>Status</span>
+                        <strong>Stable</strong>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,8 +147,17 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
 
             <div class="dashboard-feed-shell">
                 <div class="dashboard-feed-shell-head">
-                    <div class="dashboard-feed-shell-title">Stream Log</div>
+                    <div class="dashboard-feed-shell-heading">
+                        <div class="dashboard-feed-shell-kicker">Research Timeline</div>
+                        <div class="dashboard-feed-shell-title">Stream Log</div>
+                    </div>
                     <div class="dashboard-feed-shell-desc">Recent entries from notes, project logs, papers, and implementation traces.</div>
+                </div>
+
+                <div class="dashboard-feed-legend" aria-hidden="true">
+                    <span>time-indexed archive</span>
+                    <span>typed entry surface</span>
+                    <span>continuous build log</span>
                 </div>
 
                 <div class="dashboard-feed">
@@ -204,7 +234,7 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
 
             <div class="home-panel home-panel-tags">
                 <div class="home-panel-label">Topic Map</div>
-                <h3 class="home-panel-title">Navigation Tags</h3>
+                <h3 class="home-panel-title">Navigation Index</h3>
                 <div class="home-topic-cloud">
                     <span class="home-topic-pill">NLP</span>
                     <span class="home-topic-pill">LLM</span>
@@ -216,6 +246,25 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                     <span class="home-topic-pill">Logs</span>
                 </div>
                 <div class="home-panel-footnote">A lightweight map of the main research and build tracks represented in this archive.</div>
+            </div>
+
+            <div class="home-panel home-panel-mini">
+                <div class="home-panel-label">Reading State</div>
+                <h3 class="home-panel-title">How to use this home</h3>
+                <div class="home-panel-mini-list">
+                    <div class="home-panel-mini-item">
+                        <span>01</span>
+                        <strong>从 featured 进入当前主线</strong>
+                    </div>
+                    <div class="home-panel-mini-item">
+                        <span>02</span>
+                        <strong>从 stream log 看近期推进节奏</strong>
+                    </div>
+                    <div class="home-panel-mini-item">
+                        <span>03</span>
+                        <strong>用 topic map 快速切到主题域</strong>
+                    </div>
+                </div>
             </div>
         </aside>
     </div>
