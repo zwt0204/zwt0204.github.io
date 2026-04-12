@@ -4,13 +4,10 @@ hide-header: true
 description: "聚焦 NLP、机器学习、深度学习与工程实践的学习记录与项目笔记"
 ---
 
-{% assign featured_post = paginator.posts.first %}
-{% if featured_post %}
-{% assign featured_type = featured_post.categories[0] | default: featured_post.tags[0] | default: 'note' %}
-{% endif %}
 {% assign total_posts = site.posts | size %}
+{% assign recent_posts = site.posts | slice: 0, 4 %}
 
-<div class="home-hero-card home-hero-card-tech">
+<div class="home-hero-card home-hero-card-tech home-category-hero">
     <div class="home-hero-particles" aria-hidden="true">
         <span class="home-hero-particle particle-a"></span>
         <span class="home-hero-particle particle-b"></span>
@@ -22,84 +19,55 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
     <div class="home-hero-grid"></div>
     <div class="home-hero-scanline"></div>
     <div class="home-hero-noise"></div>
-    <div class="home-hero-layout">
-        <div class="home-hero-content">
+    <div class="home-hero-layout home-category-hero-layout">
+        <div class="home-hero-content home-category-hero-content">
             <div class="home-hero-eyebrow">
-                <span class="home-hero-badge">{{ site.home-subtitle }}</span>
+                <span class="home-hero-badge">Knowledge Surface</span>
                 <span class="home-hero-eyebrow-sep"></span>
-                <span class="home-hero-eyebrow-text">Personal AI lab · engineering playground · note system</span>
+                <span class="home-hero-eyebrow-text">AI · NLP · Engineering · Infra · Workflow</span>
             </div>
-            <h1 class="home-hero-title">Build <span class="home-hero-title-accent">cool systems</span>, record useful ideas, ship practical AI.</h1>
-            <p class="home-hero-desc">这里不是普通博客首页，而是一个持续在线的个人技术界面：记录 NLP / LLM / ML / Agents / Engineering 的思考、实验、代码和项目轨迹。</p>
+            <h1 class="home-hero-title">A <span class="home-hero-title-accent">category-first</span> tech homepage.</h1>
+            <p class="home-hero-desc">首页主区不再先展示文章流，而是把主要知识方向做成一组可浏览、可识别、带动态首图的分类入口。先看领域，再进入内容。</p>
             <div class="home-hero-actions">
-                <a class="home-hero-btn home-hero-btn-primary" href="{{ site.home-primary-cta-link | prepend: site.baseurl }}">{{ site.home-primary-cta-text }}</a>
-                <a class="home-hero-btn home-hero-btn-secondary" href="{{ site.home-secondary-cta-link | prepend: site.baseurl }}">{{ site.home-secondary-cta-text }}</a>
+                <a class="home-hero-btn home-hero-btn-primary" href="{{ site.baseurl }}/archive/">Browse archive</a>
+                <a class="home-hero-btn home-hero-btn-secondary" href="{{ site.baseurl }}/about/">About</a>
             </div>
-            <div class="home-hero-quick-links">
-                <a class="home-quick-link" target="_blank" href="https://github.com/zwt0204"><i class="fa fa-github"></i><span>GitHub</span></a>
-                <a class="home-quick-link" href="mailto:{{ site.email }}"><i class="fa fa-envelope"></i><span>Email</span></a>
-                <a class="home-quick-link" href="{{ site.baseurl }}/archive/"><i class="fa fa-archive"></i><span>Archive</span></a>
-                <a class="home-quick-link" href="{{ site.baseurl }}/about/"><i class="fa fa-user-circle"></i><span>About</span></a>
-            </div>
-            <div class="home-hero-stats">
+            <div class="home-hero-stats home-category-hero-stats">
                 <div class="home-hero-stat">
-                    <span class="home-hero-stat-label">Focus</span>
-                    <strong>NLP / LLM / ML</strong>
+                    <span class="home-hero-stat-label">Mode</span>
+                    <strong>Category Gallery</strong>
+                </div>
+                <div class="home-hero-stat">
+                    <span class="home-hero-stat-label">Archive</span>
+                    <strong>{{ total_posts }} posts</strong>
                 </div>
                 <div class="home-hero-stat">
                     <span class="home-hero-stat-label">Style</span>
-                    <strong>Notes · Practice · Systems</strong>
-                </div>
-                <div class="home-hero-stat">
-                    <span class="home-hero-stat-label">Output</span>
-                    <strong>Posts · Projects · Build Logs</strong>
-                </div>
-            </div>
-            <div class="home-hero-console" aria-hidden="true">
-                <span class="home-hero-console-line"></span>
-                <span class="home-hero-console-line home-hero-console-line-short"></span>
-                <span class="home-hero-console-code">portfolio.boot(mode='neon')</span>
-            </div>
-            <div class="home-hero-strip">
-                <div class="home-hero-strip-item">
-                    <span class="home-hero-strip-key">Archive</span>
-                    <strong>{{ total_posts }} posts indexed</strong>
-                </div>
-                <div class="home-hero-strip-item">
-                    <span class="home-hero-strip-key">Signal</span>
-                    <strong>{% if featured_post %}{{ featured_type | upcase }} highlighted{% else %}stable{% endif %}</strong>
-                </div>
-                <div class="home-hero-strip-item">
-                    <span class="home-hero-strip-key">Mode</span>
-                    <strong>Research / Build / Review</strong>
+                    <strong>Neon / Dynamic / Lightweight</strong>
                 </div>
             </div>
             <div class="home-tech-marquee" aria-hidden="true">
                 <span>LLM</span>
-                <span>Agents</span>
                 <span>NLP</span>
-                <span>Machine Learning</span>
-                <span>Recommendation</span>
-                <span>MLOps</span>
-                <span>Python</span>
-                <span>Jekyll</span>
+                <span>Code</span>
+                <span>Infra</span>
+                <span>ML</span>
+                <span>Workflow</span>
             </div>
         </div>
-        <div class="home-hero-visual" aria-hidden="true">
+        <div class="home-hero-visual home-category-hero-visual" aria-hidden="true">
             <div class="hero-orbit hero-orbit-lg"></div>
             <div class="hero-orbit hero-orbit-md"></div>
             <div class="hero-orbit hero-orbit-sm"></div>
-            <div class="hero-signal hero-signal-1"></div>
-            <div class="hero-signal hero-signal-2"></div>
-            <div class="hero-floating-badge hero-floating-badge-a"><i class="fa fa-bolt"></i><span>Online</span></div>
-            <div class="hero-floating-badge hero-floating-badge-b"><i class="fa fa-code"></i><span>Build</span></div>
-            <div class="hero-floating-badge hero-floating-badge-c"><i class="fa fa-magic"></i><span>Ideas</span></div>
+            <div class="hero-floating-badge hero-floating-badge-a"><i class="fa fa-bolt"></i><span>Neon</span></div>
+            <div class="hero-floating-badge hero-floating-badge-b"><i class="fa fa-th-large"></i><span>Categories</span></div>
+            <div class="hero-floating-badge hero-floating-badge-c"><i class="fa fa-rss"></i><span>Archive</span></div>
             <div class="hero-visual-stack">
                 <div class="hero-core-card">
                     <div class="hero-core-line hero-core-line-accent"></div>
-                    <div class="hero-core-chip">AI HOME</div>
-                    <div class="hero-core-title">zwt0204</div>
-                    <div class="hero-core-meta">NLP · Machine Learning · Engineering · Agents</div>
+                    <div class="hero-core-chip">HOME MODE</div>
+                    <div class="hero-core-title">Category Gallery</div>
+                    <div class="hero-core-meta">Six domain cards · dynamic cover · category-first layout</div>
                     <div class="hero-core-bars">
                         <span></span>
                         <span></span>
@@ -110,246 +78,134 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                         <span>SYSTEM ONLINE</span>
                     </div>
                 </div>
-                <div class="hero-side-panel">
-                    <div class="hero-side-panel-label">Surface Snapshot</div>
-                    <div class="hero-side-panel-item">
-                        <span>Featured</span>
-                        <strong>{% if featured_post %}{{ featured_type | upcase }}{% else %}READY{% endif %}</strong>
-                    </div>
-                    <div class="hero-side-panel-item">
-                        <span>Archive</span>
-                        <strong>{{ total_posts }}</strong>
-                    </div>
-                    <div class="hero-side-panel-item">
-                        <span>Status</span>
-                        <strong>Neon Stable</strong>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="home-highlight-band">
-    <a class="home-highlight-card" href="{{ site.baseurl }}/archive/">
-        <span class="home-highlight-icon"><i class="fa fa-rss"></i></span>
-        <strong>Latest Notes</strong>
-        <small>看最近更新的文章与实验记录</small>
+<div class="home-category-grid">
+    <a class="home-category-card category-card-llm" href="{{ site.baseurl }}/archive/">
+        <div class="home-category-copy">
+            <div class="home-category-kicker">01 · AI Core</div>
+            <h2>LLM / 大模型</h2>
+            <p>训练、推理、微调、RAG 与模型部署实践。</p>
+            <span class="home-category-cta">Explore archive</span>
+        </div>
+        <div class="home-category-cover cover-llm" aria-hidden="true">
+            <span class="cover-llm-core"></span>
+            <span class="cover-llm-node cover-llm-node-a"></span>
+            <span class="cover-llm-node cover-llm-node-b"></span>
+            <span class="cover-llm-node cover-llm-node-c"></span>
+            <span class="cover-llm-link cover-llm-link-a"></span>
+            <span class="cover-llm-link cover-llm-link-b"></span>
+        </div>
     </a>
-    <a class="home-highlight-card" href="{{ site.baseurl }}/about/">
-        <span class="home-highlight-icon"><i class="fa fa-rocket"></i></span>
-        <strong>About Me</strong>
-        <small>快速了解方向、背景与能力画像</small>
+
+    <a class="home-category-card category-card-nlp" href="{{ site.baseurl }}/archive/">
+        <div class="home-category-copy">
+            <div class="home-category-kicker">02 · Language Field</div>
+            <h2>NLP / 自然语言处理</h2>
+            <p>文本表示、语义理解、生成任务与语言建模。</p>
+            <span class="home-category-cta">Explore archive</span>
+        </div>
+        <div class="home-category-cover cover-nlp" aria-hidden="true">
+            <span class="cover-nlp-wave cover-nlp-wave-a"></span>
+            <span class="cover-nlp-wave cover-nlp-wave-b"></span>
+            <span class="cover-nlp-token cover-nlp-token-a">token</span>
+            <span class="cover-nlp-token cover-nlp-token-b">semantic</span>
+            <span class="cover-nlp-token cover-nlp-token-c">vector</span>
+        </div>
     </a>
-    <a class="home-highlight-card" target="_blank" href="https://github.com/zwt0204">
-        <span class="home-highlight-icon"><i class="fa fa-github-alt"></i></span>
-        <strong>Projects</strong>
-        <small>跳到 GitHub 看项目、代码和仓库</small>
+
+    <a class="home-category-card category-card-code" href="{{ site.baseurl }}/archive/">
+        <div class="home-category-copy">
+            <div class="home-category-kicker">03 · Terminal HUD</div>
+            <h2>开发语言</h2>
+            <p>Java、Python 与常见工程编码经验整理。</p>
+            <span class="home-category-cta">Explore archive</span>
+        </div>
+        <div class="home-category-cover cover-code" aria-hidden="true">
+            <span class="cover-code-screen"></span>
+            <span class="cover-code-line cover-code-line-a"></span>
+            <span class="cover-code-line cover-code-line-b"></span>
+            <span class="cover-code-line cover-code-line-c"></span>
+            <span class="cover-code-cursor"></span>
+        </div>
+    </a>
+
+    <a class="home-category-card category-card-infra" href="{{ site.baseurl }}/archive/">
+        <div class="home-category-copy">
+            <div class="home-category-kicker">04 · Service Mesh</div>
+            <h2>环境部署</h2>
+            <p>Docker、Linux、服务部署与基础设施操作。</p>
+            <span class="home-category-cta">Explore archive</span>
+        </div>
+        <div class="home-category-cover cover-infra" aria-hidden="true">
+            <span class="cover-infra-node cover-infra-node-a"></span>
+            <span class="cover-infra-node cover-infra-node-b"></span>
+            <span class="cover-infra-node cover-infra-node-c"></span>
+            <span class="cover-infra-link cover-infra-link-a"></span>
+            <span class="cover-infra-link cover-infra-link-b"></span>
+            <span class="cover-infra-pulse"></span>
+        </div>
+    </a>
+
+    <a class="home-category-card category-card-ml" href="{{ site.baseurl }}/archive/">
+        <div class="home-category-copy">
+            <div class="home-category-kicker">05 · Model Lab</div>
+            <h2>机器学习 / 深度学习</h2>
+            <p>模型训练、实验记录、基础算法与方法理解。</p>
+            <span class="home-category-cta">Explore archive</span>
+        </div>
+        <div class="home-category-cover cover-ml" aria-hidden="true">
+            <span class="cover-ml-surface"></span>
+            <span class="cover-ml-curve"></span>
+            <span class="cover-ml-point cover-ml-point-a"></span>
+            <span class="cover-ml-point cover-ml-point-b"></span>
+            <span class="cover-ml-point cover-ml-point-c"></span>
+        </div>
+    </a>
+
+    <a class="home-category-card category-card-workflow" href="{{ site.baseurl }}/archive/">
+        <div class="home-category-copy">
+            <div class="home-category-kicker">06 · Build Flow</div>
+            <h2>工程实践 / 工具链</h2>
+            <p>调试、脚本、自动化与日常工程工作流。</p>
+            <span class="home-category-cta">Explore archive</span>
+        </div>
+        <div class="home-category-cover cover-flow" aria-hidden="true">
+            <span class="cover-flow-node cover-flow-node-a"></span>
+            <span class="cover-flow-node cover-flow-node-b"></span>
+            <span class="cover-flow-node cover-flow-node-c"></span>
+            <span class="cover-flow-link cover-flow-link-a"></span>
+            <span class="cover-flow-link cover-flow-link-b"></span>
+            <span class="cover-flow-pulse"></span>
+        </div>
     </a>
 </div>
 
-<div class="home-project-grid">
-    <div class="home-project-card home-project-card-featured">
-        <div class="home-project-kicker">Why this homepage</div>
-        <h3>一个更像产品首页的个人技术主页</h3>
-        <p>不是单纯罗列文章，而是把个人方向、项目气质、最新内容和入口做成一块更有冲击力的技术面板。</p>
-        <ul>
-            <li>暗色科技感 + 霓虹氛围</li>
-            <li>轻动画但不影响阅读</li>
-            <li>首页先拉满视觉记忆点</li>
-        </ul>
-    </div>
-    <div class="home-project-card">
-        <div class="home-project-kicker">Main Tracks</div>
-        <h3>Research × Build × Notes</h3>
-        <p>把论文理解、项目实现、工程实践和阶段性总结，统一收束到一个连续可浏览的个人界面里。</p>
-    </div>
-    <div class="home-project-card">
-        <div class="home-project-kicker">Visual Signal</div>
-        <h3>Animation & Icons</h3>
-        <p>通过发光图标、浮动 badge、动态按钮和卡片 hover，让首页第一眼更像一个在线 portfolio，而不是传统博客模板。</p>
-    </div>
-</div>
-
-<div class="home-section-shell">
+<div class="home-section-shell home-recent-shell">
     <div class="home-section-head">
         <div>
-            <div class="home-section-kicker">Dashboard Surface</div>
-            <div class="home-section-title">Research Feed</div>
+            <div class="home-section-kicker">Recent Updates</div>
+            <div class="home-section-title">Latest posts</div>
         </div>
-        <div class="home-section-meta">Latest notes · experiments · engineering logs</div>
+        <div class="home-section-meta">Keep a lightweight stream below the category gallery</div>
     </div>
 
-    <div class="home-dashboard-grid">
-        <div class="home-dashboard-main">
-            {% if featured_post %}
-            <div class="dashboard-featured-card dashboard-type-theme dashboard-type-theme-{{ featured_type | slugify }}">
-                <div class="dashboard-featured-head">
-                    <span class="dashboard-kicker">Featured Note</span>
-                    <span class="dashboard-type"><span class="dashboard-type-icon">▣</span>{{ featured_type | upcase }}</span>
-                    <span class="dashboard-featured-status">ACTIVE</span>
-                </div>
-                <a class="dashboard-featured-link" href="{{ featured_post.url | prepend: site.baseurl }}">
-                    <h2 class="dashboard-featured-title">{{ featured_post.title }}</h2>
-                    {% if featured_post.subtitle %}
-                    <div class="dashboard-featured-subtitle">{{ featured_post.subtitle | strip_html }}</div>
-                    {% endif %}
-                    <div class="dashboard-featured-desc">
-                        {% if featured_post.lang == 'en' %}
-                            {{ featured_post.content | strip_html | truncate:320 }}
-                        {% else %}
-                            {{ featured_post.content | strip_html | truncate:220 }}
-                        {% endif %}
-                    </div>
-                </a>
-                <div class="dashboard-featured-meta">
-                    <span>{{ featured_post.date | date: "%Y-%m-%d" }}</span>
-                    <span>·</span>
-                    <span>{% if featured_post.author %}{{ featured_post.author }}{% else %}{{ site.title }}{% endif %}</span>
-                    {% if featured_post.tags and featured_post.tags.size > 0 %}
-                    <span>·</span>
-                    <span>{{ featured_post.tags | join: ' · ' }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="dashboard-feed-shell">
-                <div class="dashboard-feed-shell-head">
-                    <div class="dashboard-feed-shell-heading">
-                        <div class="dashboard-feed-shell-kicker">Research Timeline</div>
-                        <div class="dashboard-feed-shell-title">Stream Log</div>
-                    </div>
-                    <div class="dashboard-feed-shell-desc">Recent entries from notes, project logs, papers, and implementation traces.</div>
-                </div>
-
-                <div class="dashboard-feed-legend" aria-hidden="true">
-                    <span>time-indexed archive</span>
-                    <span>typed entry surface</span>
-                    <span>continuous build log</span>
-                </div>
-
-                <div class="dashboard-feed">
-                {% for post in paginator.posts offset:1 %}
-                    {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
-                    <article class="dashboard-feed-item post-preview-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}">
-                        <div class="dashboard-feed-rail">
-                            <span class="dashboard-feed-type"><span class="dashboard-type-icon">▣</span>{{ post_type | upcase }}</span>
-                        </div>
-                        <div class="dashboard-feed-main">
-                            <div class="dashboard-feed-meta-row">
-                                <span class="dashboard-feed-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-                                <span class="dashboard-feed-divider">/</span>
-                                <span class="dashboard-feed-status">{{ post_type | upcase }} MODE</span>
-                                {% if post.tags and post.tags.size > 0 %}
-                                <span class="dashboard-feed-divider">/</span>
-                                <span class="dashboard-feed-tags">{{ post.tags | slice: 0, 3 | join: ' · ' }}</span>
-                                {% endif %}
-                            </div>
-                            <a class="dashboard-feed-link" href="{{ post.url | prepend: site.baseurl }}">
-                                <h3 class="dashboard-feed-title">{{ post.title }}</h3>
-                                {% if post.subtitle %}
-                                <div class="dashboard-feed-subtitle">{{ post.subtitle | strip_html }}</div>
-                                {% endif %}
-                                <div class="dashboard-feed-desc">
-                                    {% if post.lang == 'en' %}
-                                        {{ post.content | strip_html | truncate:220 }}
-                                    {% else %}
-                                        {{ post.content | strip_html | truncate:130 }}
-                                    {% endif %}
-                                </div>
-                            </a>
-                        </div>
-                    </article>
-                {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <aside class="home-dashboard-aside">
-            <div class="home-panel home-panel-system">
-                <div class="home-panel-label">System Panel</div>
-                <h3 class="home-panel-title">Current Scope</h3>
-                <div class="home-panel-desc">围绕 AI、NLP、机器学习与工程实践，沉淀可复用的方法、实验和系统设计。</div>
-                <div class="home-panel-metrics">
-                    <div class="home-panel-metric">
-                        <span class="home-panel-metric-key">Archive</span>
-                        <strong>{{ total_posts }}</strong>
-                    </div>
-                    <div class="home-panel-metric">
-                        <span class="home-panel-metric-key">Focus</span>
-                        <strong>AI</strong>
-                    </div>
-                    <div class="home-panel-metric">
-                        <span class="home-panel-metric-key">State</span>
-                        <strong>Online</strong>
-                    </div>
-                </div>
-                <div class="home-panel-list">
-                    <div class="home-panel-item">
-                        <span class="home-panel-item-key">Topics</span>
-                        <strong>NLP · LLM · ML</strong>
-                    </div>
-                    <div class="home-panel-item">
-                        <span class="home-panel-item-key">Modes</span>
-                        <strong>Paper / Build / Log</strong>
-                    </div>
-                    <div class="home-panel-item">
-                        <span class="home-panel-item-key">Status</span>
-                        <strong>Active research archive</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="home-panel home-panel-tags">
-                <div class="home-panel-label">Topic Map</div>
-                <h3 class="home-panel-title">Navigation Index</h3>
-                <div class="home-topic-cloud">
-                    <span class="home-topic-pill">NLP</span>
-                    <span class="home-topic-pill">LLM</span>
-                    <span class="home-topic-pill">Machine Learning</span>
-                    <span class="home-topic-pill">Engineering</span>
-                    <span class="home-topic-pill">Agents</span>
-                    <span class="home-topic-pill">Papers</span>
-                    <span class="home-topic-pill">Projects</span>
-                    <span class="home-topic-pill">Logs</span>
-                </div>
-                <div class="home-panel-footnote">A lightweight map of the main research and build tracks represented in this archive.</div>
-            </div>
-
-            <div class="home-panel home-panel-mini">
-                <div class="home-panel-label">Reading State</div>
-                <h3 class="home-panel-title">How to use this home</h3>
-                <div class="home-panel-mini-list">
-                    <div class="home-panel-mini-item">
-                        <span>01</span>
-                        <strong>从 featured 进入当前主线</strong>
-                    </div>
-                    <div class="home-panel-mini-item">
-                        <span>02</span>
-                        <strong>从 stream log 看近期推进节奏</strong>
-                    </div>
-                    <div class="home-panel-mini-item">
-                        <span>03</span>
-                        <strong>用 topic map 快速切到主题域</strong>
-                    </div>
-                </div>
-            </div>
-        </aside>
+    <div class="home-recent-grid">
+        {% for post in recent_posts %}
+        {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
+        <article class="home-recent-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}">
+            <div class="home-recent-meta">{{ post.date | date: "%Y-%m-%d" }} · {{ post_type | upcase }}</div>
+            <a class="home-recent-link" href="{{ post.url | prepend: site.baseurl }}">
+                <h3>{{ post.title }}</h3>
+                {% if post.subtitle %}
+                <div class="home-recent-subtitle">{{ post.subtitle | strip_html }}</div>
+                {% endif %}
+                <p>{{ post.content | strip_html | truncate: 120 }}</p>
+            </a>
+        </article>
+        {% endfor %}
     </div>
 </div>
-
-{% if paginator.total_pages > 1 %}
-<ul class="pager">
-    {% if paginator.previous_page %}
-    <li class="previous">
-        <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Newer Posts</a>
-    </li>
-    {% endif %}
-    {% if paginator.next_page %}
-    <li class="next">
-        <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Older Posts &rarr;</a>
-    </li>
-    {% endif %}
-</ul>
-{% endif %}
