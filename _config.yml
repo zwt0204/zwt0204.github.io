@@ -3,8 +3,8 @@ title: 记录
 SEOTitle: 学习
 header-img: img/LLMs.png
 email: zwtxauat@gmail.com
-description: "学习记录"
-keyword: "自然语言处理、机器学习、知识图谱、对话系统、深度学习、图像处理"
+description: "AI / NLP / LLM / 工程实践的个人技术主页与学习记录"
+keyword: "自然语言处理、机器学习、知识图谱、对话系统、深度学习、图像处理、LLM、Agent、工程实践"
 url: "https://zwt0204.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
@@ -23,7 +23,7 @@ future: true
 RSS: false
 #weibo_username:     huxpro
 #zhihu_username:     huxpro
-#github_username:    huxpro
+github_username:    zwt0204
 #twitter_username:   huxpro
 #facebook_username:  huxpro
 

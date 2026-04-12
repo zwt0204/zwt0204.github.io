@@ -13,18 +13,25 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
 <div class="home-hero-card home-hero-card-tech">
     <div class="home-hero-grid"></div>
     <div class="home-hero-scanline"></div>
+    <div class="home-hero-noise"></div>
     <div class="home-hero-layout">
         <div class="home-hero-content">
             <div class="home-hero-eyebrow">
                 <span class="home-hero-badge">{{ site.home-subtitle }}</span>
                 <span class="home-hero-eyebrow-sep"></span>
-                <span class="home-hero-eyebrow-text">Research home · systemized notes · engineering archive</span>
+                <span class="home-hero-eyebrow-text">Personal AI lab · engineering playground · note system</span>
             </div>
-            <h1 class="home-hero-title">{{ site.home-hero-title }}</h1>
-            <p class="home-hero-desc">{{ site.home-hero-desc }}</p>
+            <h1 class="home-hero-title">Build <span class="home-hero-title-accent">cool systems</span>, record useful ideas, ship practical AI.</h1>
+            <p class="home-hero-desc">这里不是普通博客首页，而是一个持续在线的个人技术界面：记录 NLP / LLM / ML / Agents / Engineering 的思考、实验、代码和项目轨迹。</p>
             <div class="home-hero-actions">
                 <a class="home-hero-btn home-hero-btn-primary" href="{{ site.home-primary-cta-link | prepend: site.baseurl }}">{{ site.home-primary-cta-text }}</a>
                 <a class="home-hero-btn home-hero-btn-secondary" href="{{ site.home-secondary-cta-link | prepend: site.baseurl }}">{{ site.home-secondary-cta-text }}</a>
+            </div>
+            <div class="home-hero-quick-links">
+                <a class="home-quick-link" target="_blank" href="https://github.com/zwt0204"><i class="fa fa-github"></i><span>GitHub</span></a>
+                <a class="home-quick-link" href="mailto:{{ site.email }}"><i class="fa fa-envelope"></i><span>Email</span></a>
+                <a class="home-quick-link" href="{{ site.baseurl }}/archive/"><i class="fa fa-archive"></i><span>Archive</span></a>
+                <a class="home-quick-link" href="{{ site.baseurl }}/about/"><i class="fa fa-user-circle"></i><span>About</span></a>
             </div>
             <div class="home-hero-stats">
                 <div class="home-hero-stat">
@@ -36,14 +43,14 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                     <strong>Notes · Practice · Systems</strong>
                 </div>
                 <div class="home-hero-stat">
-                    <span class="home-hero-stat-label">Content</span>
-                    <strong>Articles · Experiments · Engineering</strong>
+                    <span class="home-hero-stat-label">Output</span>
+                    <strong>Posts · Projects · Build Logs</strong>
                 </div>
             </div>
             <div class="home-hero-console" aria-hidden="true">
                 <span class="home-hero-console-line"></span>
                 <span class="home-hero-console-line home-hero-console-line-short"></span>
-                <span class="home-hero-console-code">feed.sync(status: stable)</span>
+                <span class="home-hero-console-code">portfolio.boot(mode='neon')</span>
             </div>
             <div class="home-hero-strip">
                 <div class="home-hero-strip-item">
@@ -59,6 +66,16 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                     <strong>Research / Build / Review</strong>
                 </div>
             </div>
+            <div class="home-tech-marquee" aria-hidden="true">
+                <span>LLM</span>
+                <span>Agents</span>
+                <span>NLP</span>
+                <span>Machine Learning</span>
+                <span>Recommendation</span>
+                <span>MLOps</span>
+                <span>Python</span>
+                <span>Jekyll</span>
+            </div>
         </div>
         <div class="home-hero-visual" aria-hidden="true">
             <div class="hero-orbit hero-orbit-lg"></div>
@@ -66,12 +83,15 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
             <div class="hero-orbit hero-orbit-sm"></div>
             <div class="hero-signal hero-signal-1"></div>
             <div class="hero-signal hero-signal-2"></div>
+            <div class="hero-floating-badge hero-floating-badge-a"><i class="fa fa-bolt"></i><span>Online</span></div>
+            <div class="hero-floating-badge hero-floating-badge-b"><i class="fa fa-code"></i><span>Build</span></div>
+            <div class="hero-floating-badge hero-floating-badge-c"><i class="fa fa-magic"></i><span>Ideas</span></div>
             <div class="hero-visual-stack">
                 <div class="hero-core-card">
                     <div class="hero-core-line hero-core-line-accent"></div>
-                    <div class="hero-core-chip">AI BLOG</div>
+                    <div class="hero-core-chip">AI HOME</div>
                     <div class="hero-core-title">zwt0204</div>
-                    <div class="hero-core-meta">NLP · Machine Learning · Engineering</div>
+                    <div class="hero-core-meta">NLP · Machine Learning · Engineering · Agents</div>
                     <div class="hero-core-bars">
                         <span></span>
                         <span></span>
@@ -94,11 +114,52 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
                     </div>
                     <div class="hero-side-panel-item">
                         <span>Status</span>
-                        <strong>Stable</strong>
+                        <strong>Neon Stable</strong>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="home-highlight-band">
+    <a class="home-highlight-card" href="{{ site.baseurl }}/archive/">
+        <span class="home-highlight-icon"><i class="fa fa-rss"></i></span>
+        <strong>Latest Notes</strong>
+        <small>看最近更新的文章与实验记录</small>
+    </a>
+    <a class="home-highlight-card" href="{{ site.baseurl }}/about/">
+        <span class="home-highlight-icon"><i class="fa fa-rocket"></i></span>
+        <strong>About Me</strong>
+        <small>快速了解方向、背景与能力画像</small>
+    </a>
+    <a class="home-highlight-card" target="_blank" href="https://github.com/zwt0204">
+        <span class="home-highlight-icon"><i class="fa fa-github-alt"></i></span>
+        <strong>Projects</strong>
+        <small>跳到 GitHub 看项目、代码和仓库</small>
+    </a>
+</div>
+
+<div class="home-project-grid">
+    <div class="home-project-card home-project-card-featured">
+        <div class="home-project-kicker">Why this homepage</div>
+        <h3>一个更像产品首页的个人技术主页</h3>
+        <p>不是单纯罗列文章，而是把个人方向、项目气质、最新内容和入口做成一块更有冲击力的技术面板。</p>
+        <ul>
+            <li>暗色科技感 + 霓虹氛围</li>
+            <li>轻动画但不影响阅读</li>
+            <li>首页先拉满视觉记忆点</li>
+        </ul>
+    </div>
+    <div class="home-project-card">
+        <div class="home-project-kicker">Main Tracks</div>
+        <h3>Research × Build × Notes</h3>
+        <p>把论文理解、项目实现、工程实践和阶段性总结，统一收束到一个连续可浏览的个人界面里。</p>
+    </div>
+    <div class="home-project-card">
+        <div class="home-project-kicker">Visual Signal</div>
+        <h3>Animation & Icons</h3>
+        <p>通过发光图标、浮动 badge、动态按钮和卡片 hover，让首页第一眼更像一个在线 portfolio，而不是传统博客模板。</p>
     </div>
 </div>
 
