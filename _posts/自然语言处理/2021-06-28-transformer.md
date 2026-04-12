@@ -2,11 +2,7 @@
 layout:     post
 title:      "transformer"
 subtitle:   " \"transformer\""
-<<<<<<< HEAD
-date:       2023-07-22 15:30:00 
-=======
 date:       2024-03-09 10:46:00 
->>>>>>> d5005ecd9eaf3ce32260dc1b7d831c7f2a1a85f3
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
