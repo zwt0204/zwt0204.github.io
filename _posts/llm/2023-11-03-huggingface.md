@@ -3,6 +3,7 @@ layout:     post
 title:      "huggingface"
 subtitle:   " \"huggingface\""
 date:       2023-11-03 18:00:00
+permalink:  /2023/11/04/huggingface-llm/
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"

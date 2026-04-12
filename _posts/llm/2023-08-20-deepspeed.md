@@ -3,6 +3,7 @@ layout:     post
 title:      "deepspeed"
 subtitle:   " \"deepspeed\""
 date:       2023-08-20 18:00:00
+permalink:  /2023/08/21/deepspeed-llm/
 mathjax: true
 author:     "zwt"
 header-img: "img/post-bg-2015.jpg"
