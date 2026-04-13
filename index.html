@@ -1,12 +1,14 @@
 ---
 layout: page
 hide-header: true
+home-layout: gallery
 description: "聚焦 NLP、机器学习、深度学习与工程实践的学习记录与项目笔记"
 ---
 
 {% assign total_posts = site.posts | size %}
 {% assign recent_posts = site.posts | slice: 0, 4 %}
 
+<div class="home-page-shell">
 <div class="home-hero-card home-hero-card-tech home-category-hero home-category-hero-bold">
     <div class="home-hero-particles" aria-hidden="true">
         <span class="home-hero-particle particle-a"></span>
@@ -194,4 +196,5 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
         </article>
         {% endfor %}
     </div>
+</div>
 </div>

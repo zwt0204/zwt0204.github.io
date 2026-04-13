@@ -8,9 +8,13 @@ layout: default
 {% endunless %}
 
 <!-- Main Content -->
-<div class="container">
-	<div class="row">
-        {% if site.sidebar == false %}
+<div class="container{% if page.home-layout == 'gallery' %} home-gallery-container{% endif %}">
+	<div class="row{% if page.home-layout == 'gallery' %} home-gallery-row{% endif %}">
+        {% if page.home-layout == 'gallery' %}
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 postlist-container home-gallery-postlist">
+                {{ content }}
+            </div>
+        {% elsif site.sidebar == false %}
 <!-- NO SIDEBAR -->
     <!-- PostList Container -->
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 postlist-container">
