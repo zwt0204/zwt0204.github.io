@@ -339,8 +339,8 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0) 34%, rgba(34,211,238,0.08) 68%, rgba(255,255,255,0) 100%);
-  opacity: .75;
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0) 26%, rgba(34,211,238,0.06) 62%, rgba(255,255,255,0) 100%);
+  opacity: .46;
   mix-blend-mode: screen;
   pointer-events: none;
   animation: sheenSweep 7s linear infinite;
@@ -350,7 +350,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0), rgba(34,211,238,0.07));
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02) 24%, rgba(34,211,238,0.04) 70%, rgba(2,6,23,0.22) 100%);
   mix-blend-mode: screen;
   pointer-events: none;
 }
@@ -363,19 +363,19 @@
 
 .home-category-copy-minimal {
   position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 20px;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
   z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  padding: 18px 18px 16px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), rgba(2, 6, 23, 0.78));
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 36px rgba(2, 6, 23, 0.26);
+  gap: 6px;
+  padding: 14px 14px 13px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.00), rgba(2, 6, 23, 0.56));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 32px rgba(2, 6, 23, 0.18);
 }
 
 .home-category-kicker {
@@ -533,23 +533,23 @@
   z-index: 0;
   background-size: cover;
   background-position: center;
-  transform: scale(1.04);
-  filter: saturate(1.05) contrast(1.04) brightness(.8);
-  transition: transform .6s ease, filter .6s ease;
+  transform: scale(1.01);
+  filter: saturate(1.22) contrast(1.1) brightness(1.02);
+  transition: transform .7s ease, filter .7s ease;
 }
 
 .cover-poster-shade {
   z-index: 1;
   background:
-    linear-gradient(180deg, rgba(2, 6, 23, 0.06) 0%, rgba(2, 6, 23, 0.24) 42%, rgba(2, 6, 23, 0.88) 100%),
-    radial-gradient(circle at 20% 18%, rgba(255,255,255,0.14), rgba(255,255,255,0) 28%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.22), rgba(56, 189, 248, 0.10));
+    linear-gradient(180deg, rgba(2, 6, 23, 0.02) 0%, rgba(2, 6, 23, 0.12) 32%, rgba(2, 6, 23, 0.58) 100%),
+    radial-gradient(circle at 18% 16%, rgba(255,255,255,0.18), rgba(255,255,255,0) 26%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(56, 189, 248, 0.08));
 }
 
 .home-category-card:hover .cover-poster-image,
 .home-category-card:focus .cover-poster-image {
-  transform: scale(1.1);
-  filter: saturate(1.18) contrast(1.08) brightness(.9);
+  transform: scale(1.08);
+  filter: saturate(1.34) contrast(1.14) brightness(1.08);
 }
 
 .cover-grid-glow {
@@ -578,11 +578,11 @@
   z-index: 3;
 }
 
-.cover-llm .cover-poster-image { background-image: url('../img/LLMs.png'); background-position: center center; }
-.cover-nlp .cover-poster-image { background-image: url('../img/自然语言处理/transformer.png'); background-position: center center; }
-.cover-code .cover-poster-image { background-image: url('../img/pycharm.png'); background-position: center top; }
-.cover-infra .cover-poster-image { background-image: url('../img/tomcat.png'); background-position: center center; }
-.cover-ml .cover-poster-image { background-image: url('../img/集成学习.png'); background-position: center center; }
+.cover-llm .cover-poster-image { background-image: url('../img/大模型/主流架构.png'); background-position: center center; }
+.cover-nlp .cover-poster-image { background-image: url('../img/自然语言处理/transformer9.png'); background-position: center center; }
+.cover-code .cover-poster-image { background-image: url('../img/pycharm12.png'); background-position: center top; }
+.cover-infra .cover-poster-image { background-image: url('../img/xshell3.png'); background-position: center center; }
+.cover-ml .cover-poster-image { background-image: url('../img/DeepFM.png'); background-position: center center; }
 .cover-flow .cover-poster-image { background-image: url('../img/并发.png'); background-position: center center; }
 
 .cover-llm-core {
