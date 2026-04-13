@@ -4017,6 +4017,112 @@ body.page-home .mini-post-list .post-preview > a .post-title {
   text-shadow: 0 6px 20px rgba(2, 6, 23, 0.32);
 }
 
+body.page-home .home-category-copy-minimal {
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  gap: 8px;
+  padding: 16px 16px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), rgba(2, 6, 23, 0.7));
+  box-shadow: 0 20px 38px rgba(2, 6, 23, 0.3);
+}
+
+body.page-home .home-category-chip {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  background: rgba(15, 23, 42, 0.38);
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+body.page-home .home-category-copy-minimal h2 {
+  margin: 0;
+  font-size: 50px;
+  line-height: 0.92;
+  letter-spacing: -0.05em;
+}
+
+body.page-home .home-category-copy-minimal p {
+  max-width: none;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(224, 242, 254, 0.92);
+  line-height: 1.35;
+}
+
+body.page-home .home-category-cta-minimal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+body.page-home .home-category-cta-minimal:after {
+  content: "→";
+  font-size: 13px;
+  line-height: 1;
+}
+
+body.page-home .archive-grid-list {
+  margin-top: 30px;
+}
+
+body.page-home .archive-year-group {
+  margin-bottom: 28px;
+}
+
+body.page-home .archive-year-head {
+  margin-bottom: 8px;
+}
+
+body.page-home .archive-post-card {
+  position: relative;
+}
+
+body.page-home .archive-post-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+body.page-home .archive-post-date {
+  color: rgba(191, 219, 254, 0.86);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+body.page-home .archive-post-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.14);
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  color: #7dd3fc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 body.page-home .mini-post-list .post-preview > a .post-subtitle,
 body.page-home .mini-post-list .post-preview .post-content-preview {
   color: rgba(214, 228, 242, 0.88);

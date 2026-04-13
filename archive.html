@@ -38,7 +38,7 @@ https://github.com/kitian616/jekyll-TeXt-theme
 			</div>
 
             <!-- Article List -->
-			<div class="mini-post-list js-result d-none">
+			<div class="mini-post-list js-result d-none archive-grid-list">
 			{%- assign _sorted_list = site.posts -%}
 			{%- assign _sorted_list = _sorted_list | sort: 'date' -%}
 			{%- assign _sorted_list = _sorted_list | reverse -%}
@@ -59,15 +59,22 @@ https://github.com/kitian616/jekyll-TeXt-theme
 			{%- assign _currentdate = _article.date | date: '%Y' -%}
 			{%- if _currentdate != _date -%}
 				{%- unless forloop.first -%}</section>{%- endunless -%}
-				<section>
-				<span class="fa listing-seperator">
-					<span class="tag-text">{{ _currentdate }}</span>
-				</span>
+				<section class="archive-year-group">
+				<div class="archive-year-head">
+					<span class="fa listing-seperator">
+						<span class="tag-text">{{ _currentdate }}</span>
+					</span>
+				</div>
 				{%- assign _date = _currentdate -%}
 			{%- endif -%}
 
-				<div class="post-preview item" data-tags="{{ _tags }}">
+				<div class="post-preview item archive-post-card" data-tags="{{ _tags }}">
 				    <a href="{{ _article.url | prepend: site.baseurl }}">
+				    	<div class="archive-post-meta-line">
+				    		<span class="archive-post-date">{{ _article.date | date: "%Y-%m-%d" }}</span>
+				    		{% assign archive_type = _article.categories[0] | default: _article.tags[0] | default: 'note' %}
+				    		<span class="archive-post-type">{{ archive_type }}</span>
+				    	</div>
 				        <h2 class="post-title">
                             {{ _article.title }}
 				        </h2>
