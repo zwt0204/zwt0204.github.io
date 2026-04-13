@@ -363,17 +363,17 @@
 
 .home-category-copy-minimal {
   position: absolute;
-  left: 26px;
-  right: 26px;
-  bottom: 24px;
-  z-index: 3;
+  left: 22px;
+  right: 22px;
+  bottom: 20px;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  padding: 22px 22px 18px;
+  gap: 8px;
+  padding: 18px 18px 16px;
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.04), rgba(2, 6, 23, 0.74));
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), rgba(2, 6, 23, 0.78));
   backdrop-filter: blur(12px);
   box-shadow: 0 20px 36px rgba(2, 6, 23, 0.26);
 }
@@ -396,11 +396,11 @@
 
 .home-category-copy-minimal h2 {
   margin: 0;
-  font-size: 46px;
-  line-height: .96;
-  letter-spacing: -0.04em;
+  font-size: 54px;
+  line-height: .92;
+  letter-spacing: -0.05em;
   color: #fff;
-  text-shadow: 0 10px 32px rgba(15, 23, 42, 0.45);
+  text-shadow: 0 14px 36px rgba(15, 23, 42, 0.55);
 }
 
 .home-category-card p {
@@ -412,11 +412,11 @@
 
 .home-category-copy-minimal p {
   max-width: none;
-  font-size: 13px;
-  letter-spacing: .08em;
+  font-size: 11px;
+  letter-spacing: .16em;
   text-transform: uppercase;
-  color: rgba(224, 242, 254, 0.84);
-  line-height: 1.45;
+  color: rgba(224, 242, 254, 0.88);
+  line-height: 1.35;
 }
 
 .home-category-cta {
@@ -522,6 +522,68 @@
   position: relative;
   overflow: hidden;
 }
+
+.cover-poster-image,
+.cover-poster-shade {
+  position: absolute;
+  inset: 0;
+}
+
+.cover-poster-image {
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.04);
+  filter: saturate(1.05) contrast(1.04) brightness(.8);
+  transition: transform .6s ease, filter .6s ease;
+}
+
+.cover-poster-shade {
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.06) 0%, rgba(2, 6, 23, 0.24) 42%, rgba(2, 6, 23, 0.88) 100%),
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,0.14), rgba(255,255,255,0) 28%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.22), rgba(56, 189, 248, 0.10));
+}
+
+.home-category-card:hover .cover-poster-image,
+.home-category-card:focus .cover-poster-image {
+  transform: scale(1.1);
+  filter: saturate(1.18) contrast(1.08) brightness(.9);
+}
+
+.cover-grid-glow {
+  z-index: 2;
+}
+
+.cover-llm-core,
+.cover-llm-node,
+.cover-llm-link,
+.cover-nlp-wave,
+.cover-nlp-token,
+.cover-code-screen,
+.cover-code-line,
+.cover-code-cursor,
+.cover-infra-node,
+.cover-infra-link,
+.cover-infra-pulse,
+.cover-ml-surface,
+.cover-ml-curve,
+.cover-ml-point,
+.cover-flow-node,
+.cover-flow-link,
+.cover-flow-pulse,
+.cover-orb,
+.cover-scan-glow {
+  z-index: 3;
+}
+
+.cover-llm .cover-poster-image { background-image: url('../img/LLMs.png'); background-position: center center; }
+.cover-nlp .cover-poster-image { background-image: url('../img/自然语言处理/transformer.png'); background-position: center center; }
+.cover-code .cover-poster-image { background-image: url('../img/pycharm.png'); background-position: center top; }
+.cover-infra .cover-poster-image { background-image: url('../img/tomcat.png'); background-position: center center; }
+.cover-ml .cover-poster-image { background-image: url('../img/集成学习.png'); background-position: center center; }
+.cover-flow .cover-poster-image { background-image: url('../img/并发.png'); background-position: center center; }
 
 .cover-llm-core {
   position: absolute;
