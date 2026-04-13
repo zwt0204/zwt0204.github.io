@@ -533,17 +533,18 @@
   z-index: 0;
   background-size: cover;
   background-position: center;
-  transform: scale(1.01);
-  filter: saturate(1.22) contrast(1.1) brightness(1.02);
+  background-repeat: no-repeat;
+  transform: scale(1.02);
+  filter: saturate(1.18) contrast(1.08) brightness(1.02);
   transition: transform .7s ease, filter .7s ease;
 }
 
 .cover-poster-shade {
   z-index: 1;
   background:
-    linear-gradient(180deg, rgba(2, 6, 23, 0.02) 0%, rgba(2, 6, 23, 0.12) 32%, rgba(2, 6, 23, 0.58) 100%),
-    radial-gradient(circle at 18% 16%, rgba(255,255,255,0.18), rgba(255,255,255,0) 26%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.08), rgba(56, 189, 248, 0.08));
+    linear-gradient(180deg, rgba(2, 6, 23, 0.00) 0%, rgba(2, 6, 23, 0.08) 30%, rgba(2, 6, 23, 0.42) 72%, rgba(2, 6, 23, 0.72) 100%),
+    radial-gradient(circle at 18% 16%, rgba(255,255,255,0.12), rgba(255,255,255,0) 24%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.04), rgba(56, 189, 248, 0.05));
 }
 
 .home-category-card:hover .cover-poster-image,
@@ -578,12 +579,12 @@
   z-index: 3;
 }
 
-.cover-llm .cover-poster-image { background-image: url('../img/大模型/主流架构.png'); background-position: center center; }
-.cover-nlp .cover-poster-image { background-image: url('../img/自然语言处理/transformer9.png'); background-position: center center; }
-.cover-code .cover-poster-image { background-image: url('../img/pycharm12.png'); background-position: center top; }
-.cover-infra .cover-poster-image { background-image: url('../img/xshell3.png'); background-position: center center; }
-.cover-ml .cover-poster-image { background-image: url('../img/DeepFM.png'); background-position: center center; }
-.cover-flow .cover-poster-image { background-image: url('../img/并发.png'); background-position: center center; }
+.cover-llm .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
+.cover-nlp .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
+.cover-code .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
+.cover-infra .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
+.cover-ml .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1527474305487-b87b222841cc?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
+.cover-flow .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
 
 .cover-llm-core {
   position: absolute;
