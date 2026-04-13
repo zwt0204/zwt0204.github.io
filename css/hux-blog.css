@@ -579,12 +579,12 @@
   z-index: 3;
 }
 
-.cover-llm .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
-.cover-nlp .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
-.cover-code .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
-.cover-infra .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
-.cover-ml .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1527474305487-b87b222841cc?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
-.cover-flow .cover-poster-image { background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1400&q=80'); background-position: center center; }
+.cover-llm .cover-poster-image { background-image: url('../img/home-covers/llm.jpg'); background-position: center center; }
+.cover-nlp .cover-poster-image { background-image: url('../img/home-covers/nlp.jpg'); background-position: center center; }
+.cover-code .cover-poster-image { background-image: url('../img/home-covers/code.jpg'); background-position: center center; }
+.cover-infra .cover-poster-image { background-image: url('../img/home-covers/infra.jpg'); background-position: center center; }
+.cover-ml .cover-poster-image { background-image: url('../img/home-covers/ml.jpg'); background-position: center center; }
+.cover-flow .cover-poster-image { background-image: url('../img/home-covers/flow.jpg'); background-position: center center; }
 
 .cover-llm-core {
   position: absolute;
