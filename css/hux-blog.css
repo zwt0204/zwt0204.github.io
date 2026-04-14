@@ -4148,7 +4148,131 @@ body.page-home .home-category-cta-minimal {
   text-transform: uppercase;
 }
 
-body.page-home .home-category-cta-minimal:after {
+body.page-home .home-editorial-shell {
+  margin-top: 22px;
+}
+
+body.page-home .home-editorial-head {
+  align-items: end;
+}
+
+body.page-home .home-editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 18px;
+}
+
+body.page-home .home-editorial-card {
+  grid-column: span 4;
+  position: relative;
+  min-height: 260px;
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(9, 14, 27, 0.96));
+  border: 1px solid rgba(125, 211, 252, 0.12);
+  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.18);
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+body.page-home .home-editorial-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(103, 232, 249, 0.28);
+  box-shadow: 0 24px 52px rgba(2, 6, 23, 0.24);
+}
+
+body.page-home .home-editorial-card-featured {
+  grid-column: span 6;
+  min-height: 300px;
+  background: radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), rgba(15, 23, 42, 0.88) 42%, rgba(2, 6, 23, 0.98) 100%);
+}
+
+body.page-home .home-editorial-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+body.page-home .home-editorial-date {
+  color: rgba(191, 219, 254, 0.82);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body.page-home .home-editorial-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  background: rgba(14, 165, 233, 0.12);
+  color: #7dd3fc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body.page-home .home-editorial-link {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  color: #eaf4ff;
+}
+
+body.page-home .home-editorial-link:hover,
+body.page-home .home-editorial-link:focus {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+body.page-home .home-editorial-kicker {
+  margin-bottom: 12px;
+  color: rgba(125, 211, 252, 0.88);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body.page-home .home-editorial-link h3 {
+  margin: 0 0 12px;
+  color: #eef6ff;
+  font-size: 30px;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+body.page-home .home-editorial-card:not(.home-editorial-card-featured) .home-editorial-link h3 {
+  font-size: 24px;
+}
+
+body.page-home .home-editorial-summary {
+  margin: 0;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 15px;
+  line-height: 1.82;
+}
+
+body.page-home .home-editorial-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+body.page-home .home-editorial-cta:after {
   content: "→";
   font-size: 13px;
   line-height: 1;
@@ -4255,7 +4379,37 @@ body.page-home .mini-post-list .post-preview hr {
   border-top: 1px solid rgba(148, 163, 184, 0.28);
 }
 
+@media (max-width: 991px) {
+  body.page-home .home-editorial-card,
+  body.page-home .home-editorial-card-featured {
+    grid-column: span 6;
+  }
+}
+
 @media (max-width: 767px) {
+  body.page-home .home-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  body.page-home .home-editorial-card,
+  body.page-home .home-editorial-card-featured {
+    grid-column: auto;
+    min-height: auto;
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  body.page-home .home-editorial-link h3,
+  body.page-home .home-editorial-card:not(.home-editorial-card-featured) .home-editorial-link h3 {
+    font-size: 22px;
+  }
+
+  body.page-home .home-editorial-summary {
+    font-size: 14px;
+    line-height: 1.72;
+  }
+
   body.page-home .archive-directory-intro {
     margin-top: 0;
     padding: 22px 18px 18px;

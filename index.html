@@ -184,26 +184,29 @@ description: "聚焦 NLP、机器学习、深度学习与工程实践的学习�
     </a>
 </div>
 
-<div class="home-section-shell home-recent-shell">
-    <div class="home-section-head">
+<div class="home-section-shell home-recent-shell home-editorial-shell">
+    <div class="home-section-head home-editorial-head">
         <div>
             <div class="home-section-kicker">Recent Updates</div>
-            <div class="home-section-title">Latest posts</div>
+            <div class="home-section-title">Editorial feed</div>
         </div>
-        <div class="home-section-meta">Keep a lightweight stream below the category gallery</div>
+        <div class="home-section-meta">最新内容不再只是博文流，而是这张知识地图里的持续更新入口</div>
     </div>
 
-    <div class="home-recent-grid">
+    <div class="home-editorial-grid">
         {% for post in recent_posts %}
         {% assign post_type = post.categories[0] | default: post.tags[0] | default: 'note' %}
-        <article class="home-recent-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}">
-            <div class="home-recent-meta">{{ post.date | date: "%Y-%m-%d" }} · {{ post_type | upcase }}</div>
-            <a class="home-recent-link" href="{{ post.url | prepend: site.baseurl }}">
+        {% assign post_excerpt = post.subtitle | default: post.content | strip_html | strip_newlines | truncate: 140 %}
+        <article class="home-editorial-card dashboard-type-theme dashboard-type-theme-{{ post_type | slugify }}{% if forloop.first %} home-editorial-card-featured{% endif %}">
+            <div class="home-editorial-topline">
+                <span class="home-editorial-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+                <span class="home-editorial-type">{{ post_type }}</span>
+            </div>
+            <a class="home-editorial-link" href="{{ post.url | prepend: site.baseurl }}">
+                <div class="home-editorial-kicker">{{ forloop.index | prepend: '0' }} · latest dispatch</div>
                 <h3>{{ post.title }}</h3>
-                {% if post.subtitle %}
-                <div class="home-recent-subtitle">{{ post.subtitle | strip_html }}</div>
-                {% endif %}
-                <p>{{ post.content | strip_html | truncate: 120 }}</p>
+                <p class="home-editorial-summary">{{ post_excerpt }}</p>
+                <span class="home-editorial-cta">Open entry</span>
             </a>
         </article>
         {% endfor %}
