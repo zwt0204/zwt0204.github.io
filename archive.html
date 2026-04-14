@@ -13,15 +13,33 @@ https://github.com/kitian616/jekyll-TeXt-theme
 {% include intro-header.html type='page' short=true %}
 
 <!-- Main Content -->
-<div class="container">
+<div class="container archive-directory-shell">
 	<div class="row">
 		<div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+			<div class="archive-directory-intro">
+				<div class="archive-directory-kicker">Editorial Directory</div>
+				<h1 class="archive-directory-title">Knowledge Archive</h1>
+				<p class="archive-directory-desc">按年份、主题与技术脉络浏览这个站点的笔记、实验和工程记录。这里不是普通博客列表，而是整站内容目录。</p>
+			</div>
 			<!-- Tags (as filter) -->
 			<div id='tag_cloud' class="tags tags-sup js-tags">
 				<a class="tag-button--all" data-encode="">
 					Show All
 					<sup>{{site.posts.size}}</sup>
 				</a>
+
+				{% assign year_posts = site.posts | sort: 'date' | reverse %}
+				{% capture archive_year_nav %}
+				{% assign nav_year = '' %}
+				{% for nav_post in year_posts %}
+					{% assign current_nav_year = nav_post.date | date: '%Y' %}
+					{% if current_nav_year != nav_year %}
+					<a class="archive-year-jump" href="#year-{{ current_nav_year }}">{{ current_nav_year }}</a>
+					{% assign nav_year = current_nav_year %}
+					{% endif %}
+				{% endfor %}
+				{% endcapture %}
+				<div class="archive-year-nav">{{ archive_year_nav }}</div>
 
 				{% capture tags %}
 				{% for tag in site.tags %}
@@ -59,7 +77,7 @@ https://github.com/kitian616/jekyll-TeXt-theme
 			{%- assign _currentdate = _article.date | date: '%Y' -%}
 			{%- if _currentdate != _date -%}
 				{%- unless forloop.first -%}</section>{%- endunless -%}
-				<section class="archive-year-group">
+				<section class="archive-year-group" id="year-{{ _currentdate }}">
 				<div class="archive-year-head">
 					<span class="fa listing-seperator">
 						<span class="tag-text">{{ _currentdate }}</span>

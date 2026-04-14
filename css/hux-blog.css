@@ -3957,6 +3957,83 @@ img::-moz-selection {
 }
 
 /* Archive readability on dark theme */
+body.page-home .archive-directory-shell {
+  position: relative;
+}
+
+body.page-home .archive-directory-intro {
+  margin: 12px 0 28px;
+  padding: 28px 28px 24px;
+  border-radius: 28px;
+  background: radial-gradient(circle at top left, rgba(34, 211, 238, 0.12), rgba(15, 23, 42, 0.88) 46%, rgba(2, 6, 23, 0.96) 100%);
+  border: 1px solid rgba(103, 232, 249, 0.12);
+  box-shadow: 0 24px 70px rgba(2, 6, 23, 0.24);
+}
+
+body.page-home .archive-directory-kicker {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  background: rgba(8, 47, 73, 0.28);
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body.page-home .archive-directory-title {
+  margin: 0 0 12px;
+  color: #eef6ff;
+  font-size: 46px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+body.page-home .archive-directory-desc {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+body.page-home .archive-year-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+body.page-home .archive-year-jump {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.76);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: rgba(226, 232, 240, 0.86);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all .2s ease;
+}
+
+body.page-home .archive-year-jump:hover,
+body.page-home .archive-year-jump:focus {
+  color: #ffffff;
+  border-color: rgba(103, 232, 249, 0.34);
+  background: rgba(8, 47, 73, 0.52);
+  text-decoration: none;
+}
+
 body.page-home .mini-post-list {
   margin-top: 28px;
 }
@@ -4086,7 +4163,46 @@ body.page-home .archive-year-group {
 }
 
 body.page-home .archive-year-head {
-  margin-bottom: 8px;
+  margin-bottom: 14px;
+}
+
+body.page-home .archive-year-group section,
+body.page-home .archive-year-group {
+  scroll-margin-top: 90px;
+}
+
+body.page-home .archive-year-group .listing-seperator {
+  position: relative;
+}
+
+body.page-home .archive-year-group .listing-seperator:after {
+  content: "";
+  display: inline-block;
+  width: 64px;
+  height: 1px;
+  margin-left: 14px;
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.42), rgba(103, 232, 249, 0));
+  vertical-align: middle;
+}
+
+body.page-home .archive-year-group {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+body.page-home .archive-year-group .archive-post-card {
+  position: relative;
+}
+
+@media (min-width: 900px) {
+  body.page-home .archive-year-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 18px;
+  }
+
+  body.page-home .archive-year-group .archive-year-head {
+    grid-column: 1 / -1;
+  }
 }
 
 body.page-home .archive-post-card {
@@ -4140,6 +4256,31 @@ body.page-home .mini-post-list .post-preview hr {
 }
 
 @media (max-width: 767px) {
+  body.page-home .archive-directory-intro {
+    margin-top: 0;
+    padding: 22px 18px 18px;
+    border-radius: 22px;
+  }
+
+  body.page-home .archive-directory-title {
+    font-size: 34px;
+  }
+
+  body.page-home .archive-directory-desc {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  body.page-home .archive-year-nav {
+    gap: 8px;
+  }
+
+  body.page-home .archive-year-jump {
+    min-width: 56px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
   body.page-home .mini-post-list .post-preview {
     padding: 16px 16px 14px;
     border-radius: 16px;
