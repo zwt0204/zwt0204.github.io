@@ -4611,3 +4611,110 @@ blockquote {
     margin-bottom: 12px;
   }
 }
+
+/* --- final visual polish --- */
+body.page-home .home-category-copy-minimal {
+  padding: 22px 22px 20px;
+  gap: 8px;
+}
+
+body.page-home .home-category-copy-minimal p {
+  max-width: 16ch;
+  color: rgba(234, 244, 255, 0.9);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+body.page-home .home-category-chip {
+  background: rgba(8, 15, 28, 0.46);
+  border-color: rgba(186, 230, 253, 0.22);
+}
+
+body.page-home .home-category-cta-minimal {
+  margin-top: 4px;
+}
+
+.post-container table,
+.post-container .table,
+.table-responsive {
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(125, 211, 252, 0.12);
+  background: rgba(8, 15, 28, 0.72);
+}
+
+.post-container table > thead > tr > th,
+.post-container table > tbody > tr > th,
+.post-container table > thead > tr > td,
+.post-container table > tbody > tr > td,
+.post-container .table > thead > tr > th,
+.post-container .table > tbody > tr > th,
+.post-container .table > thead > tr > td,
+.post-container .table > tbody > tr > td {
+  border-color: rgba(148, 163, 184, 0.18);
+  color: rgba(226, 232, 240, 0.92);
+  background: transparent;
+}
+
+.post-container table > thead > tr > th,
+.post-container .table > thead > tr > th {
+  color: #f8fbff;
+  background: rgba(15, 23, 42, 0.88);
+}
+
+.post-container img + em,
+.post-container p > img + em,
+.post-container figcaption,
+.post-container .caption {
+  display: block;
+  margin-top: 10px;
+  color: rgba(191, 219, 254, 0.74);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.tags a,
+.sidebar-container .tags a,
+.intro-header.style-text .tags a,
+.intro-header.style-text .tags .tag {
+  color: #d9ecfb;
+  border-color: rgba(186, 230, 253, 0.22);
+  background: rgba(8, 15, 28, 0.46);
+}
+
+.tags a:hover,
+.tags a:focus,
+.sidebar-container .tags a:hover,
+.sidebar-container .tags a:focus,
+.intro-header.style-text .tags a:hover,
+.intro-header.style-text .tags .tag:hover {
+  color: #ffffff;
+  border-color: rgba(103, 232, 249, 0.38);
+  background: rgba(14, 165, 233, 0.14);
+}
+
+.post-preview > a,
+.post-preview > .post-meta > a,
+.post-content-preview,
+.intro-header.style-text .site-heading .subheading,
+.intro-header.style-text .post-heading .subheading,
+.intro-header.style-text .page-heading .subheading {
+  color: rgba(226, 232, 240, 0.86);
+}
+
+.post-preview > .post-meta,
+.archive-list .post-preview > .post-meta,
+.sidebar-container,
+.sidebar-container p,
+.sidebar-container li,
+.floating-label-form-group label {
+  color: rgba(191, 219, 254, 0.74);
+}
+
+hr.small,
+.intro-header:before,
+.intro-header:after {
+  border-color: rgba(148, 163, 184, 0.2);
+}
