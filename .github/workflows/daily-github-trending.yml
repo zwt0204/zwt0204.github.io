@@ -2,8 +2,8 @@ name: Daily GitHub Trending
 
 on:
   schedule:
-    # 08:20 Asia/Shanghai every day.
-    - cron: "20 0 * * *"
+    # 10:00 Asia/Shanghai every day.
+    - cron: "0 2 * * *"
   workflow_dispatch:
 
 permissions:
