@@ -32,7 +32,7 @@ categories: [github]
 ### [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
 
 - 语言：Python
-- Stars：186,642，Forks：32,104，今日新增：1,112
+- Stars：186,646，Forks：32,104，今日新增：1,112
 - Topics：ai、ai-agent、ai-agents、anthropic、chatgpt、claude
 - 官网/演示：[https://hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com)
 - 学习价值评分：19/20
@@ -59,7 +59,7 @@ categories: [github]
 ### [aaif-goose/goose](https://github.com/aaif-goose/goose)
 
 - 语言：Rust
-- Stars：47,774，Forks：5,033，今日新增：322
+- Stars：47,778，Forks：5,033，今日新增：322
 - Topics：acp、ai、ai-agents、mcp
 - 官网/演示：[https://goose-docs.ai/](https://goose-docs.ai/)
 - 学习价值评分：17/20
@@ -86,7 +86,7 @@ categories: [github]
 ### [mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill)
 
 - 语言：Python
-- Stars：32,597，Forks：2,688，今日新增：1,111
+- Stars：32,611，Forks：2,689，今日新增：1,111
 - Topics：ai-prompts、ai-skill、bluesky、claude、claude-code、clawhub
 - 学习价值评分：15/20
 
@@ -112,7 +112,7 @@ categories: [github]
 ### [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill)
 
 - 语言：Shell
-- Stars：37,772，Forks：2,697，今日新增：1,103
+- Stars：37,783，Forks：2,697，今日新增：1,103
 - Topics：agent、ai、claude、claude-code、codex、coding
 - 官网/演示：[https://tasteskill.dev](https://tasteskill.dev)
 - 学习价值评分：15/20
@@ -139,7 +139,7 @@ categories: [github]
 ### [RyanCodrai/turbovec](https://github.com/RyanCodrai/turbovec)
 
 - 语言：Python
-- Stars：7,752，Forks：741，今日新增：1,554
+- Stars：7,759，Forks：741，今日新增：1,554
 - Topics：ann、avx512、embedding、embeddings、faiss、nearest-neighbor
 - 官网/演示：[https://pypi.org/project/turbovec/](https://pypi.org/project/turbovec/)
 - 学习价值评分：11/20
@@ -168,22 +168,22 @@ categories: [github]
 
 | 项目 | 语言 | Stars | 今日新增 | 简介 |
 | --- | --- | ---: | ---: | --- |
-| [mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill) | Python | 32,597 | 1,111 | AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary |
-| [opencv/opencv](https://github.com/opencv/opencv) | C++ | 88,288 | 65 | Open Source Computer Vision Library |
-| [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | Shell | 37,772 | 1,103 | Taste-Skill - gives your AI good taste. stops the AI from generating boring, generic slop |
-| [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) | Python | 186,642 | 1,112 | The agent that grows with you |
-| [lfnovo/open-notebook](https://github.com/lfnovo/open-notebook) | TypeScript | 27,674 | 554 | An Open Source implementation of Notebook LM with more flexibility and features |
-| [yikart/AiToEarn](https://github.com/yikart/AiToEarn) | TypeScript | 19,196 | 183 | Let's use AI to Earn! |
-| [aaif-goose/goose](https://github.com/aaif-goose/goose) | Rust | 47,774 | 322 | an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and test with any LLM |
-| [Crosstalk-Solutions/project-nomad](https://github.com/Crosstalk-Solutions/project-nomad) | TypeScript | 29,919 | 309 | Project N.O.M.A.D, is a self-contained, offline survival computer packed with critical tools, knowledge, and AI to keep you informed and empowered—anytime, anywhere. |
-| [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp) | C++ | 115,516 | 158 | LLM inference in C/C++ |
-| [RyanCodrai/turbovec](https://github.com/RyanCodrai/turbovec) | Python | 7,752 | 1,554 | A vector index built on TurboQuant, written in Rust with Python bindings |
+| [mvanhorn/last30days-skill](https://github.com/mvanhorn/last30days-skill) | Python | 32,611 | 1,111 | AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary |
+| [opencv/opencv](https://github.com/opencv/opencv) | C++ | 88,290 | 65 | Open Source Computer Vision Library |
+| [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) | Shell | 37,783 | 1,103 | Taste-Skill - gives your AI good taste. stops the AI from generating boring, generic slop |
+| [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) | Python | 186,646 | 1,112 | The agent that grows with you |
+| [lfnovo/open-notebook](https://github.com/lfnovo/open-notebook) | TypeScript | 27,681 | 554 | An Open Source implementation of Notebook LM with more flexibility and features |
+| [yikart/AiToEarn](https://github.com/yikart/AiToEarn) | TypeScript | 19,197 | 183 | Let's use AI to Earn! |
+| [aaif-goose/goose](https://github.com/aaif-goose/goose) | Rust | 47,778 | 322 | an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and test with any LLM |
+| [Crosstalk-Solutions/project-nomad](https://github.com/Crosstalk-Solutions/project-nomad) | TypeScript | 29,921 | 309 | Project N.O.M.A.D, is a self-contained, offline survival computer packed with critical tools, knowledge, and AI to keep you informed and empowered—anytime, anywhere. |
+| [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp) | C++ | 115,518 | 158 | LLM inference in C/C++ |
+| [RyanCodrai/turbovec](https://github.com/RyanCodrai/turbovec) | Python | 7,759 | 1,554 | A vector index built on TurboQuant, written in Rust with Python bindings |
 | [TapXWorld/ChinaTextbook](https://github.com/TapXWorld/ChinaTextbook) | Roff | 72,789 | 350 | 所有小初高、大学PDF教材。 |
-| [openai/plugins](https://github.com/openai/plugins) | JavaScript | 2,159 | 262 | OpenAI Plugins |
-| [refactoringhq/tolaria](https://github.com/refactoringhq/tolaria) | TypeScript | 13,137 | 245 | Desktop app to manage markdown knowledge bases |
-| [HunxByts/GhostTrack](https://github.com/HunxByts/GhostTrack) | Python | 13,887 | 28 | Useful tool to track location or mobile number |
-| [microsoft/pg_durable](https://github.com/microsoft/pg_durable) | Rust | 1,593 | 316 | PostgreSQL in-database durable execution |
+| [openai/plugins](https://github.com/openai/plugins) | JavaScript | 2,161 | 262 | OpenAI Plugins |
+| [refactoringhq/tolaria](https://github.com/refactoringhq/tolaria) | TypeScript | 13,143 | 245 | Desktop app to manage markdown knowledge bases |
+| [HunxByts/GhostTrack](https://github.com/HunxByts/GhostTrack) | Python | 13,889 | 28 | Useful tool to track location or mobile number |
+| [microsoft/pg_durable](https://github.com/microsoft/pg_durable) | Rust | 1,596 | 316 | PostgreSQL in-database durable execution |
 
 ---
 
-生成时间：2026-06-08 17:32:13 CST
+生成时间：2026-06-08 17:36:40 CST
