@@ -1,0 +1,31 @@
+name: Daily arXiv Papers
+
+on:
+  schedule:
+    # 10:30 Asia/Shanghai every day.
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-arxiv-papers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate report
+        run: python scripts/fetch_arxiv_papers.py
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update arxiv paper report"
+          file_pattern: "_posts/paper/*-arxiv-llm-agent-papers.md docs/arxiv-papers.json"
