@@ -235,4 +235,4 @@ Vision-language driving models increasingly use reasoning supervision to bridge 
 
 建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
 
-生成时间：2026-06-08 18:18:59 CST
+生成时间：2026-06-08 18:22:23 CST
