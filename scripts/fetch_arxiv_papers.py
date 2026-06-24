@@ -398,6 +398,64 @@ def contribution_lens(paper: Paper) -> tuple[str, str, str, str]:
     return problem_lens, method_lens, experiment_lens, limitation_lens
 
 
+def paper_architecture_breakdown(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "driving" in text or "autonomous driving" in text:
+        return """1. **输入层**：先确认论文使用的是单帧、多帧、视频片段、传感器融合结果，还是已有感知模型输出。自动驾驶风险理解的难点往往来自长时序和小目标同时存在。
+2. **视觉表示层**：看图像/视频特征如何进入语言模型，是否保留空间坐标、框、mask、轨迹或区域级证据。
+3. **Grounding 层**：标题里的 grounding 是关键。需要确认模型是否能把语言解释绑定回具体目标、位置、时间片段或风险区域。
+4. **语言推理层**：看模型如何把视觉证据转成风险判断，是直接生成解释，还是先生成结构化中间状态再输出语言。
+5. **风险输出层**：确认输出是风险分类、自然语言解释、对象定位、时序证据，还是多个目标联合输出。
+6. **验证层**：自动驾驶场景不能只看问答准确率，还要看空间定位、时序一致性、置信度和失败案例。"""
+    if "video" in text or "multimodal" in text or "vision" in text or "image" in text:
+        return """1. **输入层**：确认输入是图片、视频、音频还是多模态组合，以及上下文长度如何控制。
+2. **编码层**：看视觉/音频编码器输出如何压缩、采样或对齐到语言 token。
+3. **跨模态对齐层**：重点看空间、时间、对象和文本概念之间是否有显式绑定。
+4. **推理层**：确认模型是直接回答，还是引入检索、记忆、链式推理或结构化中间表示。
+5. **输出层**：看输出是分类、caption、定位、计划、解释还是可验证证据。
+6. **评测层**：检查指标是否覆盖细粒度理解，而不是只覆盖粗粒度语义匹配。"""
+    if "agent" in text or "tool" in text or "skill" in text:
+        return """1. **任务定义层**：确认 agent 面对的是静态问答、交互环境、代码仓库、GUI 还是工具链。
+2. **状态层**：看 observation、memory、scratchpad、tool result 如何被表示和更新。
+3. **动作层**：明确 action/tool schema、权限边界、参数约束和执行反馈。
+4. **策略层**：看决策来自 prompt、训练目标、搜索、反思还是外部 verifier。
+5. **反馈层**：确认奖励、评价器或错误信号如何进入下一轮决策。
+6. **执行保障层**：检查超时、失败恢复、成本控制和 trace 记录。"""
+    return """1. **问题输入层**：明确论文处理的输入、约束和目标。
+2. **表示层**：找出核心中间表示，它通常决定方法的真实贡献。
+3. **机制层**：拆出真正带来收益的算法、模块或训练目标。
+4. **输出层**：确认输出形式是否可验证、可解释、可复现。
+5. **实验层**：检查主结果、消融、泛化和失败案例是否形成闭环。"""
+
+
+def paper_detail_breakdown(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "driving" in text or "autonomous driving" in text:
+        return """- **时序推理细节**：摘要强调 temporal reasoning，要看模型处理连续帧时是否真的建模时间关系，还是只把多帧拼成上下文。
+- **空间精度细节**：摘要提到 small、distant、partially occluded hazards，实验必须覆盖小目标、遮挡、远距离目标和边缘区域。
+- **证据绑定细节**：interpretable risk understanding 不能只生成合理解释，还要能指出解释对应的目标、区域或时间片段。
+- **数据标注细节**：风险理解数据集需要明确风险对象、风险原因、发生时刻和可见证据，否则模型容易学到场景先验。
+- **评测指标细节**：除了文本匹配，还应关注 grounding accuracy、temporal localization、risk classification、explanation faithfulness。
+- **失败案例细节**：最值得看的不是成功样例，而是遮挡、复杂交通参与者、夜间/雨天、长尾风险下模型如何失败。"""
+    if "video" in text or "multimodal" in text or "vision" in text or "image" in text:
+        return """- **采样策略**：看帧/区域/片段如何选择，是否会丢掉稀疏但关键的证据。
+- **对齐策略**：确认模态对齐靠训练数据、结构设计、显式坐标，还是 prompt 约束。
+- **上下文预算**：长视频或高分辨率输入会带来 token 压力，需要看压缩是否损失细节。
+- **可解释性**：生成的文字是否能追溯到视觉证据。
+- **泛化边界**：看跨数据集、跨场景、跨模型 backbone 是否仍然有效。"""
+    if "agent" in text or "tool" in text or "skill" in text:
+        return """- **动作空间**：工具越多，越要看动作定义是否清晰，是否存在危险或重复动作。
+- **状态漂移**：长程任务里 memory 和 scratchpad 是否会引入过期信息。
+- **错误恢复**：失败后是重新规划、局部重试，还是直接继续生成。
+- **评价器可靠性**：如果依赖 LLM judge，要看是否有可验证信号或人工校准。
+- **成本控制**：多轮 agent 论文必须说明调用次数、token、环境交互成本。"""
+    return """- **核心假设**：方法成立依赖哪些数据、模型或任务假设。
+- **关键模块**：消融实验是否证明每个模块必要。
+- **对比对象**：baseline 是否足够强，设置是否公平。
+- **失败边界**：论文是否解释方法在哪些场景会失效。
+- **复现条件**：代码、数据、prompt、超参数是否足够完整。"""
+
+
 def questions_for(paper: Paper) -> list[str]:
     tags = set(topic_tags(paper))
     questions = [
@@ -446,6 +504,14 @@ def build_deep_paper_section(paper: Paper, outline: tuple[str, ...] = ()) -> str
 ### 全文结构线索
 
 {outline_text if outline_text else "没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。"}
+
+### 方法架构拆分
+
+{paper_architecture_breakdown(paper)}
+
+### 关键细节拆解
+
+{paper_detail_breakdown(paper)}
 
 ### 方法部分怎么读
 

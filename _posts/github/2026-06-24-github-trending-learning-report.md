@@ -49,6 +49,24 @@ categories: [github]
 
 如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是工程设计、生态位置、领域知识组织，还是某个可复用的技术抽象。
 
+### 架构拆分
+
+1. **领域知识层**：仓库的核心不是一个单一运行时，而是一批结构化安全技能。需要先看每个 skill 如何描述目标、适用场景、参考资料和执行步骤。
+2. **标准映射层**：`mappings/` 这类目录负责把技能映射到 MITRE ATT&CK、NIST、OWASP 等外部框架。这里决定了项目是否只是文件集合，还是可检索、可治理的知识库。
+3. **执行脚本层**：`skills/*/scripts/agent.py` 这类文件是关键细节。它们说明 skill 是否只是一段说明文字，还是包含可执行的检查、采集或分析动作。
+4. **参考资料层**：`references/api-reference.md` 这类文件用于把操作步骤落到具体 API、命令或工具上。这里要看引用是否足够具体，是否能被 agent 稳定消费。
+5. **工具与平台适配层**：README 里提到多个 AI coding/agent 平台时，要确认仓库是否提供统一格式，还是每个平台靠人工约定兼容。
+6. **维护与质量层**：这类知识库的长期价值取决于版本同步、重复技能治理、标准更新和安全误用边界，而不只是条目数量。
+
+### 关键细节拆解
+
+- **技能粒度**：检查一个 skill 是否足够小，能被 agent 独立调用；如果一个 skill 同时覆盖侦察、利用、检测和报告，执行边界就会变模糊。
+- **输入输出**：每个 skill 应该明确需要哪些上下文、凭据、日志、文件或环境信息，以及产出是结论、命令、报告还是证据。
+- **安全边界**：安全技能库必须区分防御、检测、演练和可能被滥用的攻击步骤。最好能在 skill 元数据里表达风险等级和授权前提。
+- **标准映射质量**：映射到 MITRE/NIST 不应只是标签堆叠，要能解释 skill 对应哪个 tactic、technique、control 或风险场景。
+- **可执行性**：`scripts/agent.py` 这类脚本要看是否有参数校验、错误处理、dry-run、日志和最小依赖；否则 skill 很难稳定接入自动化 agent。
+- **更新机制**：安全框架会变，工具命令会变，API 会变。项目需要能批量发现过期引用、重复技能和断链文档。
+
 ### 建议顺着这条链路读
 
 建议从用户入口读到 agent loop：先找 CLI/Web/API 入口，再追踪 request 如何变成 plan、tool call、observation、memory/context update，最后看结果如何返回给用户。
@@ -72,6 +90,19 @@ categories: [github]
 - `skills/abusing-shadow-credentials-for-privesc/references/api-reference.md`
 - `skills/abusing-shadow-credentials-for-privesc/scripts/agent.py`
 - `skills/acquiring-disk-image-with-dd-and-dcfldd/references/api-reference.md`
+
+### 关键文件怎么读
+
+| 文件/目录 | 阅读重点 |
+| --- | --- |
+| `README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `mappings/README.md` | 看领域知识如何映射到外部标准、框架或分类体系。 |
+| `mappings/mitre-attack/README.md` | 检查 MITRE ATT&CK 映射是否只是标签，还是能解释 tactic / technique / skill 的关系。 |
+| `mappings/nist-csf/README.md` | 看技能如何落到控制框架，判断它是否适合合规、审计或防御场景。 |
+| `mappings/owasp/README.md` | 看 Web/AppSec 类技能与常见风险分类的连接方式。 |
+| `tools/README.md` | 看项目提供了哪些辅助工具，以及这些工具是否形成稳定维护入口。 |
+| `skills/*/references/api-reference.md` | 看单个技能是否有足够具体的命令、API、日志字段或证据来源。 |
+| `skills/*/scripts/agent.py` | 追踪可执行逻辑，确认脚本承担的是采集、转换、执行还是验证。 |
 
 具体可以按这个顺序推进：
 

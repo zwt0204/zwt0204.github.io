@@ -55,6 +55,24 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 
 没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
+### 方法架构拆分
+
+1. **输入层**：先确认论文使用的是单帧、多帧、视频片段、传感器融合结果，还是已有感知模型输出。自动驾驶风险理解的难点往往来自长时序和小目标同时存在。
+2. **视觉表示层**：看图像/视频特征如何进入语言模型，是否保留空间坐标、框、mask、轨迹或区域级证据。
+3. **Grounding 层**：标题里的 grounding 是关键。需要确认模型是否能把语言解释绑定回具体目标、位置、时间片段或风险区域。
+4. **语言推理层**：看模型如何把视觉证据转成风险判断，是直接生成解释，还是先生成结构化中间状态再输出语言。
+5. **风险输出层**：确认输出是风险分类、自然语言解释、对象定位、时序证据，还是多个目标联合输出。
+6. **验证层**：自动驾驶场景不能只看问答准确率，还要看空间定位、时序一致性、置信度和失败案例。
+
+### 关键细节拆解
+
+- **时序推理细节**：摘要强调 temporal reasoning，要看模型处理连续帧时是否真的建模时间关系，还是只把多帧拼成上下文。
+- **空间精度细节**：摘要提到 small、distant、partially occluded hazards，实验必须覆盖小目标、遮挡、远距离目标和边缘区域。
+- **证据绑定细节**：interpretable risk understanding 不能只生成合理解释，还要能指出解释对应的目标、区域或时间片段。
+- **数据标注细节**：风险理解数据集需要明确风险对象、风险原因、发生时刻和可见证据，否则模型容易学到场景先验。
+- **评测指标细节**：除了文本匹配，还应关注 grounding accuracy、temporal localization、risk classification、explanation faithfulness。
+- **失败案例细节**：最值得看的不是成功样例，而是遮挡、复杂交通参与者、夜间/雨天、长尾风险下模型如何失败。
+
 ### 方法部分怎么读
 
 方法部分重点看模态表示如何进入语言模型，是否引入检索/记忆/压缩模块，以及训练和推理阶段是否一致。
@@ -90,4 +108,4 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 
 正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-生成时间：2026-06-24 17:11:07 CST
+生成时间：2026-06-24 17:22:39 CST

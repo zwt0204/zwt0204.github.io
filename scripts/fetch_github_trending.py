@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -204,13 +205,17 @@ def is_repo_metric_href(href: str) -> bool:
 
 
 def get_url(url: str, accept: str = "text/html") -> str:
+    headers = {
+        "Accept": accept,
+        "User-Agent": USER_AGENT,
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    token = os.environ.get("GITHUB_TOKEN")
+    if token and "api.github.com" in url:
+        headers["Authorization"] = f"Bearer {token}"
     request = Request(
         url,
-        headers={
-            "Accept": accept,
-            "User-Agent": USER_AGENT,
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
+        headers=headers,
     )
     last_error: Exception | None = None
     for attempt in range(3):
@@ -420,6 +425,33 @@ def key_file_signals(repo: Repo) -> str:
     return "\n".join(f"- `{path}`" for path in repo.key_files[:12])
 
 
+def key_file_breakdown(repo: Repo) -> str:
+    if not repo.key_files:
+        return "文件树暂时没有抓取到。正式阅读时先找 README、配置文件、入口脚本、核心目录、示例和测试目录，补齐下面的架构判断。"
+
+    rows = ["| 文件/目录 | 阅读重点 |", "| --- | --- |"]
+    for path in repo.key_files[:12]:
+        lower = path.lower()
+        if "readme" in lower:
+            focus = "确认项目承诺、安装方式、核心概念和使用边界。"
+        elif "/mappings/" in lower or lower.startswith("mappings/"):
+            focus = "看领域知识如何映射到外部标准、框架或分类体系。"
+        elif "/skills/" in lower or lower.startswith("skills/"):
+            focus = "看单个能力单元的目录结构、输入输出、脚本与参考资料如何组合。"
+        elif "/scripts/" in lower or lower.endswith(".py"):
+            focus = "追踪可执行逻辑，确认脚本承担的是采集、转换、执行还是验证。"
+        elif "/tools/" in lower or lower.startswith("tools/"):
+            focus = "看项目提供了哪些辅助工具，以及这些工具是否形成稳定维护入口。"
+        elif "config" in lower or lower.endswith((".yml", ".yaml", ".toml", ".json")):
+            focus = "看配置约束、默认行为、兼容平台和发布/集成方式。"
+        elif "test" in lower:
+            focus = "看测试覆盖的是数据结构、转换规则、执行脚本还是端到端路径。"
+        else:
+            focus = "用于定位项目的核心边界和上下游依赖。"
+        rows.append(f"| `{path}` | {focus} |")
+    return "\n".join(rows)
+
+
 def project_type(repo: Repo) -> str:
     text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
     language = (repo.language or "").lower()
@@ -438,6 +470,57 @@ def project_type(repo: Repo) -> str:
     if language == "python":
         return "Python 工具或框架项目"
     return "开源工程项目"
+
+
+def architecture_breakdown(repo: Repo) -> str:
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)} {' '.join(repo.key_files)}".lower()
+    if "skill" in text and ("security" in text or "cyber" in text or "mitre" in text):
+        return """1. **领域知识层**：仓库的核心不是一个单一运行时，而是一批结构化安全技能。需要先看每个 skill 如何描述目标、适用场景、参考资料和执行步骤。
+2. **标准映射层**：`mappings/` 这类目录通常负责把技能映射到 MITRE ATT&CK、NIST、OWASP 等外部框架。这里决定了项目是否只是文件集合，还是可检索、可治理的知识库。
+3. **执行脚本层**：`skills/*/scripts/agent.py` 这类文件是关键细节。它们说明 skill 是否只是一段说明文字，还是包含可执行的检查、采集或分析动作。
+4. **参考资料层**：`references/api-reference.md` 这类文件用于把操作步骤落到具体 API、命令或工具上。这里要看引用是否足够具体，是否能被 agent 稳定消费。
+5. **工具与平台适配层**：README 里提到多个 AI coding/agent 平台时，要确认仓库是否提供统一格式，还是每个平台靠人工约定兼容。
+6. **维护与质量层**：这类知识库的长期价值取决于版本同步、重复技能治理、标准更新和安全误用边界，而不只是条目数量。"""
+    if "agent" in text or "llm" in text or "ai" in text:
+        return """1. **用户入口层**：先确认项目暴露的是 CLI、Web、SDK、插件还是配置文件。入口决定用户目标如何进入系统。
+2. **任务编排层**：看任务如何被拆成 plan、tool call、observation、state update，以及失败后如何回到上一层。
+3. **工具注册层**：关注工具 schema、权限、参数校验、超时、重试和日志。agent 项目的稳定性通常卡在这里。
+4. **上下文/记忆层**：看 prompt、短期状态、长期记忆、检索结果如何合并，以及是否有预算控制。
+5. **模型适配层**：看不同模型 provider 是否被隔离，错误码、速率限制、流式输出和成本统计是否有统一封装。
+6. **观测与测试层**：重点看 trace、事件日志、回放、fixtures 和端到端测试，否则很难复盘长任务失败。"""
+    if "database" in text or "postgres" in text or "db" in text:
+        return """1. **API 层**：确认读写入口和用户能控制的参数。
+2. **事务/状态层**：看状态如何落盘，失败时如何恢复。
+3. **并发控制层**：重点看锁、隔离级别、队列和幂等。
+4. **索引/查询层**：确认性能收益来自数据结构、缓存还是查询重写。
+5. **运维层**：看迁移、备份、监控和压测方式。"""
+    return """1. **入口层**：确认用户通过什么接口使用项目。
+2. **核心抽象层**：找最稳定的数据结构、服务对象或领域模型。
+3. **边界适配层**：看外部 API、文件系统、数据库和网络请求如何被隔离。
+4. **配置与扩展层**：看默认配置、插件点和兼容策略。
+5. **质量保障层**：看测试、示例、CI 和发布脚本是否覆盖真实路径。"""
+
+
+def detail_breakdown(repo: Repo) -> str:
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)} {' '.join(repo.key_files)}".lower()
+    if "skill" in text and ("security" in text or "cyber" in text or "mitre" in text):
+        return """- **技能粒度**：检查一个 skill 是否足够小，能被 agent 独立调用；如果一个 skill 同时覆盖侦察、利用、检测和报告，执行边界就会变模糊。
+- **输入输出**：每个 skill 应该明确需要哪些上下文、凭据、日志、文件或环境信息，以及产出是结论、命令、报告还是证据。
+- **安全边界**：安全技能库必须区分防御、检测、演练和可能被滥用的攻击步骤。最好能在 skill 元数据里表达风险等级和授权前提。
+- **标准映射质量**：映射到 MITRE/NIST 不应只是标签堆叠，要能解释 skill 对应哪个 tactic、technique、control 或风险场景。
+- **可执行性**：`scripts/agent.py` 这类脚本要看是否有参数校验、错误处理、dry-run、日志和最小依赖；否则 skill 很难稳定接入自动化 agent。
+- **更新机制**：安全框架会变，工具命令会变，API 会变。项目需要能批量发现过期引用、重复技能和断链文档。"""
+    if "agent" in text or "llm" in text or "ai" in text:
+        return """- **状态对象**：确认任务状态是否有显式结构，而不是散落在 prompt 字符串里。
+- **工具 schema**：看工具参数是否强类型、是否有权限描述、是否能表达危险操作。
+- **失败恢复**：重点找 timeout、rate limit、tool error、模型拒答、上下文过长时的处理。
+- **可观测性**：长任务必须能回放每一步输入、输出、工具结果和中间状态。
+- **扩展点**：判断新增工具、模型 provider、memory backend 是否需要改核心代码。"""
+    return """- **核心对象**：找出项目真正反复传递的数据结构。
+- **依赖边界**：确认外部服务是否通过 adapter 封装。
+- **错误模型**：看异常是结构化返回，还是直接抛出字符串。
+- **测试样例**：优先读覆盖真实链路的测试，而不是只测工具函数。
+- **发布路径**：看版本、配置迁移和兼容性说明是否清楚。"""
 
 
 def deep_reading_sections(repo: Repo) -> tuple[str, str, str, str]:
@@ -505,6 +588,14 @@ def build_deep_analysis(repo: Repo) -> str:
 
 如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是工程设计、生态位置、领域知识组织，还是某个可复用的技术抽象。
 
+### 架构拆分
+
+{architecture_breakdown(repo)}
+
+### 关键细节拆解
+
+{detail_breakdown(repo)}
+
 ### 建议顺着这条链路读
 
 {architecture_path}
@@ -516,6 +607,10 @@ def build_deep_analysis(repo: Repo) -> str:
 值得优先打开的文件或目录：
 
 {key_file_signals(repo)}
+
+### 关键文件怎么读
+
+{key_file_breakdown(repo)}
 
 具体可以按这个顺序推进：
 

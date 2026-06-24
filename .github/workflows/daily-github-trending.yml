@@ -22,6 +22,8 @@ jobs:
           python-version: "3.12"
 
       - name: Generate report
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/fetch_github_trending.py
 
       - name: Commit changes
