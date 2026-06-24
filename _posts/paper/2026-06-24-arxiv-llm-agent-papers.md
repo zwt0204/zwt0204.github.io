@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "arXiv 论文学习日报：LLM、多模态与 Agent (2026-06-24)"
-subtitle: "自动筛选值得精读的新论文"
+title: "arXiv 论文精读：UniDrive: A Unified Vision-Language and Grounding Framework for Interpretable Risk Understanding in Autonomous Driving (2026-06-24)"
+subtitle: "每天只选一篇论文深读"
 date: 2026-06-24 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -21,7 +21,7 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，并按研究价值、工程启发和可复现线索进行排序。
+数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，但正文只选一篇深读；其它论文只保留在候选表里。
 
 筛选不是简单看标题热词，而是优先考虑：
 
@@ -32,7 +32,7 @@ categories: [paper, daily]
 
 # 1. 今日最值得读的论文
 
-## [UniDrive: A Unified Vision-Language and Grounding Framework for Interpretable Risk Understanding in Autonomous Driving](http://arxiv.org/abs/2606.24759v1)
+## 今日只读这篇：[UniDrive: A Unified Vision-Language and Grounding Framework for Interpretable Risk Understanding in Autonomous Driving](http://arxiv.org/abs/2606.24759v1)
 
 - arXiv：[2606.24759](http://arxiv.org/abs/2606.24759v1)
 - PDF：[https://arxiv.org/pdf/2606.24759v1](https://arxiv.org/pdf/2606.24759v1)
@@ -46,159 +46,57 @@ categories: [paper, daily]
 
 Recent multimodal large language models (MLLMs) have shown strong potential for autonomous driving scene understanding, yet existing methods still face a fundamental trade-off between temporal reasoning and spatial precision. Models that rely on single-frame or low-resolution inputs often miss small, distant, or partially occluded hazards, while language-centric driving models frequently provide limited grounded evidence for their explanations.
 
-### 为什么值得读
+### 为什么今天选它
 
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现、摘要中有实验或对比信号。今天的目标不是把候选论文都过一遍，而是挑一篇最值得投入精力的论文，把它读到能回答“问题是什么、方法凭什么有效、实验是否支撑结论、工程上能带走什么”。
 
-### 方法与贡献线索
+### 先抓住问题定义
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+把它当成一篇多模态系统论文来读：关键是它解决了感知、对齐、长上下文或推理链路里的哪一个瓶颈。
 
-### 精读时重点追问
+从摘要看，这篇论文最应该先确认的不是具体指标，而是它把问题边界划在哪里：输入是什么，输出是什么，系统/模型在什么约束下工作，和已有路线相比到底难在哪里。
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+### 全文结构线索
 
-## [CineCap: Structured Reasoning with Spatio-Temporal Anchors for Cinematographic Video Captioning](http://arxiv.org/abs/2606.24636v1)
+没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
-- arXiv：[2606.24636](http://arxiv.org/abs/2606.24636v1)
-- PDF：[https://arxiv.org/pdf/2606.24636v1](https://arxiv.org/pdf/2606.24636v1)
-- 作者：Xinyu Mao、Yuhui Zeng、Xiaokun Liu、Wenyu Qin、Meng Wang、Xin Tao、等
-- 发布时间：2026-06-23，更新时间：2026-06-23
-- 类别：cs.AI
-- 主题标签：LLM、多模态、RAG/Memory、Reasoning、Safety/Eval
-- 阅读价值评分：18/20
+### 方法部分怎么读
 
-### 摘要速读
+方法部分重点看模态表示如何进入语言模型，是否引入检索/记忆/压缩模块，以及训练和推理阶段是否一致。
 
-Cinematographic captioning aims to describe how a video is filmed using professional film-language concepts such as camera movement, shot size, depth of field, composition, and shooting angle. This capability is important for fine-grained video understanding and controllable movie-quality video generation, yet remains underexplored in existing multimodal large language models.
+阅读时建议把方法拆成三层：
 
-### 为什么值得读
+1. **核心假设**：作者相信哪个瓶颈最重要，这个假设是否合理。
+2. **关键机制**：真正带来收益的是模型结构、数据构造、检索/记忆、训练目标，还是推理流程。
+3. **工程代价**：额外 token、额外模型调用、额外标注、额外存储或延迟是否可接受。
 
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、训练/后训练方法、类别与 LLM/Agent 高相关、方法贡献明确、可能有代码或数据可复现、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+### 实验部分怎么判断
 
-### 方法与贡献线索
+实验部分要看数据集是否覆盖真实复杂场景，指标是否能反映推理质量，而不只是某个 benchmark 的选择题准确率。
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+至少要检查四块：主结果是否稳定，消融是否能证明关键模块必要，失败案例是否诚实，结论是否跨模型或跨数据集成立。
 
-### 精读时重点追问
+### 局限和追问
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
+如果收益依赖特定数据集、特定 backbone 或昂贵 token budget，就需要谨慎判断可迁移性。
 
-## [EG-VQA: Benchmarking Verifiable Video Question Answering with Grounded Temporal Evidence](http://arxiv.org/abs/2606.24797v1)
-
-- arXiv：[2606.24797](http://arxiv.org/abs/2606.24797v1)
-- PDF：[https://arxiv.org/pdf/2606.24797v1](https://arxiv.org/pdf/2606.24797v1)
-- 作者：Linpeng Huang、Weixing Chen、Zexin Chen、Yang Liu、Liang Lin
-- 发布时间：2026-06-23，更新时间：2026-06-23
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、Reasoning、Safety/Eval
-- 阅读价值评分：17/20
-
-### 摘要速读
-
-Recent advances in Video Large Language Models (Video-LLMs) have yielded promising performance on video question answering (VideoQA). Nevertheless, existing benchmarks are predominantly evaluated through answer correctness, while the grounding of predictions in relevant video evidence remains largely unexamined.
-
-### 为什么值得读
-
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、可能有代码或数据可复现、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
-
-## [Evaluating the Interpretability of Sparse Autoencoders with Concept Annotations](http://arxiv.org/abs/2606.24716v1)
-
-- arXiv：[2606.24716](http://arxiv.org/abs/2606.24716v1)
-- PDF：[https://arxiv.org/pdf/2606.24716v1](https://arxiv.org/pdf/2606.24716v1)
-- 作者：Jonas Klotz、Cassio F. Dantas、Pallavi Jain、Diego Marcos、Begüm Demir
-- 发布时间：2026-06-23，更新时间：2026-06-23
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、Reasoning、Safety/Eval
-- 阅读价值评分：17/20
-
-### 摘要速读
-
-Sparse autoencoders (SAEs) are increasingly used to extract interpretable concepts from vision and vision language models, yet existing evaluation methods largely rely on proxy metrics or qualitative inspection rather than measuring semantic correspondence. We present a human-grounded evaluation framework that quantifies alignment between SAE latents and human-annotated concepts, without requiring user studies, and validate this matching through targeted attribute perturbations.
-
-### 为什么值得读
-
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
-
-## [IV-CoT: Implicit Visual Chain-of-Thought for Structure-Aware Text-to-Image Generation](http://arxiv.org/abs/2606.24849v1)
-
-- arXiv：[2606.24849](http://arxiv.org/abs/2606.24849v1)
-- PDF：[https://arxiv.org/pdf/2606.24849v1](https://arxiv.org/pdf/2606.24849v1)
-- 作者：Zixuan Li、Haokun Lin、Yicheng Xiao、Zhiwei Li、Xinyang Song、Zelong Zheng、等
-- 发布时间：2026-06-23，更新时间：2026-06-23
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、RAG/Memory、Reasoning
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-Unified multi-modal large language models (MLLMs) have achieved strong text-to-image generation quality, but still struggle with structure-aware prompt following, where object counts, spatial relations, attribute bindings, and coarse layouts must be preserved. We attribute this limitation in part to the entanglement of structural planning and appearance rendering within a single conditioning stream.
-
-### 为什么值得读
-
-大模型核心方向、多模态/视觉语言模型、Agent 与长程任务、推理、代码或复杂任务、推理效率或系统优化、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
-
-## [SHERLOC: Structured Diagnostic Localization for Code Repair Agents](http://arxiv.org/abs/2606.24820v1)
-
-- arXiv：[2606.24820](http://arxiv.org/abs/2606.24820v1)
-- PDF：[https://arxiv.org/pdf/2606.24820v1](https://arxiv.org/pdf/2606.24820v1)
-- 作者：Hovhannes Tamoyan、Sean Narenthiran、Erik Arakelyan、Mira Mezini、Boris Ginsburg
-- 发布时间：2026-06-23，更新时间：2026-06-23
-- 类别：cs.CL
-- 主题标签：LLM、Agent、Skill/Tool、RAG/Memory、Reasoning
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-LLM agents solve repository-level coding tasks through multi-turn tool use, but utilize half their budget on locating faults before editing. Dedicated localization frameworks have emerged, yet are still evaluated as file retrieval rather than actionable diagnosis, producing locations without the diagnostic context a repair agent needs.
-
-### 为什么值得读
-
-大模型核心方向、Agent 与长程任务、工具使用/技能学习、推理、代码或复杂任务、训练/后训练方法、类别与 LLM/Agent 高相关、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
+精读时重点追问：
 
 - 论文解决的是新问题，还是对已有问题换了一个实验设置？
 - 核心结论是否依赖特定模型、数据集或 prompt 模板？
 - 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+
+### 可以带走的东西
+
+如果论文读完之后只能沉淀一页笔记，建议记这三类内容：问题定义的抽象方式、核心机制为什么可能有效、实验设计里哪些指标或失败分析可以复用到自己的项目中。
+
+### 其它候选为什么先不展开
+
+- [CineCap: Structured Reasoning with Spatio-Temporal Anchors for Cinematographic Video Captioning](http://arxiv.org/abs/2606.24636v1)：评分 18/20，LLM, 多模态, RAG/Memory, Reasoning, Safety/Eval
+- [EG-VQA: Benchmarking Verifiable Video Question Answering with Grounded Temporal Evidence](http://arxiv.org/abs/2606.24797v1)：评分 17/20，LLM, 多模态, Reasoning, Safety/Eval
+- [Evaluating the Interpretability of Sparse Autoencoders with Concept Annotations](http://arxiv.org/abs/2606.24716v1)：评分 17/20，LLM, 多模态, Reasoning, Safety/Eval
+- [IV-CoT: Implicit Visual Chain-of-Thought for Structure-Aware Text-to-Image Generation](http://arxiv.org/abs/2606.24849v1)：评分 16/20，LLM, 多模态, RAG/Memory, Reasoning
+- [SHERLOC: Structured Diagnostic Localization for Code Repair Agents](http://arxiv.org/abs/2606.24820v1)：评分 16/20，LLM, Agent, Skill/Tool, RAG/Memory, Reasoning
 
 
 # 2. 候选论文列表
@@ -233,6 +131,6 @@ LLM agents solve repository-level coding tasks through multi-turn tool use, but 
 
 # 3. 阅读建议
 
-建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
+今天只建议先读正文选中的这一篇。候选表的作用是校准选择，而不是制造阅读负担；如果主选论文读完发现问题定义不成立，再从候选表里换下一篇。
 
-生成时间：2026-06-24 14:28:52 CST
+生成时间：2026-06-24 17:02:41 CST

@@ -395,12 +395,15 @@ def readme_signals(repo: Repo) -> str:
     headings: list[str] = []
     paragraphs: list[str] = []
     for raw_line in repo.readme.splitlines():
-        line = normalize_text(raw_line.strip("# ").strip())
+        stripped = raw_line.strip()
+        if not stripped or stripped.startswith(("<", "[!", "![", "|")):
+            continue
+        line = normalize_text(stripped.strip("# ").strip())
         if not line:
             continue
-        if raw_line.lstrip().startswith("#") and len(headings) < 6:
+        if stripped.startswith("#") and len(headings) < 6:
             headings.append(line)
-        elif not raw_line.lstrip().startswith(("-", "*", "[", "!", "`", "|")) and len(paragraphs) < 3:
+        elif not stripped.startswith(("-", "*", "[", "!", "`")) and len(paragraphs) < 3:
             paragraphs.append(line)
 
     parts: list[str] = []

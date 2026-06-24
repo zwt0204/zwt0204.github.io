@@ -205,10 +205,43 @@ def fetch_paper_outline(paper: Paper) -> tuple[str, ...]:
     try:
         parser = OutlineParser()
         parser.feed(get_url(url))
-        return tuple(parser.headings[:12])
+        return tuple(filter_outline_headings(parser.headings)[:12])
     except (HTTPError, URLError, TimeoutError, UnicodeDecodeError) as exc:
         print(f"warning: failed to fetch ar5iv outline for {paper.arxiv_id}: {exc}", file=sys.stderr)
         return ()
+
+
+def filter_outline_headings(headings: list[str]) -> list[str]:
+    blocked_exact = {
+        "quick links",
+        "submission history",
+        "access paper:",
+        "current browse context:",
+        "references & citations",
+        "bibtex formatted citation",
+        "bookmark",
+        "bibliographic and citation tools",
+        "code, data and media associated with this article",
+        "demos",
+        "recommenders and search tools",
+        "arxivlabs: experimental projects with community collaborators",
+    }
+    blocked_prefixes = (
+        "computer science >",
+        "title:",
+    )
+    result: list[str] = []
+    for heading in headings:
+        normalized = heading.strip()
+        lower = normalized.lower()
+        if lower in blocked_exact:
+            continue
+        if any(lower.startswith(prefix) for prefix in blocked_prefixes):
+            continue
+        if re.fullmatch(r"\d+(\.\d+)*\.?", normalized):
+            continue
+        result.append(normalized)
+    return result
 
 
 def text_of(node: ET.Element, path: str) -> str:
