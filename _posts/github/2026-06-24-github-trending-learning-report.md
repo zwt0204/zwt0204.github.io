@@ -39,6 +39,10 @@ categories: [github]
 
 **项目简介**：817 structured cybersecurity skills for AI agents · Mapped to 6 frameworks: MITRE ATT&CK, NIST CSF 2.0, MITRE ATLAS, D3FEND, NIST AI RMF & MITRE F3 (Fight Fraud) · agentskills.io standard · Works with Claude Code, GitHub Copilot, Codex CLI, Cursor, Gemini CLI & 20+ platforms · 29 security domains · Apache 2.0
 
+这类项目值得拆，不是因为它“有很多技能”，而是因为它把安全专家脑子里的作业流程拆成了 agent 可以检索、加载、执行和验证的结构化资产。换句话说，它想解决的不是“让模型知道更多安全名词”，而是让模型在真实安全任务里少猜一步、多查一步、按流程做一步。
+
+如果把普通安全资料库比作一堆手册，这个仓库更像一个 **agent 可消费的安全操作系统目录**：`index.json` 是入口索引，`SKILL.md` 是技能声明和工作流，`references/` 是证据和标准上下文，`scripts/agent.py` 是可执行 helper，`tools/validate-skill.py` 则是维护这套知识库不变形的质量门禁。
+
 ### 项目定位
 
 从仓库描述、主题标签和语言栈看，这是一个 AI/Agent 工程项目。拆解它时，重点放在它如何定义用户入口、组织核心抽象、隔离外部依赖，以及是否具备可复用的工程边界。
@@ -72,6 +76,106 @@ categories: [github]
 - **标准映射质量**：映射到 MITRE/NIST 不应只是标签堆叠，要能解释 skill 对应哪个 tactic、technique、control 或风险场景。
 - **可执行性**：`scripts/agent.py` 这类脚本要看是否有参数校验、错误处理、dry-run、日志和最小依赖；否则 skill 很难稳定接入自动化 agent。
 - **更新机制**：安全框架会变，工具命令会变，API 会变。项目需要能批量发现过期引用、重复技能和断链文档。
+
+### 代码调用链路
+
+![mukul975/Anthropic-Cybersecurity-Skills 代码调用链图](/img/daily-reports/2026-06-24-github-mukul975-anthropic-cybersecurity-skills-call-chain.svg)
+
+这部分是这篇文章最应该读细的地方。这个仓库并不是一个传统意义上的 Python 框架，它的“调用链”分成两条：一条是 **agent 如何发现和加载技能**，另一条是 **单个技能里的 helper 脚本如何编排外部工具**。
+
+1. **发现阶段：`index.json`**
+
+   仓库根目录的 `index.json` 是技能注册表，记录版本、生成时间、仓库地址、总技能数，以及每个 skill 的 `name`、`description`、`domain`、`path`。这一步的意义是让 agent 或平台先做轻量检索，而不是把 800 多个完整 Markdown 一次性塞进上下文。
+
+   对 agent 来说，这一层相当于“目录扫描”：
+
+   ```text
+   user task
+     -> scan index/frontmatter
+     -> shortlist relevant skills
+     -> load selected SKILL.md
+   ```
+
+2. **加载阶段：`skills/<name>/SKILL.md`**
+
+   以 `skills/abusing-dpapi-for-credential-access/SKILL.md` 为例，文件顶部的 YAML frontmatter 是机器检索层：`name`、`description`、`domain`、`subdomain`、`tags`、`mitre_attack`、`nist_csf`。正文才是完整执行剧本：Overview、When to Use、Prerequisites、Objectives、Workflow、Tools and Resources、Detection and OPSEC Notes、Validation Criteria。
+
+   这个设计比普通 README 更适合 agent，因为它把“怎么找到这个技能”和“怎么执行这个技能”分开了。frontmatter 控制召回，正文控制执行。
+
+3. **补充上下文：`references/standards.md` 和 `references/api-reference.md`**
+
+   单个 skill 目录里还有 `references/`。这层不是装饰文档，它承担两个角色：
+
+   - `standards.md`：解释该技能和 MITRE / NIST / D3FEND 等标准之间的关系。
+   - `api-reference.md`：把操作步骤落到具体工具、命令、API 或日志字段上。
+
+   没有这层，skill 很容易变成“提示词模板”；有了这层，agent 至少有机会把动作绑定到可核验的外部依据。
+
+4. **执行入口：`skills/*/scripts/agent.py`**
+
+   DPAPI 这个代表性 skill 的 `agent.py` 是一个标准 Python CLI helper。调用链大致是：
+
+   ```text
+   main()
+     -> argparse 解析 --profile / --pvk / --password / --ntlm / --mode
+     -> mode == enumerate
+        -> enumerate_artifacts(profile)
+     -> mode == impacket
+        -> enumerate_artifacts(profile)
+        -> find_tool(["impacket-dpapi", "dpapi.py"])
+        -> decrypt_masterkey_impacket(...)
+        -> run_cmd(...)
+     -> mode == sharpdpapi
+        -> find_tool(["SharpDPAPI.exe", "SharpDPAPI"])
+        -> sharpdpapi_triage(...)
+        -> run_cmd(...)
+   ```
+
+   这里最关键的工程判断是：脚本没有重写 DPAPI 密码学，而是把自己定位成 **operator helper / orchestrator**。真正的底层能力交给 SharpDPAPI 或 Impacket，仓库负责参数组织、文件枚举、工具发现、超时处理和输出截断。
+
+5. **外部命令边界：`run_cmd()`**
+
+   `run_cmd()` 是执行边界。它用 `subprocess.run()` 包住外部命令，并统一返回 `(returncode, stdout, stderr)`；同时处理 `FileNotFoundError` 和 `TimeoutExpired`。这个函数小，但它决定了 agent 接入脚本时能不能得到可解释的失败原因。
+
+   这类安全 skill 如果没有这样的边界，agent 很容易在工具不存在、命令卡住、参数错误时继续瞎编结果。
+
+6. **质量门禁：`tools/validate-skill.py`**
+
+   这个仓库最容易被忽略的代码其实是 `tools/validate-skill.py`。它的调用链是：
+
+   ```text
+   main()
+     -> collect skill dirs (--all or single dir)
+     -> validate_skill(skill_dir)
+        -> read SKILL.md
+        -> parse_frontmatter(content)
+        -> check required fields
+        -> check kebab-case name
+        -> check description length
+        -> check domain == cybersecurity
+        -> check subdomain in allowed aliases
+        -> check tags >= 2
+     -> print PASS / FAIL
+     -> exit non-zero if failed
+   ```
+
+   这条链路说明维护者意识到：技能库规模一旦变大，质量问题不会出现在某个复杂算法里，而会出现在元数据漂移、命名不一致、subdomain 发散、描述过短、tags 缺失这些“知识库腐烂”问题里。
+
+7. **真正的调用闭环**
+
+   把上面几层串起来，这个项目的真实工程闭环是：
+
+   ```text
+   用户安全任务
+     -> index/frontmatter 召回候选 skill
+     -> SKILL.md 提供执行工作流
+     -> references/ 提供标准和工具依据
+     -> scripts/agent.py 编排外部工具
+     -> Validation Criteria 约束结果验收
+     -> validate-skill.py 维持仓库质量
+   ```
+
+   这也是它和普通“安全资料合集”的区别：它不是只把知识写下来，而是试图让知识进入 agent 的检索、执行、验证和维护循环。
 
 ### 建议顺着这条链路读
 

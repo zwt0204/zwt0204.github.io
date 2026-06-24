@@ -549,6 +549,93 @@ def write_github_architecture_svg(repo: Repo, date: str) -> str:
     return f"img/daily-reports/{filename}"
 
 
+def write_github_call_chain_svg(repo: Repo, date: str) -> str:
+    ASSET_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"{date}-github-{slugify(repo.full_name)}-call-chain.svg"
+    path = ASSET_DIR / filename
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)} {' '.join(repo.key_files)}".lower()
+
+    if "skill" in text and ("security" in text or "cyber" in text or "mitre" in text):
+        boxes = [
+            ("index.json", "skill registry"),
+            ("SKILL.md", "frontmatter + workflow"),
+            ("references/", "standards + API"),
+            ("scripts/agent.py", "argparse entry"),
+            ("mode branch", "enumerate / impacket / sharpdpapi"),
+            ("run_cmd()", "external tool boundary"),
+        ]
+        caption = "代表性 skill 的代码调用链：先由索引定位，再加载 SKILL.md，最后进入脚本编排外部安全工具。"
+    elif "agent" in text or "llm" in text or "ai" in text:
+        boxes = [
+            ("入口", "CLI / Web / SDK"),
+            ("任务对象", "request / context"),
+            ("Planner", "plan / step"),
+            ("Tool call", "schema / permission"),
+            ("Observation", "result / error"),
+            ("Trace", "log / replay"),
+        ]
+        caption = "Agent 项目的代码调用链：用户请求被编排成工具调用，再用 observation 更新状态。"
+    else:
+        boxes = [
+            ("入口", "API / CLI"),
+            ("解析", "config / args"),
+            ("核心对象", "domain model"),
+            ("执行", "service / adapter"),
+            ("错误处理", "result / exception"),
+            ("输出", "report / state"),
+        ]
+        caption = "项目代码调用链：从入口参数到核心对象，再到边界适配和输出。"
+
+    box_width = 150
+    gap = 22
+    start_x = 34
+    y = 118
+    width = start_x * 2 + len(boxes) * box_width + (len(boxes) - 1) * gap
+    height = 330
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">',
+        f"<title id=\"title\">{svg_escape(repo.full_name)} 代码调用链</title>",
+        f"<desc id=\"desc\">{svg_escape(caption)}</desc>",
+        "<defs>",
+        '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7ed"/><stop offset="100%" stop-color="#eff6ff"/></linearGradient>',
+        '<filter id="shadow" x="-10%" y="-20%" width="120%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.15"/></filter>',
+        "</defs>",
+        f'<rect width="{width}" height="{height}" rx="18" fill="url(#bg)"/>',
+        f'<text x="34" y="42" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">代码调用链阅读图</text>',
+        f'<text x="34" y="70" font-family="Arial, sans-serif" font-size="14" fill="#475569">{svg_escape(caption)}</text>',
+    ]
+
+    for index, (title, subtitle) in enumerate(boxes):
+        x = start_x + index * (box_width + gap)
+        parts.extend(
+            [
+                f'<rect x="{x}" y="{y}" width="{box_width}" height="92" rx="12" fill="#ffffff" stroke="#fed7aa" filter="url(#shadow)"/>',
+                f'<text x="{x + box_width / 2}" y="{y + 34}" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#7c2d12">{svg_escape(title)}</text>',
+                f'<text x="{x + box_width / 2}" y="{y + 60}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#475569">{svg_escape(subtitle)}</text>',
+            ]
+        )
+        if index < len(boxes) - 1:
+            ax = x + box_width + 5
+            bx = x + box_width + gap - 5
+            parts.extend(
+                [
+                    f'<line x1="{ax}" y1="{y + 46}" x2="{bx}" y2="{y + 46}" stroke="#ea580c" stroke-width="2.5"/>',
+                    f'<polygon points="{bx},{y + 46} {bx - 8},{y + 41} {bx - 8},{y + 51}" fill="#ea580c"/>',
+                ]
+            )
+
+    parts.extend(
+        [
+            f'<rect x="34" y="248" width="{width - 68}" height="48" rx="10" fill="#ffedd5" stroke="#fdba74"/>',
+            f'<text x="54" y="278" font-family="Arial, sans-serif" font-size="14" fill="#7c2d12">读图顺序：把每个文件当成调用链上的一环，重点看输入、分支、外部命令边界和错误返回。</text>',
+            "</svg>",
+        ]
+    )
+    path.write_text("\n".join(parts) + "\n", encoding="utf-8")
+    return f"img/daily-reports/{filename}"
+
+
 def project_type(repo: Repo) -> str:
     text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
     language = (repo.language or "").lower()
@@ -620,6 +707,43 @@ def detail_breakdown(repo: Repo) -> str:
 - **发布路径**：看版本、配置迁移和兼容性说明是否清楚。"""
 
 
+def code_call_chain_breakdown(repo: Repo) -> str:
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)} {' '.join(repo.key_files)}".lower()
+    if "skill" in text and ("security" in text or "cyber" in text or "mitre" in text):
+        return """1. **发现阶段：`index.json`**
+   这是仓库级索引，记录 skill 名称、描述、路径和生成时间。agent 或平台不用一开始加载 800 多个完整 Markdown，而是先扫这个索引或 frontmatter，快速缩小候选技能集合。
+
+2. **加载阶段：`skills/<name>/SKILL.md`**
+   每个 skill 的 YAML frontmatter 承担“机器可检索元数据”：`name`、`description`、`domain`、`subdomain`、`tags`、`mitre_attack`、`nist_csf` 等。Markdown 正文承担“人和 agent 都能读的执行剧本”：Overview、Prerequisites、Objectives、Workflow、Validation Criteria。
+
+3. **补充上下文：`references/*.md`**
+   `references/standards.md` 和 `references/api-reference.md` 把 skill 从“步骤说明”变成“有依据的操作单元”。前者负责标准映射，后者负责工具/API/命令字段解释。
+
+4. **执行入口：`skills/*/scripts/agent.py`**
+   代表性脚本使用 `argparse` 定义参数和模式，然后进入 `main()`。这说明它不是被框架强绑定的服务，而是可以被 agent、人工 operator 或自动化流程独立调用的 helper。
+
+5. **模式分支：`enumerate` / `impacket` / `sharpdpapi`**
+   以 DPAPI skill 为例，脚本先校验 `--profile`、`--pvk` 等输入，再进入不同模式：`enumerate_artifacts()` 只枚举文件；`impacket` 模式在枚举后调用 `decrypt_masterkey_impacket()`；`sharpdpapi` 模式走 `sharpdpapi_triage()`。
+
+6. **外部命令边界：`run_cmd()`**
+   脚本没有重写 DPAPI 密码学，而是通过 `subprocess.run()` 编排 SharpDPAPI 或 Impacket。这个边界很重要：仓库提供的是“安全工作流编排”，不是重新实现所有底层安全工具。
+
+7. **质量门禁：`tools/validate-skill.py`**
+   PR 或批量维护时，`main()` 会遍历 skill 目录，调用 `validate_skill()`，再由 `parse_frontmatter()` 解析 YAML-like frontmatter。它检查必填字段、kebab-case、描述长度、domain、subdomain 和 tags。这个脚本是知识库长期不失控的关键。"""
+    if "agent" in text or "llm" in text or "ai" in text:
+        return """1. **入口函数**：找到 CLI/Web/API 如何把用户输入变成任务对象。
+2. **任务编排**：追踪任务对象如何进入 planner 或 executor。
+3. **工具调用**：看 tool schema、权限校验和参数序列化。
+4. **结果回流**：看 observation 如何更新上下文、记忆或状态机。
+5. **错误处理**：找 timeout、rate limit、tool error 的分支。
+6. **日志与回放**：确认能否复盘每一步模型输入、工具输出和最终决策。"""
+    return """1. **入口**：找到 CLI/API 主函数。
+2. **解析**：看配置、参数和输入文件如何变成内部对象。
+3. **核心调用**：追踪核心对象进入服务层或算法层。
+4. **边界调用**：看外部进程、网络、数据库或文件系统如何隔离。
+5. **返回**：确认错误、日志和输出格式。"""
+
+
 def deep_reading_sections(repo: Repo) -> tuple[str, str, str, str]:
     text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
     language = (repo.language or "").lower()
@@ -658,7 +782,7 @@ def dedupe(items: Iterable[str]) -> list[str]:
     return result
 
 
-def build_deep_analysis(repo: Repo, architecture_image: str) -> str:
+def build_deep_analysis(repo: Repo, architecture_image: str, call_chain_image: str) -> str:
     topics = "、".join(repo.topics[:6]) if repo.topics else "暂无"
     homepage = f"\n- 官网/演示：[{repo.homepage}]({repo.homepage})" if repo.homepage else ""
     description = (repo.description or "项目暂未提供简介，需要从 README 和代码结构进一步判断。").strip()
@@ -698,6 +822,12 @@ def build_deep_analysis(repo: Repo, architecture_image: str) -> str:
 ### 关键细节拆解
 
 {detail_breakdown(repo)}
+
+### 代码调用链路
+
+![{repo.full_name} 代码调用链图](/{call_chain_image})
+
+{code_call_chain_breakdown(repo)}
 
 ### 建议顺着这条链路读
 
@@ -748,7 +878,8 @@ def write_report(repos: list[Repo]) -> Path:
     ranked = sorted(repos, key=lambda item: learning_value(item)[0], reverse=True)
     pick = enrich_reading_context(ranked[0])
     architecture_image = write_github_architecture_svg(pick, date)
-    body = build_deep_analysis(pick, architecture_image)
+    call_chain_image = write_github_call_chain_svg(pick, date)
+    body = build_deep_analysis(pick, architecture_image, call_chain_image)
 
     content = f"""---
 layout: post

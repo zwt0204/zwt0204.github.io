@@ -461,6 +461,91 @@ def paper_detail_breakdown(paper: Paper) -> str:
 - **复现条件**：代码、数据、prompt、超参数是否足够完整。"""
 
 
+def paper_method_chain(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "driving" in text or "autonomous driving" in text:
+        return """```text
+driving scene input
+  -> visual / temporal evidence extraction
+  -> object or region grounding
+  -> language-model risk reasoning
+  -> grounded explanation / risk output
+  -> metric-level verification
+```
+
+这条链路里最容易虚的地方是中间三步：视觉证据是否真的保留了空间和时间信息，grounding 是否能回指到具体目标，语言解释是否只是“听起来合理”而不是忠实于视觉证据。精读时要把每个 claim 都压回这条链上验证。"""
+    if "video" in text or "multimodal" in text or "vision" in text or "image" in text:
+        return """```text
+multimodal input
+  -> encoder / sampler
+  -> token or feature compression
+  -> cross-modal alignment
+  -> reasoning / generation
+  -> task output
+  -> metric and failure analysis
+```
+
+这条链路的关键是信息有没有在压缩和对齐阶段丢失。很多多模态论文的提升来自更好的采样或数据，而不是模型真的学会了更强推理。"""
+    if "agent" in text or "tool" in text or "skill" in text:
+        return """```text
+task state
+  -> planner / policy
+  -> tool action
+  -> environment feedback
+  -> memory or trace update
+  -> next action
+  -> final answer / success metric
+```
+
+Agent 论文要特别注意反馈是否真实。如果 observation 只是文本摘要，或者 judge 本身不可验证，长程任务分数会很容易虚高。"""
+    return """```text
+input
+  -> representation
+  -> core mechanism
+  -> output
+  -> evaluation
+  -> limitation analysis
+```
+
+精读时把论文所有模块都挂到这条链上：挂不上去的模块，通常就是包装或叙事。"""
+
+
+def paper_experiment_checklist(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "driving" in text or "autonomous driving" in text:
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 时序能力 | 是否比较单帧、多帧、长视频窗口；是否展示时间错位或延迟风险案例。 |
+| 空间 grounding | 是否有框、mask、区域、轨迹或对象级指标，而不只是文本答案。 |
+| 风险解释忠实度 | 解释是否能绑定到视觉证据；错误解释是否被单独分析。 |
+| 长尾场景 | 是否覆盖遮挡、远距离、小目标、夜间、雨雪、复杂交互。 |
+| Baseline 公平性 | baseline 是否使用同等输入分辨率、帧数和模型规模。 |
+| 失败案例 | 是否明确展示模型漏检、误报、错误定位和错误推理。 |"""
+    if "video" in text or "multimodal" in text or "vision" in text or "image" in text:
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 数据覆盖 | 是否覆盖多场景、多对象、多时间跨度和难例。 |
+| 对齐指标 | 是否有定位、引用、时间段或证据级指标。 |
+| 消融实验 | 是否拆开编码器、采样、检索、推理模块分别验证。 |
+| 成本指标 | 是否报告 token、延迟、显存或调用次数。 |
+| 泛化能力 | 是否跨数据集、跨模型或跨任务验证。 |"""
+    if "agent" in text or "tool" in text or "skill" in text:
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 任务真实性 | 是否是真交互环境，而不是静态问答。 |
+| Trace 质量 | 是否公开或分析中间 tool call、observation 和失败路径。 |
+| 成本控制 | 是否报告步数、token、工具调用次数和超时率。 |
+| 错误恢复 | 是否单独统计重试、回滚、重新规划。 |
+| Judge 可靠性 | 是否有人类校验或确定性检查作为对照。 |"""
+    return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 主结果 | 是否显著优于强 baseline。 |
+| 消融实验 | 是否证明关键模块必要。 |
+| 泛化设置 | 是否跨数据或跨模型验证。 |
+| 成本分析 | 是否报告额外计算、延迟和资源。 |
+| 失败案例 | 是否解释方法边界。 |"""
+
+
 def write_paper_architecture_svg(paper: Paper, date: str) -> str:
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
     filename = f"{date}-paper-{slugify(paper.title)}-architecture.svg"
@@ -621,6 +706,10 @@ def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tup
 
 {paper_detail_breakdown(paper)}
 
+### 方法链路细读
+
+{paper_method_chain(paper)}
+
 ### 方法部分怎么读
 
 {method_lens}
@@ -636,6 +725,10 @@ def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tup
 {experiment_lens}
 
 至少要检查四块：主结果是否稳定，消融是否能证明关键模块必要，失败案例是否诚实，结论是否跨模型或跨数据集成立。
+
+### 实验拆解清单
+
+{paper_experiment_checklist(paper)}
 
 ### 局限和追问
 

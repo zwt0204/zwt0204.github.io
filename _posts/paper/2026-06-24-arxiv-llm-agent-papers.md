@@ -79,6 +79,19 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 - **评测指标细节**：除了文本匹配，还应关注 grounding accuracy、temporal localization、risk classification、explanation faithfulness。
 - **失败案例细节**：最值得看的不是成功样例，而是遮挡、复杂交通参与者、夜间/雨天、长尾风险下模型如何失败。
 
+### 方法链路细读
+
+```text
+driving scene input
+  -> visual / temporal evidence extraction
+  -> object or region grounding
+  -> language-model risk reasoning
+  -> grounded explanation / risk output
+  -> metric-level verification
+```
+
+这条链路里最容易虚的地方是中间三步：视觉证据是否真的保留了空间和时间信息，grounding 是否能回指到具体目标，语言解释是否只是“听起来合理”而不是忠实于视觉证据。精读时要把每个 claim 都压回这条链上验证。
+
 ### 方法部分怎么读
 
 方法部分重点看模态表示如何进入语言模型，是否引入检索/记忆/压缩模块，以及训练和推理阶段是否一致。
@@ -94,6 +107,17 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 实验部分要看数据集是否覆盖真实复杂场景，指标是否能反映推理质量，而不只是某个 benchmark 的选择题准确率。
 
 至少要检查四块：主结果是否稳定，消融是否能证明关键模块必要，失败案例是否诚实，结论是否跨模型或跨数据集成立。
+
+### 实验拆解清单
+
+| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 时序能力 | 是否比较单帧、多帧、长视频窗口；是否展示时间错位或延迟风险案例。 |
+| 空间 grounding | 是否有框、mask、区域、轨迹或对象级指标，而不只是文本答案。 |
+| 风险解释忠实度 | 解释是否能绑定到视觉证据；错误解释是否被单独分析。 |
+| 长尾场景 | 是否覆盖遮挡、远距离、小目标、夜间、雨雪、复杂交互。 |
+| Baseline 公平性 | baseline 是否使用同等输入分辨率、帧数和模型规模。 |
+| 失败案例 | 是否明确展示模型漏检、误报、错误定位和错误推理。 |
 
 ### 局限和追问
 
@@ -114,4 +138,4 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 
 正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-生成时间：2026-06-24 17:52:46 CST
+生成时间：2026-06-24 18:19:24 CST
