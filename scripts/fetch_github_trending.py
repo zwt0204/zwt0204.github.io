@@ -478,39 +478,32 @@ def dedupe(items: Iterable[str]) -> list[str]:
     return result
 
 
-def build_deep_analysis(repo: Repo, alternatives: list[Repo]) -> str:
-    score, reasons = learning_value(repo)
-    reasons_text = "、".join(reasons) if reasons else "项目方向清晰，适合做源码阅读样本"
+def build_deep_analysis(repo: Repo) -> str:
     topics = "、".join(repo.topics[:6]) if repo.topics else "暂无"
     homepage = f"\n- 官网/演示：[{repo.homepage}]({repo.homepage})" if repo.homepage else ""
     description = (repo.description or "项目暂未提供简介，需要从 README 和代码结构进一步判断。").strip()
     language = repo.language or "未标注"
     reading_focus = reading_focus_for(repo)
     core_question, architecture_path, risk_points, reusable_lessons = deep_reading_sections(repo)
-    alternative_rows = "\n".join(
-        f"- [{item.full_name}]({item.url})：评分 {learning_value(item)[0]}/20，{(item.description or '暂无简介').strip()}"
-        for item in alternatives[:4]
-    )
 
-    return f"""## 今日只读这一个：[{repo.full_name}]({repo.url})
+    return f"""## [{repo.full_name}]({repo.url})
 
 - 语言：{language}
 - Stars：{repo.stars:,}，Forks：{repo.forks:,}，今日新增：{repo.today_stars:,}
 - Topics：{topics}{homepage}
-- 学习价值评分：{score}/20
 - 项目类型：{project_type(repo)}
 
 **项目简介**：{description}
 
-### 为什么今天选它，而不是泛读一堆
+### 项目定位
 
-{reasons_text}。今天的目标不是把 Trending 里所有项目都扫一遍，而是选一个最值得投入 30-60 分钟的样本。这个项目的价值不只在功能本身，更在于它能暴露一组可迁移的工程问题：用户入口如何定义、核心抽象是否稳定、外部依赖如何隔离、失败路径是否可观测。
+从仓库描述、主题标签和语言栈看，这是一个 {project_type(repo)}。拆解它时，重点放在它如何定义用户入口、组织核心抽象、隔离外部依赖，以及是否具备可复用的工程边界。
 
-### 这次精读要回答的核心问题
+### 核心问题
 
 {core_question}
 
-如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是增长热度、工程设计、生态位置，还是某个可复用的技术抽象。
+如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是工程设计、生态位置、领域知识组织，还是某个可复用的技术抽象。
 
 ### 建议顺着这条链路读
 
@@ -545,10 +538,6 @@ Trending 项目还要额外注意热度偏差：短期 star 增长只能说明�
 ### 可以带走的工程经验
 
 {reusable_lessons}
-
-### 其它候选为什么先不展开
-
-{alternative_rows if alternative_rows else "- 今天没有足够多的其它候选。"}
 """
 
 
@@ -560,16 +549,12 @@ def write_report(repos: list[Repo]) -> Path:
 
     ranked = sorted(repos, key=lambda item: learning_value(item)[0], reverse=True)
     pick = enrich_reading_context(ranked[0])
-    body = build_deep_analysis(pick, ranked[1:])
-    all_rows = "\n".join(
-        f"| [{repo.full_name}]({repo.url}) | {repo.language or '-'} | {repo.stars:,} | {repo.today_stars:,} | {(repo.description or '-').strip()} |"
-        for repo in repos
-    )
+    body = build_deep_analysis(pick)
 
     content = f"""---
 layout: post
 title: "GitHub Trending 精读：{pick.full_name} ({date})"
-subtitle: "每天只选一个开源项目深读"
+subtitle: "单个开源项目深度拆解"
 date: {date}
 author: "zwt"
 header-img: "img/LLMs.png"
@@ -584,26 +569,20 @@ categories: [github]
 
 # GitHub Trending 精读 {date}
 
-数据来源：[GitHub Trending Daily]({TRENDING_URL})。本篇自动抓取当日 Trending 仓库，但正文只选一个项目深读；其它项目只保留在候选表里，避免把日报写成一组浅摘要。
+数据来源：[GitHub Trending Daily]({TRENDING_URL})。本篇围绕一个开源项目做介绍、结构线索梳理和源码阅读拆解。
 
-## 筛选逻辑
+## 分析目标
 
-我会优先关注四类信号：
+这篇文章关注四类问题：
 
-1. 是否代表一个正在变热的技术方向，例如 AI agent、LLM infra、数据库、编译器、云原生或安全工具。
-2. 是否有明确的工程入口，适合顺着 README、示例、CLI/API 和测试一路读到核心实现。
-3. 是否有足够的社区反馈，包括 star、fork、issue、release 或 topic。
-4. 是否能沉淀可迁移经验，例如架构边界、扩展机制、错误处理、性能优化或文档组织。
+1. 项目试图解决什么具体问题。
+2. README 和目录结构透露了怎样的实现边界。
+3. 源码阅读应该从哪条主链路进入。
+4. 哪些工程经验可以迁移到自己的项目里。
 
-## 今日重点项目
+## 项目拆解
 
 {body}
-
-## 全量候选列表
-
-| 项目 | 语言 | Stars | 今日新增 | 简介 |
-| --- | --- | ---: | ---: | --- |
-{all_rows}
 
 ---
 

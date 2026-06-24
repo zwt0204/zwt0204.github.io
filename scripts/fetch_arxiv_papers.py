@@ -27,7 +27,6 @@ AR5IV_HTML = "https://ar5iv.labs.arxiv.org/html/{arxiv_id}"
 USER_AGENT = "zwt0204.github.io arxiv paper learner bot"
 LOCAL_TZ = ZoneInfo("Asia/Shanghai")
 MAX_RESULTS = 60
-MAX_TABLE_PAPERS = 25
 
 ATOM_NS = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
 
@@ -418,20 +417,14 @@ def questions_for(paper: Paper) -> list[str]:
     return questions
 
 
-def build_deep_paper_section(paper: Paper, alternatives: list[Paper], outline: tuple[str, ...] = ()) -> str:
-    score, reasons = paper_score(paper)
-    reasons_text = "、".join(reasons) if reasons else "主题相关，但需要进一步检查方法和实验扎实程度"
+def build_deep_paper_section(paper: Paper, outline: tuple[str, ...] = ()) -> str:
     tags = "、".join(topic_tags(paper))
     categories = "、".join(paper.categories) if paper.categories else paper.primary_category or "未标注"
     questions = "\n".join(f"- {question}" for question in questions_for(paper))
     problem_lens, method_lens, experiment_lens, limitation_lens = contribution_lens(paper)
-    alternative_rows = "\n".join(
-        f"- [{markdown_escape(item.title)}]({item.abs_url})：评分 {paper_score(item)[0]}/20，{', '.join(topic_tags(item))}"
-        for item in alternatives[:5]
-    )
     outline_text = "\n".join(f"- {markdown_escape(heading)}" for heading in outline[:10])
 
-    return f"""## 今日只读这篇：[{markdown_escape(paper.title)}]({paper.abs_url})
+    return f"""## [{markdown_escape(paper.title)}]({paper.abs_url})
 
 - arXiv：[{paper.arxiv_id}]({paper.abs_url})
 - PDF：[{paper.pdf_url}]({paper.pdf_url})
@@ -439,17 +432,12 @@ def build_deep_paper_section(paper: Paper, alternatives: list[Paper], outline: t
 - 发布时间：{date_only(paper.published)}，更新时间：{date_only(paper.updated)}
 - 类别：{categories}
 - 主题标签：{tags}
-- 阅读价值评分：{score}/20
 
 ### 摘要速读
 
 {markdown_escape(first_sentences(paper.abstract))}
 
-### 为什么今天选它
-
-{reasons_text}。今天的目标不是把候选论文都过一遍，而是挑一篇最值得投入精力的论文，把它读到能回答“问题是什么、方法凭什么有效、实验是否支撑结论、工程上能带走什么”。
-
-### 先抓住问题定义
+### 问题定义
 
 {problem_lens}
 
@@ -485,11 +473,7 @@ def build_deep_paper_section(paper: Paper, alternatives: list[Paper], outline: t
 
 ### 可以带走的东西
 
-如果论文读完之后只能沉淀一页笔记，建议记这三类内容：问题定义的抽象方式、核心机制为什么可能有效、实验设计里哪些指标或失败分析可以复用到自己的项目中。
-
-### 其它候选为什么先不展开
-
-{alternative_rows if alternative_rows else "- 今天没有足够多的其它候选。"}
+如果论文读完之后只能沉淀一页笔记，建议记这三类内容：问题定义的抽象方式、核心机制的有效性依据、实验设计里哪些指标或失败分析可以复用到自己的项目中。
 """
 
 
@@ -502,16 +486,12 @@ def write_report(papers: list[Paper]) -> Path:
     ranked = sorted(papers, key=lambda paper: paper_score(paper)[0], reverse=True)
     pick = ranked[0]
     outline = fetch_paper_outline(pick)
-    top_section = build_deep_paper_section(pick, ranked[1:], outline)
-    table_rows = "\n".join(
-        f"| [{markdown_escape(paper.title)}]({paper.abs_url}) | {', '.join(topic_tags(paper))} | {paper_score(paper)[0]} | {date_only(paper.published)} | {markdown_escape(first_sentences(paper.abstract, 1))} |"
-        for paper in ranked[:MAX_TABLE_PAPERS]
-    )
+    top_section = build_deep_paper_section(pick, outline)
 
     content = f"""---
 layout: post
 title: "arXiv 论文精读：{yaml_escape(pick.title)} ({date})"
-subtitle: "每天只选一篇论文深读"
+subtitle: "单篇论文深度拆解"
 date: {date} 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -531,28 +511,22 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API]({ARXIV_API})。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，但正文只选一篇深读；其它论文只保留在候选表里。
+数据来源：[arXiv API]({ARXIV_API})。本篇围绕一篇论文做摘要、问题定义、方法线索、实验判断和局限追问。
 
-筛选不是简单看标题热词，而是优先考虑：
+阅读时优先关注四类问题：
 
-1. 是否切中 LLM / multimodal / agent 方向的关键问题；
-2. 是否有清晰的方法贡献、评测基准或系统实现；
-3. 是否能给实际工程带来可迁移经验；
-4. 是否值得进一步精读 introduction、method、experiment 和 limitation。
+1. 论文定义的问题是否清楚。
+2. 方法里真正起作用的机制是什么。
+3. 实验是否足以支撑主要结论。
+4. 这篇论文能给工程或研究带来哪些可迁移经验。
 
-# 1. 今日最值得读的论文
+# 1. 论文拆解
 
 {top_section}
 
-# 2. 候选论文列表
+# 2. 阅读建议
 
-| 论文 | 主题 | 评分 | 发布时间 | 摘要一句话 |
-| --- | --- | ---: | --- | --- |
-{table_rows if table_rows else "| - | - | - | - | - |"}
-
-# 3. 阅读建议
-
-今天只建议先读正文选中的这一篇。候选表的作用是校准选择，而不是制造阅读负担；如果主选论文读完发现问题定义不成立，再从候选表里换下一篇。
+正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
 生成时间：{now.strftime("%Y-%m-%d %H:%M:%S %Z")}
 """
