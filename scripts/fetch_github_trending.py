@@ -8,7 +8,8 @@ import json
 import re
 import sys
 import time
-from dataclasses import dataclass
+from base64 import b64decode
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 from pathlib import Path
@@ -40,6 +41,9 @@ class Repo:
     today_stars: int = 0
     topics: tuple[str, ...] = ()
     homepage: str = ""
+    default_branch: str = ""
+    readme: str = ""
+    key_files: tuple[str, ...] = ()
 
     @property
     def full_name(self) -> str:
@@ -247,7 +251,66 @@ def enrich_repo(repo: Repo) -> Repo:
         today_stars=repo.today_stars,
         topics=tuple(payload.get("topics") or ()),
         homepage=payload.get("homepage") or "",
+        default_branch=payload.get("default_branch") or "",
+        readme=repo.readme,
+        key_files=repo.key_files,
     )
+
+
+def enrich_reading_context(repo: Repo) -> Repo:
+    readme = fetch_readme(repo)
+    key_files = fetch_key_files(repo)
+    return replace(repo, readme=readme, key_files=key_files)
+
+
+def fetch_readme(repo: Repo) -> str:
+    api_url = f"https://api.github.com/repos/{quote(repo.owner)}/{quote(repo.name)}/readme"
+    try:
+        payload = json.loads(get_url(api_url, accept="application/vnd.github+json"))
+        content = payload.get("content") or ""
+        if payload.get("encoding") == "base64" and content:
+            return b64decode(content).decode("utf-8", errors="replace")
+    except (HTTPError, URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+        print(f"warning: failed to fetch README for {repo.full_name}: {exc}", file=sys.stderr)
+    return ""
+
+
+def fetch_key_files(repo: Repo) -> tuple[str, ...]:
+    if not repo.default_branch:
+        return ()
+    branch = quote(repo.default_branch, safe="")
+    api_url = f"https://api.github.com/repos/{quote(repo.owner)}/{quote(repo.name)}/git/trees/{branch}?recursive=1"
+    try:
+        payload = json.loads(get_url(api_url, accept="application/vnd.github+json"))
+    except (HTTPError, URLError, TimeoutError, json.JSONDecodeError) as exc:
+        print(f"warning: failed to fetch file tree for {repo.full_name}: {exc}", file=sys.stderr)
+        return ()
+    paths = [
+        item.get("path", "")
+        for item in payload.get("tree", [])
+        if item.get("type") == "blob" and item.get("path")
+    ]
+    return select_key_files(paths)
+
+
+def select_key_files(paths: list[str], limit: int = 18) -> tuple[str, ...]:
+    priority: list[tuple[int, str]] = []
+    for path in paths:
+        lower = path.lower()
+        name = lower.rsplit("/", 1)[-1]
+        score = 0
+        if name in {"readme.md", "package.json", "pyproject.toml", "cargo.toml", "go.mod", "setup.py", "makefile", "dockerfile"}:
+            score += 10
+        if lower.startswith(("src/", "app/", "lib/", "crates/", "packages/", "cmd/", "internal/", "cli/")):
+            score += 5
+        if lower.startswith(("tests/", "test/", "examples/", "docs/")):
+            score += 3
+        if any(token in name for token in ("main", "cli", "agent", "tool", "memory", "server", "api", "config", "test")):
+            score += 4
+        if score:
+            priority.append((score, path))
+    priority.sort(key=lambda item: (-item[0], item[1]))
+    return tuple(path for _, path in priority[:limit])
 
 
 def learning_value(repo: Repo) -> tuple[int, list[str]]:
@@ -289,7 +352,7 @@ def learning_value(repo: Repo) -> tuple[int, list[str]]:
         score += 1
         reasons.append("主题标签清晰")
 
-    return score, dedupe(reasons)
+    return min(score, 20), dedupe(reasons)
 
 
 def has_signal(text: str, topics: set[str], key: str) -> bool:
@@ -325,6 +388,83 @@ def reading_focus_for(repo: Repo) -> str:
     return "\n".join(focus)
 
 
+def readme_signals(repo: Repo) -> str:
+    if not repo.readme:
+        return "README 暂时没有抓取到，先从仓库目录、示例和测试进入。"
+
+    headings: list[str] = []
+    paragraphs: list[str] = []
+    for raw_line in repo.readme.splitlines():
+        line = normalize_text(raw_line.strip("# ").strip())
+        if not line:
+            continue
+        if raw_line.lstrip().startswith("#") and len(headings) < 6:
+            headings.append(line)
+        elif not raw_line.lstrip().startswith(("-", "*", "[", "!", "`", "|")) and len(paragraphs) < 3:
+            paragraphs.append(line)
+
+    parts: list[str] = []
+    if headings:
+        parts.append("README 结构：" + " / ".join(headings[:6]))
+    if paragraphs:
+        parts.append("开篇信息：" + " ".join(paragraphs)[:520].rstrip())
+    return "\n".join(f"- {part}" for part in parts) if parts else "README 已抓取，但没有提取到明显标题或开篇段落。"
+
+
+def key_file_signals(repo: Repo) -> str:
+    if not repo.key_files:
+        return "- 暂时没有抓取到文件树，先从 README、示例目录和测试目录进入。"
+    return "\n".join(f"- `{path}`" for path in repo.key_files[:12])
+
+
+def project_type(repo: Repo) -> str:
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
+    language = (repo.language or "").lower()
+    if "agent" in text or "llm" in text or "ai" in text:
+        return "AI/Agent 工程项目"
+    if "database" in text or "postgres" in text or "db" in text:
+        return "数据系统项目"
+    if "compiler" in text or "runtime" in text or "parser" in text:
+        return "编译器/运行时项目"
+    if "security" in text or "osint" in text:
+        return "安全工具项目"
+    if language in {"rust", "c", "c++", "go"}:
+        return "系统工程项目"
+    if language in {"typescript", "javascript"}:
+        return "前端/Node 工程项目"
+    if language == "python":
+        return "Python 工具或框架项目"
+    return "开源工程项目"
+
+
+def deep_reading_sections(repo: Repo) -> tuple[str, str, str, str]:
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
+    language = (repo.language or "").lower()
+
+    if "agent" in text or "llm" in text or "ai" in text:
+        core_question = "它是否把“模型调用”包装成了可靠的软件系统：任务状态如何保存，工具权限如何收口，失败后如何重试或回滚，日志是否足够复盘一次 agent 行为。"
+        architecture_path = "建议从用户入口读到 agent loop：先找 CLI/Web/API 入口，再追踪 request 如何变成 plan、tool call、observation、memory/context update，最后看结果如何返回给用户。"
+        risk_points = "重点警惕三类风险：工具调用边界不清导致越权，长上下文堆叠导致状态漂移，以及错误恢复只靠 prompt 而没有工程级保护。"
+        reusable_lessons = "真正可复用的经验通常在 provider 抽象、tool registry、权限模型、执行日志、配置加载和测试夹具里，而不是某个具体 prompt。"
+    elif "database" in text or "postgres" in text or "db" in text:
+        core_question = "它是否解决了一个明确的数据一致性、性能或运维问题，而不是只在现有数据库外面包一层 API。"
+        architecture_path = "建议顺着写入路径读：入口参数如何校验，事务/锁/索引如何组织，异常时如何恢复，再看 benchmark 是否覆盖真实负载。"
+        risk_points = "重点看并发、崩溃恢复、数据迁移和边界条件；数据系统的价值不在 happy path，而在异常路径能否解释清楚。"
+        reusable_lessons = "可迁移经验主要是状态机设计、持久化边界、测试数据构造、压测方法和可观测指标。"
+    elif language in {"rust", "c", "c++", "go"}:
+        core_question = "它是否通过语言和架构选择换来了可解释的性能、可靠性或部署优势。"
+        architecture_path = "建议先读公开 API，再下钻核心数据结构、并发模型和错误类型，最后看 benchmark 与 CI 覆盖了哪些平台。"
+        risk_points = "重点看 unsafe/并发/资源释放/跨平台兼容；系统项目的隐患通常藏在边界条件和性能假设里。"
+        reusable_lessons = "可复用的是模块边界、错误建模、压测方式、发布包组织和对外 API 稳定策略。"
+    else:
+        core_question = "它是否把一个真实用户问题收敛成了清楚、可维护、可扩展的工程接口。"
+        architecture_path = "建议先读 README 的最小例子，再找入口文件、核心抽象、配置系统、测试目录和发布流程。"
+        risk_points = "重点看项目是否只有 demo 级路径，还是对错误处理、兼容性、版本升级和用户迁移有清楚设计。"
+        reusable_lessons = "可复用的是问题切分方式、默认配置、扩展点设计、测试组织和文档写法。"
+
+    return core_question, architecture_path, risk_points, reusable_lessons
+
+
 def dedupe(items: Iterable[str]) -> list[str]:
     seen: set[str] = set()
     result: list[str] = []
@@ -335,7 +475,7 @@ def dedupe(items: Iterable[str]) -> list[str]:
     return result
 
 
-def build_analysis(repo: Repo) -> str:
+def build_deep_analysis(repo: Repo, alternatives: list[Repo]) -> str:
     score, reasons = learning_value(repo)
     reasons_text = "、".join(reasons) if reasons else "项目方向清晰，适合做源码阅读样本"
     topics = "、".join(repo.topics[:6]) if repo.topics else "暂无"
@@ -343,29 +483,69 @@ def build_analysis(repo: Repo) -> str:
     description = (repo.description or "项目暂未提供简介，需要从 README 和代码结构进一步判断。").strip()
     language = repo.language or "未标注"
     reading_focus = reading_focus_for(repo)
+    core_question, architecture_path, risk_points, reusable_lessons = deep_reading_sections(repo)
+    alternative_rows = "\n".join(
+        f"- [{item.full_name}]({item.url})：评分 {learning_value(item)[0]}/20，{(item.description or '暂无简介').strip()}"
+        for item in alternatives[:4]
+    )
 
-    return f"""### [{repo.full_name}]({repo.url})
+    return f"""## 今日只读这一个：[{repo.full_name}]({repo.url})
 
 - 语言：{language}
 - Stars：{repo.stars:,}，Forks：{repo.forks:,}，今日新增：{repo.today_stars:,}
 - Topics：{topics}{homepage}
 - 学习价值评分：{score}/20
+- 项目类型：{project_type(repo)}
 
 **项目简介**：{description}
 
-**为什么值得看**：{reasons_text}。这类项目的学习价值通常不只在功能本身，更在它如何把用户入口、核心抽象、工程边界和生态扩展组织到一起。
+### 为什么今天选它，而不是泛读一堆
 
-**源码阅读重点**：
+{reasons_text}。今天的目标不是把 Trending 里所有项目都扫一遍，而是选一个最值得投入 30-60 分钟的样本。这个项目的价值不只在功能本身，更在于它能暴露一组可迁移的工程问题：用户入口如何定义、核心抽象是否稳定、外部依赖如何隔离、失败路径是否可观测。
+
+### 这次精读要回答的核心问题
+
+{core_question}
+
+如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是增长热度、工程设计、生态位置，还是某个可复用的技术抽象。
+
+### 建议顺着这条链路读
+
+{architecture_path}
+
+### README 和代码结构线索
+
+{readme_signals(repo)}
+
+值得优先打开的文件或目录：
+
+{key_file_signals(repo)}
+
+具体可以按这个顺序推进：
+
 {reading_focus}
 
-**建议学习路径**：
-1. 先读 README，确认项目解决的真实问题和目标用户。
-2. 浏览目录结构，找入口文件、核心抽象、测试目录和示例代码。
-3. 选择一个最小功能链路，从 API/CLI 入口追到核心实现。
-4. 对照近期 Issue、Release 和 PR，理解项目当前的工程取舍。
-5. 用一个小样例跑通核心路径，再回头看错误处理、配置系统和扩展点。
+### 读代码时要特别检查的地方
 
-**可复用的工程经验**：重点观察它如何处理默认配置、失败回退、外部依赖、用户可扩展能力和文档示例。真正值得迁移到自己项目里的，往往是这些长期维护能力，而不是某个孤立 API。
+1. 先读 README，确认项目解决的真实问题和目标用户。
+2. 找最小可运行例子，顺着入口追到核心实现，不要停在安装命令。
+3. 画出核心对象之间的关系：谁负责状态，谁负责 IO，谁负责策略，谁负责错误处理。
+4. 对照测试、Issue、Release，看维护者真正花时间处理的是功能扩张、性能、兼容性还是稳定性。
+5. 最后回看配置、日志、扩展点和失败回退，这些地方最能反映项目是否可长期维护。
+
+### 风险与局限
+
+{risk_points}
+
+Trending 项目还要额外注意热度偏差：短期 star 增长只能说明被看见，不等于架构成熟。精读时不要只看 README 的宣传语，要至少追一条真实执行路径。
+
+### 可以带走的工程经验
+
+{reusable_lessons}
+
+### 其它候选为什么先不展开
+
+{alternative_rows if alternative_rows else "- 今天没有足够多的其它候选。"}
 """
 
 
@@ -376,8 +556,8 @@ def write_report(repos: list[Repo]) -> Path:
     POST_DIR.mkdir(parents=True, exist_ok=True)
 
     ranked = sorted(repos, key=lambda item: learning_value(item)[0], reverse=True)
-    top = ranked[:5]
-    body = "\n".join(build_analysis(repo) for repo in top)
+    pick = enrich_reading_context(ranked[0])
+    body = build_deep_analysis(pick, ranked[1:])
     all_rows = "\n".join(
         f"| [{repo.full_name}]({repo.url}) | {repo.language or '-'} | {repo.stars:,} | {repo.today_stars:,} | {(repo.description or '-').strip()} |"
         for repo in repos
@@ -385,8 +565,8 @@ def write_report(repos: list[Repo]) -> Path:
 
     content = f"""---
 layout: post
-title: "GitHub Trending 学习日报：{date}"
-subtitle: "自动筛选今日值得阅读的开源项目"
+title: "GitHub Trending 精读：{pick.full_name} ({date})"
+subtitle: "每天只选一个开源项目深读"
 date: {date}
 author: "zwt"
 header-img: "img/LLMs.png"
@@ -399,9 +579,9 @@ tags:
 categories: [github]
 ---
 
-# GitHub Trending 学习日报 {date}
+# GitHub Trending 精读 {date}
 
-数据来源：[GitHub Trending Daily]({TRENDING_URL})。本篇自动抓取当日 Trending 仓库，并按技术主题、增长速度、社区成熟度和源码学习价值筛选出值得重点阅读的项目。
+数据来源：[GitHub Trending Daily]({TRENDING_URL})。本篇自动抓取当日 Trending 仓库，但正文只选一个项目深读；其它项目只保留在候选表里，避免把日报写成一组浅摘要。
 
 ## 筛选逻辑
 

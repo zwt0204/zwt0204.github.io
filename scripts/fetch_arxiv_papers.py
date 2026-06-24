@@ -11,6 +11,7 @@ import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
@@ -22,10 +23,10 @@ ROOT = Path(__file__).resolve().parents[1]
 POST_DIR = ROOT / "_posts" / "paper"
 DATA_PATH = ROOT / "docs" / "arxiv-papers.json"
 ARXIV_API = "https://export.arxiv.org/api/query"
+AR5IV_HTML = "https://ar5iv.labs.arxiv.org/html/{arxiv_id}"
 USER_AGENT = "zwt0204.github.io arxiv paper learner bot"
 LOCAL_TZ = ZoneInfo("Asia/Shanghai")
 MAX_RESULTS = 60
-MAX_REPORT_PAPERS = 6
 MAX_TABLE_PAPERS = 25
 
 ATOM_NS = {"atom": "http://www.w3.org/2005/Atom", "arxiv": "http://arxiv.org/schemas/atom"}
@@ -91,6 +92,10 @@ def slugify(value: str) -> str:
 
 def markdown_escape(value: str) -> str:
     return normalize_text(value).replace("|", "\\|")
+
+
+def yaml_escape(value: str) -> str:
+    return normalize_text(value).replace("\\", "\\\\").replace('"', '\\"')
 
 
 def get_url(url: str) -> str:
@@ -168,6 +173,42 @@ def fetch_papers() -> list[Paper]:
         )
 
     return papers
+
+
+class OutlineParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.headings: list[str] = []
+        self._capture = False
+        self._text: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"h1", "h2", "h3"}:
+            self._capture = True
+            self._text = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._capture and tag in {"h1", "h2", "h3"}:
+            heading = normalize_text(" ".join(self._text))
+            if heading and len(heading) < 180 and heading not in self.headings:
+                self.headings.append(heading)
+            self._capture = False
+            self._text = []
+
+    def handle_data(self, data: str) -> None:
+        if self._capture:
+            self._text.append(data)
+
+
+def fetch_paper_outline(paper: Paper) -> tuple[str, ...]:
+    url = AR5IV_HTML.format(arxiv_id=paper.arxiv_id)
+    try:
+        parser = OutlineParser()
+        parser.feed(get_url(url))
+        return tuple(parser.headings[:12])
+    except (HTTPError, URLError, TimeoutError, UnicodeDecodeError) as exc:
+        print(f"warning: failed to fetch ar5iv outline for {paper.arxiv_id}: {exc}", file=sys.stderr)
+        return ()
 
 
 def text_of(node: ET.Element, path: str) -> str:
@@ -295,6 +336,36 @@ def method_guess(paper: Paper) -> str:
     return "这篇需要先确认问题定义，再顺着方法模块、实验设置和失败案例判断真实价值。"
 
 
+def contribution_lens(paper: Paper) -> tuple[str, str, str, str]:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "agent" in text or "tool" in text or "skill" in text:
+        problem_lens = "把它当成一篇 agent 系统论文来读：核心不是模型会不会回答，而是长程任务里状态、工具、反馈和失败恢复如何被组织。"
+        method_lens = "方法部分重点找三件事：任务如何分解，动作/工具空间如何定义，执行后的 observation 如何影响下一步决策。"
+        experiment_lens = "实验部分不要只看平均分，要看任务长度、失败类型、baseline 是否公平，以及是否有 trace 级别的错误分析。"
+        limitation_lens = "如果论文没有讲权限边界、状态漂移、工具调用错误和成本控制，那工程落地价值要打折。"
+    elif "multimodal" in text or "vision" in text or "video" in text or "image" in text or "audio" in text:
+        problem_lens = "把它当成一篇多模态系统论文来读：关键是它解决了感知、对齐、长上下文或推理链路里的哪一个瓶颈。"
+        method_lens = "方法部分重点看模态表示如何进入语言模型，是否引入检索/记忆/压缩模块，以及训练和推理阶段是否一致。"
+        experiment_lens = "实验部分要看数据集是否覆盖真实复杂场景，指标是否能反映推理质量，而不只是某个 benchmark 的选择题准确率。"
+        limitation_lens = "如果收益依赖特定数据集、特定 backbone 或昂贵 token budget，就需要谨慎判断可迁移性。"
+    elif "retrieval" in text or "memory" in text or "long context" in text:
+        problem_lens = "把它当成一篇记忆/长上下文论文来读：核心是信息如何被选择、压缩、更新，并在噪声下保持可用。"
+        method_lens = "方法部分重点看记忆粒度、写入策略、检索策略、上下文预算和过期信息处理。"
+        experiment_lens = "实验部分要看长程依赖、干扰信息、时间跨度和消融实验，而不是只看短上下文任务上的提升。"
+        limitation_lens = "如果没有噪声、遗忘、过期信息或成本分析，说明它还没完全回答真实系统问题。"
+    elif "benchmark" in text or "dataset" in text or "evaluation" in text:
+        problem_lens = "把它当成一篇评测论文来读：最重要的是任务定义是否真实，指标是否能逼出模型的关键短板。"
+        method_lens = "方法部分重点看数据构造、标注流程、过滤规则、评测协议和 baseline 选择。"
+        experiment_lens = "实验部分要看不同模型族、不同设置和失败案例，而不只是排行榜排序。"
+        limitation_lens = "如果任务可以被模板、数据泄漏或 judge 偏差轻易利用，评测价值就有限。"
+    else:
+        problem_lens = "先把它当成一篇方法论文来读：确认它到底提出了新问题、新算法、新系统，还是对已有路线做工程组合。"
+        method_lens = "方法部分重点找最小核心贡献：哪一个模块是必要的，哪一个只是包装，哪些假设决定了方法边界。"
+        experiment_lens = "实验部分重点看主表、消融、失败案例和泛化设置，判断结论是否被充分支撑。"
+        limitation_lens = "如果论文只给结果、不解释失败模式或适用边界，就不适合作为今天的深读样本。"
+    return problem_lens, method_lens, experiment_lens, limitation_lens
+
+
 def questions_for(paper: Paper) -> list[str]:
     tags = set(topic_tags(paper))
     questions = [
@@ -314,14 +385,20 @@ def questions_for(paper: Paper) -> list[str]:
     return questions
 
 
-def build_paper_section(paper: Paper) -> str:
+def build_deep_paper_section(paper: Paper, alternatives: list[Paper], outline: tuple[str, ...] = ()) -> str:
     score, reasons = paper_score(paper)
     reasons_text = "、".join(reasons) if reasons else "主题相关，但需要进一步检查方法和实验扎实程度"
     tags = "、".join(topic_tags(paper))
     categories = "、".join(paper.categories) if paper.categories else paper.primary_category or "未标注"
     questions = "\n".join(f"- {question}" for question in questions_for(paper))
+    problem_lens, method_lens, experiment_lens, limitation_lens = contribution_lens(paper)
+    alternative_rows = "\n".join(
+        f"- [{markdown_escape(item.title)}]({item.abs_url})：评分 {paper_score(item)[0]}/20，{', '.join(topic_tags(item))}"
+        for item in alternatives[:5]
+    )
+    outline_text = "\n".join(f"- {markdown_escape(heading)}" for heading in outline[:10])
 
-    return f"""## [{markdown_escape(paper.title)}]({paper.abs_url})
+    return f"""## 今日只读这篇：[{markdown_escape(paper.title)}]({paper.abs_url})
 
 - arXiv：[{paper.arxiv_id}]({paper.abs_url})
 - PDF：[{paper.pdf_url}]({paper.pdf_url})
@@ -335,17 +412,51 @@ def build_paper_section(paper: Paper) -> str:
 
 {markdown_escape(first_sentences(paper.abstract))}
 
-### 为什么值得读
+### 为什么今天选它
 
-{reasons_text}。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+{reasons_text}。今天的目标不是把候选论文都过一遍，而是挑一篇最值得投入精力的论文，把它读到能回答“问题是什么、方法凭什么有效、实验是否支撑结论、工程上能带走什么”。
 
-### 方法与贡献线索
+### 先抓住问题定义
 
-{method_guess(paper)}
+{problem_lens}
 
-### 精读时重点追问
+从摘要看，这篇论文最应该先确认的不是具体指标，而是它把问题边界划在哪里：输入是什么，输出是什么，系统/模型在什么约束下工作，和已有路线相比到底难在哪里。
+
+### 全文结构线索
+
+{outline_text if outline_text else "没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。"}
+
+### 方法部分怎么读
+
+{method_lens}
+
+阅读时建议把方法拆成三层：
+
+1. **核心假设**：作者相信哪个瓶颈最重要，这个假设是否合理。
+2. **关键机制**：真正带来收益的是模型结构、数据构造、检索/记忆、训练目标，还是推理流程。
+3. **工程代价**：额外 token、额外模型调用、额外标注、额外存储或延迟是否可接受。
+
+### 实验部分怎么判断
+
+{experiment_lens}
+
+至少要检查四块：主结果是否稳定，消融是否能证明关键模块必要，失败案例是否诚实，结论是否跨模型或跨数据集成立。
+
+### 局限和追问
+
+{limitation_lens}
+
+精读时重点追问：
 
 {questions}
+
+### 可以带走的东西
+
+如果论文读完之后只能沉淀一页笔记，建议记这三类内容：问题定义的抽象方式、核心机制为什么可能有效、实验设计里哪些指标或失败分析可以复用到自己的项目中。
+
+### 其它候选为什么先不展开
+
+{alternative_rows if alternative_rows else "- 今天没有足够多的其它候选。"}
 """
 
 
@@ -356,8 +467,9 @@ def write_report(papers: list[Paper]) -> Path:
     POST_DIR.mkdir(parents=True, exist_ok=True)
 
     ranked = sorted(papers, key=lambda paper: paper_score(paper)[0], reverse=True)
-    top = ranked[:MAX_REPORT_PAPERS]
-    top_sections = "\n".join(build_paper_section(paper) for paper in top)
+    pick = ranked[0]
+    outline = fetch_paper_outline(pick)
+    top_section = build_deep_paper_section(pick, ranked[1:], outline)
     table_rows = "\n".join(
         f"| [{markdown_escape(paper.title)}]({paper.abs_url}) | {', '.join(topic_tags(paper))} | {paper_score(paper)[0]} | {date_only(paper.published)} | {markdown_escape(first_sentences(paper.abstract, 1))} |"
         for paper in ranked[:MAX_TABLE_PAPERS]
@@ -365,8 +477,8 @@ def write_report(papers: list[Paper]) -> Path:
 
     content = f"""---
 layout: post
-title: "arXiv 论文学习日报：LLM、多模态与 Agent ({date})"
-subtitle: "自动筛选值得精读的新论文"
+title: "arXiv 论文精读：{yaml_escape(pick.title)} ({date})"
+subtitle: "每天只选一篇论文深读"
 date: {date} 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -386,7 +498,7 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API]({ARXIV_API})。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，并按研究价值、工程启发和可复现线索进行排序。
+数据来源：[arXiv API]({ARXIV_API})。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，但正文只选一篇深读；其它论文只保留在候选表里。
 
 筛选不是简单看标题热词，而是优先考虑：
 
@@ -397,7 +509,7 @@ categories: [paper, daily]
 
 # 1. 今日最值得读的论文
 
-{top_sections if top_sections else "今天没有抓取到足够相关的论文。"}
+{top_section}
 
 # 2. 候选论文列表
 
@@ -407,7 +519,7 @@ categories: [paper, daily]
 
 # 3. 阅读建议
 
-建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
+今天只建议先读正文选中的这一篇。候选表的作用是校准选择，而不是制造阅读负担；如果主选论文读完发现问题定义不成立，再从候选表里换下一篇。
 
 生成时间：{now.strftime("%Y-%m-%d %H:%M:%S %Z")}
 """
