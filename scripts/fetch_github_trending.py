@@ -24,6 +24,7 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[1]
 POST_DIR = ROOT / "_posts" / "github"
 DATA_PATH = ROOT / "docs" / "trending.json"
+ASSET_DIR = ROOT / "img" / "daily-reports"
 TRENDING_URL = "https://github.com/trending?since=daily"
 USER_AGENT = "ztw0204.github.io trending learner bot"
 MAX_PROJECTS = 15
@@ -174,6 +175,15 @@ class TrendingParser(HTMLParser):
 
 def normalize_text(value: str) -> str:
     return re.sub(r"\s+", " ", html.unescape(value)).strip()
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug[:80].strip("-") or "github-project"
+
+
+def svg_escape(value: str) -> str:
+    return html.escape(normalize_text(value), quote=True)
 
 
 def parse_count(value: str) -> int:
@@ -452,6 +462,93 @@ def key_file_breakdown(repo: Repo) -> str:
     return "\n".join(rows)
 
 
+def write_github_architecture_svg(repo: Repo, date: str) -> str:
+    ASSET_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"{date}-github-{slugify(repo.full_name)}-architecture.svg"
+    path = ASSET_DIR / filename
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)} {' '.join(repo.key_files)}".lower()
+
+    if "skill" in text and ("security" in text or "cyber" in text or "mitre" in text):
+        boxes = [
+            ("Skill 文件", "目标、前提、步骤"),
+            ("标准映射", "MITRE / NIST / OWASP"),
+            ("参考资料", "API、命令、证据"),
+            ("执行脚本", "agent.py / tools"),
+            ("平台适配", "Claude / Codex / IDE"),
+            ("治理更新", "版本、重复、风险"),
+        ]
+        caption = "安全技能库的核心链路：把安全领域知识结构化，再映射到标准框架和 agent 可执行入口。"
+    elif "agent" in text or "llm" in text or "ai" in text:
+        boxes = [
+            ("用户入口", "CLI / Web / SDK"),
+            ("任务编排", "plan / action / observe"),
+            ("工具注册", "schema / permission"),
+            ("上下文层", "memory / retrieval"),
+            ("模型适配", "provider / cost"),
+            ("观测测试", "trace / replay"),
+        ]
+        caption = "Agent 项目的主链路：用户目标进入系统，经过任务编排、工具调用和状态更新后返回结果。"
+    else:
+        boxes = [
+            ("用户入口", "API / CLI"),
+            ("核心抽象", "domain model"),
+            ("边界适配", "IO / service"),
+            ("配置扩展", "plugin / config"),
+            ("质量保障", "tests / CI"),
+            ("发布维护", "version / docs"),
+        ]
+        caption = "开源项目阅读主链路：先找入口，再追核心抽象和边界适配。"
+
+    box_width = 150
+    gap = 22
+    start_x = 34
+    y = 118
+    width = start_x * 2 + len(boxes) * box_width + (len(boxes) - 1) * gap
+    height = 330
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">',
+        f"<title id=\"title\">{svg_escape(repo.full_name)} 架构拆解</title>",
+        f"<desc id=\"desc\">{svg_escape(caption)}</desc>",
+        "<defs>",
+        '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#eef6ff"/></linearGradient>',
+        '<filter id="shadow" x="-10%" y="-20%" width="120%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.16"/></filter>',
+        "</defs>",
+        f'<rect width="{width}" height="{height}" rx="18" fill="url(#bg)"/>',
+        f'<text x="34" y="42" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">{svg_escape(repo.name)} 架构阅读图</text>',
+        f'<text x="34" y="70" font-family="Arial, sans-serif" font-size="14" fill="#475569">{svg_escape(caption)}</text>',
+    ]
+
+    for index, (title, subtitle) in enumerate(boxes):
+        x = start_x + index * (box_width + gap)
+        parts.extend(
+            [
+                f'<rect x="{x}" y="{y}" width="{box_width}" height="92" rx="12" fill="#ffffff" stroke="#cbd5e1" filter="url(#shadow)"/>',
+                f'<text x="{x + box_width / 2}" y="{y + 34}" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">{svg_escape(title)}</text>',
+                f'<text x="{x + box_width / 2}" y="{y + 60}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#475569">{svg_escape(subtitle)}</text>',
+            ]
+        )
+        if index < len(boxes) - 1:
+            ax = x + box_width + 5
+            bx = x + box_width + gap - 5
+            parts.extend(
+                [
+                    f'<line x1="{ax}" y1="{y + 46}" x2="{bx}" y2="{y + 46}" stroke="#2563eb" stroke-width="2.5"/>',
+                    f'<polygon points="{bx},{y + 46} {bx - 8},{y + 41} {bx - 8},{y + 51}" fill="#2563eb"/>',
+                ]
+            )
+
+    parts.extend(
+        [
+            f'<rect x="34" y="248" width="{width - 68}" height="48" rx="10" fill="#dbeafe" stroke="#93c5fd"/>',
+            f'<text x="54" y="278" font-family="Arial, sans-serif" font-size="14" fill="#1e3a8a">读图顺序：先确认每层输入输出，再看相邻层之间是否有明确格式、权限、错误处理和可观测证据。</text>',
+            "</svg>",
+        ]
+    )
+    path.write_text("\n".join(parts) + "\n", encoding="utf-8")
+    return f"img/daily-reports/{filename}"
+
+
 def project_type(repo: Repo) -> str:
     text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
     language = (repo.language or "").lower()
@@ -561,7 +658,7 @@ def dedupe(items: Iterable[str]) -> list[str]:
     return result
 
 
-def build_deep_analysis(repo: Repo) -> str:
+def build_deep_analysis(repo: Repo, architecture_image: str) -> str:
     topics = "、".join(repo.topics[:6]) if repo.topics else "暂无"
     homepage = f"\n- 官网/演示：[{repo.homepage}]({repo.homepage})" if repo.homepage else ""
     description = (repo.description or "项目暂未提供简介，需要从 README 和代码结构进一步判断。").strip()
@@ -587,6 +684,12 @@ def build_deep_analysis(repo: Repo) -> str:
 {core_question}
 
 如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是工程设计、生态位置、领域知识组织，还是某个可复用的技术抽象。
+
+### 一张图看架构
+
+![{repo.full_name} 架构拆解图](/{architecture_image})
+
+这张图的读法是从左到右追输入、加工、执行和反馈：每一层都要问清楚“它吃什么、产出什么、失败时谁兜底”。只有这条链路清楚，后面的源码阅读才不会停留在目录浏览。
 
 ### 架构拆分
 
@@ -644,7 +747,8 @@ def write_report(repos: list[Repo]) -> Path:
 
     ranked = sorted(repos, key=lambda item: learning_value(item)[0], reverse=True)
     pick = enrich_reading_context(ranked[0])
-    body = build_deep_analysis(pick)
+    architecture_image = write_github_architecture_svg(pick, date)
+    body = build_deep_analysis(pick, architecture_image)
 
     content = f"""---
 layout: post

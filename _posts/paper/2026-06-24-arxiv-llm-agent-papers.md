@@ -55,6 +55,12 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 
 没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
+### 一张图看方法
+
+![UniDrive: A Unified Vision-Language and Grounding Framework for Interpretable Risk Understanding in Autonomous Driving 方法架构图](/img/daily-reports/2026-06-24-paper-unidrive-a-unified-vision-language-and-grounding-framework-for-interpretable-risk-understa-architecture.svg)
+
+这张图不是复述论文流程图，而是把阅读时最该盯住的证据链画出来：输入如何被表示，表示如何被 grounding 或推理模块消费，最后输出如何被实验指标验证。
+
 ### 方法架构拆分
 
 1. **输入层**：先确认论文使用的是单帧、多帧、视频片段、传感器融合结果，还是已有感知模型输出。自动驾驶风险理解的难点往往来自长时序和小目标同时存在。
@@ -108,4 +114,4 @@ Recent multimodal large language models (MLLMs) have shown strong potential for 
 
 正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-生成时间：2026-06-24 17:22:39 CST
+生成时间：2026-06-24 17:52:46 CST

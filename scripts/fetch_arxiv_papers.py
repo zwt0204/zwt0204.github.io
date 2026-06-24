@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parents[1]
 POST_DIR = ROOT / "_posts" / "paper"
 DATA_PATH = ROOT / "docs" / "arxiv-papers.json"
+ASSET_DIR = ROOT / "img" / "daily-reports"
 ARXIV_API = "https://export.arxiv.org/api/query"
 AR5IV_HTML = "https://ar5iv.labs.arxiv.org/html/{arxiv_id}"
 USER_AGENT = "zwt0204.github.io arxiv paper learner bot"
@@ -95,6 +96,10 @@ def markdown_escape(value: str) -> str:
 
 def yaml_escape(value: str) -> str:
     return normalize_text(value).replace("\\", "\\\\").replace('"', '\\"')
+
+
+def svg_escape(value: str) -> str:
+    return html.escape(normalize_text(value), quote=True)
 
 
 def get_url(url: str) -> str:
@@ -456,6 +461,103 @@ def paper_detail_breakdown(paper: Paper) -> str:
 - **复现条件**：代码、数据、prompt、超参数是否足够完整。"""
 
 
+def write_paper_architecture_svg(paper: Paper, date: str) -> str:
+    ASSET_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"{date}-paper-{slugify(paper.title)}-architecture.svg"
+    path = ASSET_DIR / filename
+    text = f"{paper.title} {paper.abstract}".lower()
+
+    if "driving" in text or "autonomous driving" in text:
+        boxes = [
+            ("场景输入", "多帧 / 风险目标"),
+            ("视觉表示", "区域 / 坐标 / 轨迹"),
+            ("Grounding", "目标-证据绑定"),
+            ("语言推理", "风险解释"),
+            ("结构输出", "分类 / 定位 / 证据"),
+            ("评测验证", "时序 / 空间 / 忠实度"),
+        ]
+        caption = "自动驾驶风险理解方法链路：从视觉证据到 grounded explanation，再到可验证的风险输出。"
+    elif "video" in text or "multimodal" in text or "vision" in text or "image" in text:
+        boxes = [
+            ("多模态输入", "image / video / audio"),
+            ("编码压缩", "features / tokens"),
+            ("跨模态对齐", "object / time / text"),
+            ("推理模块", "memory / CoT / retrieval"),
+            ("任务输出", "answer / caption / locate"),
+            ("评测验证", "accuracy / faithfulness"),
+        ]
+        caption = "多模态论文阅读链路：重点看证据如何被保留、对齐和验证。"
+    elif "agent" in text or "tool" in text or "skill" in text:
+        boxes = [
+            ("任务环境", "repo / GUI / tools"),
+            ("状态表示", "memory / observation"),
+            ("动作空间", "tool schema"),
+            ("策略更新", "plan / feedback"),
+            ("执行轨迹", "trace / cost"),
+            ("结果评测", "success / failure"),
+        ]
+        caption = "Agent 论文阅读链路：从状态、动作、反馈到可复盘的执行轨迹。"
+    else:
+        boxes = [
+            ("问题输入", "data / task"),
+            ("中间表示", "state / feature"),
+            ("核心机制", "module / loss"),
+            ("输出结果", "prediction"),
+            ("实验验证", "main / ablation"),
+            ("边界分析", "failure / cost"),
+        ]
+        caption = "论文阅读链路：从问题输入到核心机制，再到实验验证和边界分析。"
+
+    box_width = 150
+    gap = 22
+    start_x = 34
+    y = 118
+    width = start_x * 2 + len(boxes) * box_width + (len(boxes) - 1) * gap
+    height = 330
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">',
+        f"<title id=\"title\">{svg_escape(paper.title)} 方法架构</title>",
+        f"<desc id=\"desc\">{svg_escape(caption)}</desc>",
+        "<defs>",
+        '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#f0fdf4"/></linearGradient>',
+        '<filter id="shadow" x="-10%" y="-20%" width="120%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#0f172a" flood-opacity="0.15"/></filter>',
+        "</defs>",
+        f'<rect width="{width}" height="{height}" rx="18" fill="url(#bg)"/>',
+        f'<text x="34" y="42" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">论文方法架构图</text>',
+        f'<text x="34" y="70" font-family="Arial, sans-serif" font-size="14" fill="#475569">{svg_escape(caption)}</text>',
+    ]
+
+    for index, (title, subtitle) in enumerate(boxes):
+        x = start_x + index * (box_width + gap)
+        parts.extend(
+            [
+                f'<rect x="{x}" y="{y}" width="{box_width}" height="92" rx="12" fill="#ffffff" stroke="#bbf7d0" filter="url(#shadow)"/>',
+                f'<text x="{x + box_width / 2}" y="{y + 34}" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#14532d">{svg_escape(title)}</text>',
+                f'<text x="{x + box_width / 2}" y="{y + 60}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#475569">{svg_escape(subtitle)}</text>',
+            ]
+        )
+        if index < len(boxes) - 1:
+            ax = x + box_width + 5
+            bx = x + box_width + gap - 5
+            parts.extend(
+                [
+                    f'<line x1="{ax}" y1="{y + 46}" x2="{bx}" y2="{y + 46}" stroke="#16a34a" stroke-width="2.5"/>',
+                    f'<polygon points="{bx},{y + 46} {bx - 8},{y + 41} {bx - 8},{y + 51}" fill="#16a34a"/>',
+                ]
+            )
+
+    parts.extend(
+        [
+            f'<rect x="34" y="248" width="{width - 68}" height="48" rx="10" fill="#dcfce7" stroke="#86efac"/>',
+            f'<text x="54" y="278" font-family="Arial, sans-serif" font-size="14" fill="#14532d">读图顺序：逐层核对论文有没有给出可验证证据，尤其是中间表示、输出约束和实验指标是否闭环。</text>',
+            "</svg>",
+        ]
+    )
+    path.write_text("\n".join(parts) + "\n", encoding="utf-8")
+    return f"img/daily-reports/{filename}"
+
+
 def questions_for(paper: Paper) -> list[str]:
     tags = set(topic_tags(paper))
     questions = [
@@ -475,7 +577,7 @@ def questions_for(paper: Paper) -> list[str]:
     return questions
 
 
-def build_deep_paper_section(paper: Paper, outline: tuple[str, ...] = ()) -> str:
+def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tuple[str, ...] = ()) -> str:
     tags = "、".join(topic_tags(paper))
     categories = "、".join(paper.categories) if paper.categories else paper.primary_category or "未标注"
     questions = "\n".join(f"- {question}" for question in questions_for(paper))
@@ -504,6 +606,12 @@ def build_deep_paper_section(paper: Paper, outline: tuple[str, ...] = ()) -> str
 ### 全文结构线索
 
 {outline_text if outline_text else "没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。"}
+
+### 一张图看方法
+
+![{markdown_escape(paper.title)} 方法架构图](/{architecture_image})
+
+这张图不是复述论文流程图，而是把阅读时最该盯住的证据链画出来：输入如何被表示，表示如何被 grounding 或推理模块消费，最后输出如何被实验指标验证。
 
 ### 方法架构拆分
 
@@ -552,7 +660,8 @@ def write_report(papers: list[Paper]) -> Path:
     ranked = sorted(papers, key=lambda paper: paper_score(paper)[0], reverse=True)
     pick = ranked[0]
     outline = fetch_paper_outline(pick)
-    top_section = build_deep_paper_section(pick, outline)
+    architecture_image = write_paper_architecture_svg(pick, date)
+    top_section = build_deep_paper_section(pick, architecture_image, outline)
 
     content = f"""---
 layout: post
