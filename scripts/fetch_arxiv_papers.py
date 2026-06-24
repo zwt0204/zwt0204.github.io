@@ -102,6 +102,10 @@ def svg_escape(value: str) -> str:
     return html.escape(normalize_text(value), quote=True)
 
 
+def extract_urls(value: str) -> list[str]:
+    return re.findall(r"https?://[^\s)>\]]+", value or "")
+
+
 def get_url(url: str) -> str:
     request = Request(url, headers={"User-Agent": USER_AGENT})
     last_error: Exception | None = None
@@ -546,6 +550,133 @@ def paper_experiment_checklist(paper: Paper) -> str:
 | 失败案例 | 是否解释方法边界。 |"""
 
 
+def paper_interpretation_intro(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """这篇论文的核心不是再做一个“会描述驾驶场景”的多模态模型，而是在处理自动驾驶风险理解里一个很具体的矛盾：**视频模型有时间信息，但容易牺牲空间精度；高分辨率单帧模型看得清，但容易缺少动态上下文。**
+
+UniDrive 的思路是把这两个能力拆开，再重新融合：一条分支负责多帧时序语义，一条分支负责最新帧的高分辨率空间细节，最后用 gated cross-attention 把“动态上下文”和“精确视觉证据”对齐。它最后不是只输出一句 caption，而是同时生成自然语言风险描述和风险对象的 bounding box。这个设计使它更像一个 **可解释风险理解框架**，而不只是自动驾驶场景 captioner。"""
+    if "agent" in text or "tool" in text or "skill" in text:
+        return """这篇论文要看的不是模型答题能力，而是 agent 在长程任务里如何维护状态、选择动作、接收反馈，并把失败路径变成下一步决策依据。解读时应该把它当作一个执行系统，而不是单轮推理模型。"""
+    if "video" in text or "multimodal" in text or "vision" in text or "image" in text:
+        return """这篇论文的重点在多模态信息如何被保留、对齐和验证。解读时不要只看最终指标，要追问视觉证据在进入语言模型之后是否仍然可定位、可解释、可复核。"""
+    return """这篇论文需要按“问题矛盾 -> 方法主线 -> 实验证据 -> 边界条件”的顺序读。先判断它抓住的问题是否真实，再看方法是否针对这个问题，而不是被复杂模块带着走。"""
+
+
+def paper_core_claims(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """| 作者主张 | 解读 |
+| --- | --- |
+| 现有 MLLM 在自动驾驶风险理解中存在 temporal reasoning 与 spatial precision 的 trade-off | 这是全文的问题定义。作者认为单帧/低分辨率方案会漏小目标、远目标、遮挡目标；语言中心的驾驶模型又缺少 grounded evidence。 |
+| Temporal reasoning branch 建模多帧动态 | 这条分支负责“事情如何变化”，例如车辆、行人、交通参与者之间的时序关系。它应该提升风险判断的上下文理解。 |
+| High-resolution perception branch 保留最新帧细粒度空间细节 | 这条分支负责“风险对象到底在哪里”，尤其是小目标、远距离目标和遮挡目标。 |
+| Gated cross-attention fusion 对齐动态上下文和空间证据 | 这是方法核心。重点要看 gate 是否真的学会在不同场景下调节两条分支，而不是简单特征拼接。 |
+| 联合生成自然语言风险描述和 bounding-box grounding | 这决定了论文的可解释性标准：解释必须能回到具体对象，而不是只有流畅文本。 |
+| 在 DRAMA-Reasoning、NuScenes、BDD100K 上验证 | 这里要看主任务、零样本泛化和人工可解释性评价是否相互支撑。 |"""
+    return """| 作者主张 | 解读 |
+| --- | --- |
+| 论文提出一个具体问题 | 先确认这个问题是否真实存在，而不是已有任务换了名字。 |
+| 方法引入新的模块或流程 | 看模块是否直接服务于问题矛盾。 |
+| 实验展示性能提升 | 检查提升来自方法本身、数据设置，还是 baseline 较弱。 |
+| 作者声称有可迁移价值 | 需要看跨数据集、跨模型或失败案例是否支撑。 |"""
+
+
+def paper_problem_interpretation(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """UniDrive 抓住的是自动驾驶场景理解里很典型的“鱼和熊掌”问题：
+
+- 如果模型主要看视频，它能理解目标运动和场景变化，但为了控制 token / feature 成本，往往会降低分辨率或稀释空间细节。
+- 如果模型主要看最新高分辨率单帧，它能看清小目标、远目标和遮挡区域，但缺少“这个风险是怎么形成的”的动态上下文。
+- 如果模型只输出自然语言解释，即使文字合理，也很难判断它到底看到了哪个风险对象。
+
+所以这篇论文的真正问题不是“让 MLLM 更会 caption”，而是：**能不能同时保留时间语义、空间精度和可验证 grounding。**"""
+    return """这篇论文需要先拆清楚它面对的核心矛盾：现有方法到底缺的是数据、表示、推理、执行反馈，还是评测方式。只有矛盾明确，后面的模块才有判断标准。"""
+
+
+def paper_module_interpretation(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Multi-frame visual input | 给模型动态上下文，避免只看单帧导致误判风险趋势 | 输入帧数、采样间隔、时间窗口是否足够覆盖风险形成过程。 |
+| Temporal reasoning branch | 建模场景动态，比如目标运动、相对距离变化、潜在碰撞关系 | 是否有时序消融；去掉该分支后 caption 和风险判断是否明显下降。 |
+| High-resolution perception branch | 保留最新帧空间细节，缓解小目标、远目标、遮挡目标漏检 | 是否真的使用更高分辨率；小目标 localization 是否单独统计。 |
+| Gated cross-attention fusion | 让动态语义和精细空间证据交互 | gate 的作用是否有消融；是否比较过 concat、普通 cross-attention 等更弱融合方式。 |
+| Natural-language risk description | 输出人能读懂的风险解释 | 解释是否忠实于视觉证据，还是只是常识化驾驶描述。 |
+| Grounded bounding-box output | 把风险解释绑定到具体对象 | grounding 指标是否和 caption 指标同时提升；错误案例是否分析框错还是文本错。 |"""
+    return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| 输入表示 | 把原始数据变成模型可处理的形式 | 是否丢失关键上下文。 |
+| 核心机制 | 论文真正贡献所在 | 是否有直接消融证明。 |
+| 输出格式 | 决定结果是否可验证 | 是否只是自然语言，还是有结构化证据。 |
+| 评测协议 | 决定结论可信度 | baseline、指标、数据划分是否公平。 |"""
+
+
+def paper_method_success_conditions(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """UniDrive 的方法是否成立，主要看三个点：
+
+1. **双分支是不是各司其职**
+   temporal branch 应该负责动态语义，high-resolution branch 应该负责空间细节。正文里最好有消融能证明：去掉 temporal branch 会伤害时序/风险推理，去掉 high-resolution branch 会伤害小目标定位。
+
+2. **gated cross-attention 是否真的在融合，而不是装饰模块**
+   如果 gate 只是让参数变多，收益可能来自容量；如果 gate 在复杂场景、小目标场景、运动风险场景下表现出不同权重或显著消融收益，才说明它解决了“动态语义对齐空间证据”的问题。
+
+3. **输出是不是形成解释闭环**
+   自然语言风险描述和 bounding box grounding 必须互相支撑：文本说某个对象危险，框就要能定位到对应对象；框定位错了，文本解释的可信度也应该下降。"""
+    return """方法是否成立，不能只看模块名称。要看每个模块是否对应问题矛盾，消融是否证明必要性，输出是否能被实验指标直接验证。"""
+
+
+def paper_result_interpretation(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """从摘要看，实验结论分成三组，读正文时应该分开验证：
+
+1. **主 benchmark：DRAMA-Reasoning**
+   这里要看 UniDrive 相比 image-based 和 video-based baseline 的提升是否同时出现在 captioning 与 risk-object grounding 上。如果只提升 caption，不提升 grounding，可解释性主张就不稳。
+
+2. **小目标定位优势**
+   摘要特别强调 small-object localization。这个点和 high-resolution perception branch 是一一对应的，应该重点找小目标子集、距离分桶、遮挡分桶或 qualitative case。
+
+3. **零样本泛化：NuScenes 和 BDD100K**
+   零样本结果用来说明方法不是只适配 DRAMA-Reasoning。这里要看目标数据集任务定义是否一致，输入格式是否一致，以及有没有 domain shift 的失败案例。
+
+4. **人工评价：interpretability and trustworthiness**
+   这部分最容易主观。需要看评分准则、评审人数、一致性、是否 blind review，以及 grounding 错误是否会影响人类信任评分。"""
+    return """读实验时不要只看总分。至少拆成主结果、消融实验、跨数据泛化、成本分析和失败案例五块。主结果说明“有没有用”，消融说明“哪个模块有用”，泛化说明“是不是只对一个数据集有用”，失败案例说明“什么时候不要用”。"""
+
+
+def paper_takeaway(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """这篇论文真正值得带走的点，是把“自动驾驶解释”从纯文本描述拉回到 **时序证据 + 空间证据 + grounded object** 的闭环。对安全关键场景来说，解释不是越像人话越好，而是越能回指证据越好。
+
+我会把它归类为一篇值得读方法结构的论文：不一定要照搬 UniDrive 的具体模块，但“动态语义一条支路、精细感知一条支路、再用 gated fusion 对齐”的问题拆法，对很多多模态风险理解任务都有参考价值。"""
+    return """这篇论文的价值不只在最终指标，而在它如何拆问题、设计中间表示、把结果变成可验证证据。读完后应该能回答：它解决了什么矛盾，哪个模块真正解决这个矛盾，实验有没有支撑这个解释。"""
+
+
+def paper_experiment_questions(paper: Paper) -> str:
+    text = f"{paper.title} {paper.abstract}".lower()
+    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+        return """这篇实验最少要回答四个问题：
+
+1. **captioning 和 grounding 是否同时提升？**
+   如果只有语言描述变好，不能说明风险理解更可信；如果只有框变准，不能说明解释更好。UniDrive 的卖点要求两者同时成立。
+
+2. **小目标收益是否来自 high-resolution branch？**
+   摘要强调 small-object localization，因此正文里应该能看到高分辨率分支和小目标指标之间的对应关系。
+
+3. **零样本泛化是否只是数据集相近？**
+   NuScenes 和 BDD100K 的零样本结果很重要，但要看输入协议、标注定义和风险类别是否与 DRAMA-Reasoning 足够接近。
+
+4. **人工可解释性评分是否可信？**
+   人评需要明确评分准则。否则“trustworthiness”容易变成主观偏好，而不是模型真的更忠实。"""
+    return """实验至少要回答：主结果是否稳定、关键模块是否必要、泛化是否成立、失败案例是否解释了方法边界。"""
+
+
 def write_paper_architecture_svg(paper: Paper, date: str) -> str:
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
     filename = f"{date}-paper-{slugify(paper.title)}-architecture.svg"
@@ -682,11 +813,17 @@ def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tup
 
 {markdown_escape(first_sentences(paper.abstract))}
 
-### 问题定义
+### 先给结论
 
-{problem_lens}
+{paper_interpretation_intro(paper)}
 
-从摘要看，这篇论文最应该先确认的不是具体指标，而是它把问题边界划在哪里：输入是什么，输出是什么，系统/模型在什么约束下工作，和已有路线相比到底难在哪里。
+### 这篇论文的核心主张
+
+{paper_core_claims(paper)}
+
+### 它抓住的矛盾
+
+{paper_problem_interpretation(paper)}
 
 ### 全文结构线索
 
@@ -702,33 +839,33 @@ def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tup
 
 {paper_architecture_breakdown(paper)}
 
-### 关键细节拆解
+### 模块拆解
 
-{paper_detail_breakdown(paper)}
+{paper_module_interpretation(paper)}
 
 ### 方法链路细读
 
 {paper_method_chain(paper)}
 
-### 方法部分怎么读
+### 关键细节拆解
 
-{method_lens}
+{paper_detail_breakdown(paper)}
 
-阅读时建议把方法拆成三层：
+### 方法成败点
 
-1. **核心假设**：作者相信哪个瓶颈最重要，这个假设是否合理。
-2. **关键机制**：真正带来收益的是模型结构、数据构造、检索/记忆、训练目标，还是推理流程。
-3. **工程代价**：额外 token、额外模型调用、额外标注、额外存储或延迟是否可接受。
+{paper_method_success_conditions(paper)}
 
-### 实验部分怎么判断
+### 实验必须回答的问题
 
-{experiment_lens}
-
-至少要检查四块：主结果是否稳定，消融是否能证明关键模块必要，失败案例是否诚实，结论是否跨模型或跨数据集成立。
+{paper_experiment_questions(paper)}
 
 ### 实验拆解清单
 
 {paper_experiment_checklist(paper)}
+
+### 实验结果怎么解读
+
+{paper_result_interpretation(paper)}
 
 ### 局限和追问
 
@@ -740,7 +877,7 @@ def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tup
 
 ### 可以带走的东西
 
-如果论文读完之后只能沉淀一页笔记，建议记这三类内容：问题定义的抽象方式、核心机制的有效性依据、实验设计里哪些指标或失败分析可以复用到自己的项目中。
+{paper_takeaway(paper)}
 """
 
 
