@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "arXiv 论文学习日报：LLM、多模态与 Agent (2026-06-21)"
-subtitle: "自动筛选值得精读的新论文"
+title: "arXiv 论文精读：SARLO-80: Worldwide Slant SAR Language Optic Dataset 80cm (2026-06-21)"
+subtitle: "单篇论文深度拆解"
 date: 2026-06-21 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -21,16 +21,16 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，并按研究价值、工程启发和可复现线索进行排序。
+数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇围绕一篇论文做摘要、问题定义、方法线索、实验判断和局限追问。
 
-筛选不是简单看标题热词，而是优先考虑：
+阅读时优先关注四类问题：
 
-1. 是否切中 LLM / multimodal / agent 方向的关键问题；
-2. 是否有清晰的方法贡献、评测基准或系统实现；
-3. 是否能给实际工程带来可迁移经验；
-4. 是否值得进一步精读 introduction、method、experiment 和 limitation。
+1. 论文定义的问题是否清楚。
+2. 方法里真正起作用的机制是什么。
+3. 实验是否足以支撑主要结论。
+4. 这篇论文能给工程或研究带来哪些可迁移经验。
 
-# 1. 今日最值得读的论文
+# 1. 论文拆解
 
 ## [SARLO-80: Worldwide Slant SAR Language Optic Dataset 80cm](http://arxiv.org/abs/2606.20523v1)
 
@@ -40,199 +40,120 @@ categories: [paper, daily]
 - 发布时间：2026-06-18，更新时间：2026-06-18
 - 类别：cs.CV、cs.AI、cs.DB
 - 主题标签：LLM、多模态、Reasoning、Safety/Eval
-- 阅读价值评分：18/20
 
 ### 摘要速读
 
 Multimodal foundation models have advanced rapidly thanks to large optical benchmarks, but comparable resources for synthetic aperture radar (SAR) remain limited. Existing SAR--optical datasets largely rely on low-resolution, intensity-only Ground Range Detected~(GRD) products and do not preserve complex-valued SAR measurements or native acquisition geometry, which restricts physically grounded multimodal learning.
 
-### 为什么值得读
+### 先给结论
 
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+SARLO-80 这类论文要按数据集论文读：重点不是模型结构，而是数据是否足够稀缺、覆盖是否足够广、模态是否对齐、标注是否能支撑后续 foundation model 训练和评测。
 
-### 方法与贡献线索
+80cm 级遥感/SAR-光学-语言数据如果做得扎实，价值在于给遥感多模态模型提供更细粒度、更全球化、更接近真实应用的数据底座。
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+### 这篇论文的核心主张
 
-### 精读时重点追问
+| 作者主张 | 解读 |
+| --- | --- |
+| SARLO-80 提供全球范围 80cm 级遥感数据 | 数据覆盖和分辨率是主要贡献，需要看地理、地貌和传感器分布。 |
+| SAR / optical / language 组合有训练价值 | SAR 和光学互补，语言则把地物语义显式化，三者对齐质量决定数据集上限。 |
+| 数据可支持遥感 VLM/foundation model | 要看任务定义是否足够丰富，而不只是图片-caption 对。 |
+| 可作为跨地区泛化评测 | 真正价值在跨地貌、跨传感器、跨地区，而不是随机划分高分。 |
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
+### 它抓住的矛盾
 
-## [S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence](http://arxiv.org/abs/2606.20515v1)
+遥感多模态模型常见瓶颈不是缺一个更大的 backbone，而是缺高质量、全球覆盖、跨传感器、带语言语义的数据。
 
-- arXiv：[2606.20515](http://arxiv.org/abs/2606.20515v1)
-- PDF：[https://arxiv.org/pdf/2606.20515v1](https://arxiv.org/pdf/2606.20515v1)
-- 作者：Yalun Dai、Hao Li、Shulin Tian、Runmao Yao、Yuhao Dong、Fangzhou Hong、等
-- 发布时间：2026-06-18，更新时间：2026-06-18
-- 类别：cs.CV
-- 主题标签：多模态、Agent、Skill/Tool、RAG/Memory、Reasoning、Safety/Eval
-- 阅读价值评分：18/20
+SAR 有全天时全天候优势，但不直观；光学图像语义直观，但受云层和光照影响；语言标注能连接地物与任务，但容易粗糙。SARLO-80 的问题就是：**能不能把这三类信号对齐成可训练、可评测的数据底座。**
 
-### 摘要速读
+### 全文结构线索
 
-Real-world spatial intelligence requires reasoning over a continuous and evolving 3D world, yet existing VLMs and tool-augmented agents largely remain tied to static, stateless inference from isolated visual observations. We introduce \textbf{\textsc{S-Agent}}, a spatial tool-use agentic paradigm for understanding and reasoning over continuous multi-view images and videos.
+没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
-### 为什么值得读
+### 一张图看方法
 
-多模态/视觉语言模型、Agent 与长程任务、工具使用/技能学习、RAG、记忆或长上下文、推理、代码或复杂任务、训练/后训练方法、推理效率或系统优化、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+![SARLO-80: Worldwide Slant SAR Language Optic Dataset 80cm 方法架构图](/img/daily-reports/2026-06-21-paper-sarlo-80-worldwide-slant-sar-language-optic-dataset-80cm-architecture.svg)
 
-### 方法与贡献线索
+这张图不是复述论文流程图，而是把阅读时最该盯住的证据链画出来：输入如何被表示，表示如何被 grounding 或推理模块消费，最后输出如何被实验指标验证。
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+### 方法架构拆分
 
-### 精读时重点追问
+1. **数据采集层**：SAR/遥感数据的价值首先取决于覆盖区域、传感器类型、分辨率、成像角度和时间跨度。
+2. **光学-雷达对齐层**：如果数据集同时涉及 SAR、optical 和 language，要看跨模态配准误差如何处理。
+3. **语言标注层**：自然语言描述是否只是类别标签扩写，还是包含地物关系、空间布局、场景用途和变化线索。
+4. **任务定义层**：数据集应明确支持检索、caption、定位、变化检测、VQA 还是 foundation model 预训练。
+5. **评测层**：需要看跨地区、跨地貌、跨传感器和长尾目标上的泛化，而不只是随机划分得分。
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+### 模块拆解
 
-## [StylisticBias: A Few Human Visual Cues Drive Most Social Biases in MLLMs](http://arxiv.org/abs/2606.20527v1)
+| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| SAR imagery | 提供全天时、结构敏感遥感视角 | 分辨率、传感器、噪声和地理分布。 |
+| Optical imagery | 提供直观语义和视觉纹理 | 与 SAR 的配准误差和时间差。 |
+| Language annotation | 把地物、布局和场景用途文本化 | 描述粒度、标注流程、质量控制。 |
+| Dataset splits | 支撑训练和评测 | 是否按地区/地貌/传感器做泛化划分。 |
+| Benchmarks | 验证数据集用途 | 检索、caption、VQA、定位或预训练指标。 |
 
-- arXiv：[2606.20527](http://arxiv.org/abs/2606.20527v1)
-- PDF：[https://arxiv.org/pdf/2606.20527v1](https://arxiv.org/pdf/2606.20527v1)
-- 作者：Shaghayegh Kolli、Timo Cavelius、Nafiseh Nikeghbal、Samantha Dalal、Jana Diesner
-- 发布时间：2026-06-18，更新时间：2026-06-18
-- 类别：cs.CL、cs.CV
-- 主题标签：LLM、多模态、Reasoning、Safety/Eval
-- 阅读价值评分：16/20
+### 方法链路细读
 
-### 摘要速读
+```text
+SAR / optical imagery
+  -> geo-alignment and tiling
+  -> language annotation
+  -> dataset filtering
+  -> benchmark task construction
+  -> model evaluation
+  -> geographic generalization analysis
+```
 
-Multimodal large language models (MLLMs) are increasingly deployed in personally and societally consequential settings, yet the visual cues that shape how these models judge people remain poorly understood. Prior work often compares different (groups of) individuals, making it difficult to separate appearance effects from identity differences.
+数据集论文的链路重点不是模型多复杂，而是数据是否可用、可对齐、可复现、能逼出模型短板。
 
-### 为什么值得读
+### 关键细节拆解
 
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+- **80cm 分辨率含义**：分辨率决定能否看到小型建筑、道路、车辆、农田纹理等细粒度目标，也决定语言标注能细到什么程度。
+- **SAR 与光学互补**：SAR 能穿云、对结构敏感，光学更符合人眼语义。数据集若能对齐两者，才有跨模态基础模型价值。
+- **全球覆盖**：worldwide 数据集要看区域分布是否均衡，是否覆盖城市、农田、海岸、山地、沙漠等不同地貌。
+- **语言质量**：语言描述不能只是“there is a building”，需要体现空间布局、目标关系、场景属性和遥感特有信息。
 
-### 方法与贡献线索
+### 方法成败点
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+SARLO-80 是否成立，主要看数据质量而不是模型分数。需要证明 SAR、光学和语言对齐可靠，全球覆盖不是口号，标注粒度足以支撑细粒度遥感理解，并且跨地区划分下仍有评测价值。
 
-### 精读时重点追问
+### 实验必须回答的问题
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
+实验至少要回答：数据覆盖是否均衡，SAR/optical/language 是否对齐，任务是否真实，跨地区/跨传感器泛化是否比随机划分更有挑战。
 
-## [LLM agent safety, multi-turn red-teaming, jailbreak benchmarks, adversarial robustness, safety-critical systems](http://arxiv.org/abs/2606.20408v1)
+### 实验拆解清单
 
-- arXiv：[2606.20408](http://arxiv.org/abs/2606.20408v1)
-- PDF：[https://arxiv.org/pdf/2606.20408v1](https://arxiv.org/pdf/2606.20408v1)
-- 作者：Hanwool Lee、Dasol Choi、Bokyeong Kim、Seung Geun Kim、Haon Park
-- 发布时间：2026-06-18，更新时间：2026-06-18
-- 类别：cs.CR、cs.AI
-- 主题标签：LLM、Agent、Safety/Eval
-- 阅读价值评分：16/20
+| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 覆盖范围 | 是否说明国家/地区、地貌、季节、传感器分布。 |
+| 配准质量 | SAR、光学和语言是否可靠对齐。 |
+| 标注质量 | 是否有人审、过滤规则和一致性统计。 |
+| 任务价值 | 是否支持检索、caption、定位、VQA 或预训练。 |
+| 泛化 | 是否跨地区、跨传感器、跨地貌划分评估。 |
 
-### 摘要速读
+### 实验结果怎么解读
 
-Large language model (LLM) agents are increasingly proposed as supervisory components for safety-critical systems, yet their robustness under sustained, adaptive adversarial pressure remains poorly characterized. We present NRT-Bench, a benchmark for multi-turn red-teaming of LLM agents acting as operators of a safety-critical system, instantiated in a simulated nuclear power plant control room.
+数据集论文的实验不是为了证明某个模型最强，而是证明数据能支撑有意义的任务。读结果时应看跨地区/跨传感器泛化、SAR 与 optical 的互补收益、语言标注带来的增益，以及长尾地物上的失败。
 
-### 为什么值得读
+### 局限和追问
 
-大模型核心方向、Agent 与长程任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、方法贡献明确、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+如果收益依赖特定数据集、特定 backbone 或昂贵 token budget，就需要谨慎判断可迁移性。
 
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
-
-## [AutoPass: Evidence-Guided LLM Agents for Compiler Performance Tuning](http://arxiv.org/abs/2606.20373v1)
-
-- arXiv：[2606.20373](http://arxiv.org/abs/2606.20373v1)
-- PDF：[https://arxiv.org/pdf/2606.20373v1](https://arxiv.org/pdf/2606.20373v1)
-- 作者：Zepeng Li、Jie Ren、Zhanyong Tang、Jie Zheng、Zheng Wang
-- 发布时间：2026-06-18，更新时间：2026-06-18
-- 类别：cs.SE、cs.AI
-- 主题标签：LLM、Agent、Reasoning、Safety/Eval
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-Large Language Models (LLMs) show promise for code compilation tasks, but applying them to runtime performance tuning is difficult due to complex microarchitectural effects and noisy runtime measurements. We present AutoPass, a multi-agent framework for compiler performance tuning that uses compiler and runtime evidence to guide LLM-generated optimization decisions.
-
-### 为什么值得读
-
-大模型核心方向、Agent 与长程任务、推理、代码或复杂任务、训练/后训练方法、推理效率或系统优化、类别与 LLM/Agent 高相关、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
-
-## [SPOT-E: Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs](http://arxiv.org/abs/2606.20244v1)
-
-- arXiv：[2606.20244](http://arxiv.org/abs/2606.20244v1)
-- PDF：[https://arxiv.org/pdf/2606.20244v1](https://arxiv.org/pdf/2606.20244v1)
-- 作者：Bo Yin、Xiaobin Hu、Chengming Xu、Ruolin Shen、Mo Yang、Jiangning Zhang、等
-- 发布时间：2026-06-18，更新时间：2026-06-18
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、Reasoning、Safety/Eval
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-Vision-language models (VLMs) often underperform on evidence intensive tasks because decisive visual evidence are small, localized, and easy to overlook, leading to failures in evidence readout even when high-level reasoning is intact. Prior inference-time visual interventions can improve grounding without retraining, but they are largely open-loop and lack a mechanism to verify whether highlighted evidence is actually used.
-
-### 为什么值得读
-
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、安全、对齐或鲁棒性、训练/后训练方法、推理效率或系统优化、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
-
-### 精读时重点追问
+精读时重点追问：
 
 - 论文解决的是新问题，还是对已有问题换了一个实验设置？
 - 核心结论是否依赖特定模型、数据集或 prompt 模板？
 - 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
 
+### 可以带走的东西
 
-# 2. 候选论文列表
+SARLO-80 的可迁移价值在数据工程：跨传感器对齐、全球覆盖、细粒度语言标注和泛化划分，往往比单个模型结构更能推动遥感多模态能力。
 
-| 论文 | 主题 | 评分 | 发布时间 | 摘要一句话 |
-| --- | --- | ---: | --- | --- |
-| [SARLO-80: Worldwide Slant SAR Language Optic Dataset 80cm](http://arxiv.org/abs/2606.20523v1) | LLM, 多模态, Reasoning, Safety/Eval | 18 | 2026-06-18 | Multimodal foundation models have advanced rapidly thanks to large optical benchmarks, but comparable resources for synthetic aperture radar (SAR) remain limited. |
-| [S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence](http://arxiv.org/abs/2606.20515v1) | 多模态, Agent, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 18 | 2026-06-18 | Real-world spatial intelligence requires reasoning over a continuous and evolving 3D world, yet existing VLMs and tool-augmented agents largely remain tied to static, stateless inference from isolated visual observations. |
-| [StylisticBias: A Few Human Visual Cues Drive Most Social Biases in MLLMs](http://arxiv.org/abs/2606.20527v1) | LLM, 多模态, Reasoning, Safety/Eval | 16 | 2026-06-18 | Multimodal large language models (MLLMs) are increasingly deployed in personally and societally consequential settings, yet the visual cues that shape how these models judge people remain poorly understood. |
-| [LLM agent safety, multi-turn red-teaming, jailbreak benchmarks, adversarial robustness, safety-critical systems](http://arxiv.org/abs/2606.20408v1) | LLM, Agent, Safety/Eval | 16 | 2026-06-18 | Large language model (LLM) agents are increasingly proposed as supervisory components for safety-critical systems, yet their robustness under sustained, adaptive adversarial pressure remains poorly characterized. |
-| [AutoPass: Evidence-Guided LLM Agents for Compiler Performance Tuning](http://arxiv.org/abs/2606.20373v1) | LLM, Agent, Reasoning, Safety/Eval | 16 | 2026-06-18 | Large Language Models (LLMs) show promise for code compilation tasks, but applying them to runtime performance tuning is difficult due to complex microarchitectural effects and noisy runtime measurements. |
-| [SPOT-E: Test-Time Entropy Shaping with Visual Spotlights for Frozen VLMs](http://arxiv.org/abs/2606.20244v1) | LLM, 多模态, Reasoning, Safety/Eval | 16 | 2026-06-18 | Vision-language models (VLMs) often underperform on evidence intensive tasks because decisive visual evidence are small, localized, and easy to overlook, leading to failures in evidence readout even when high-level reasoning is intact. |
-| [ScholarQuest: A Taxonomy-Guided Benchmark for Agentic Academic Paper Search in Open Literature Environments](http://arxiv.org/abs/2606.20235v1) | LLM, Agent, Safety/Eval | 16 | 2026-06-18 | Academic paper search is a core step in scientific research, and LLM-based search agents are emerging as a promising paradigm for iterative, intent-driven literature exploration. |
-| [TimeProVe: Propose, then Verify for Efficient Long Video Temporal Reasoning in Activities of Daily Living](http://arxiv.org/abs/2606.20561v1) | LLM, 多模态, Reasoning, Safety/Eval | 15 | 2026-06-18 | Long Video Question Answering (LVQA) requires identifying sparse, query-relevant evidence within hours-long untrimmed videos. |
-| [Spectral Query-Key Product Weight Steering for Training-Free VLM Hallucination Mitigation](http://arxiv.org/abs/2606.20419v1) | LLM, 多模态, RAG/Memory, Safety/Eval | 15 | 2026-06-18 | Vision-language models (VLMs) often generate fluent but visually unsupported descriptions, especially by mentioning objects absent from the image. |
-| [Evaluating and Enhancing Negation Comprehension in Remote Sensing MLLMs](http://arxiv.org/abs/2606.20177v1) | LLM, 多模态, Reasoning, Safety/Eval | 15 | 2026-06-18 | Multimodal Large Language Models (MLLMs) have demonstrated remarkable success in various Remote Sensing (RS) tasks. |
-| [Contagion Networks: Evaluator Bias Propagation in Multi-Agent LLM Systems](http://arxiv.org/abs/2606.20493v1) | LLM, Agent, Safety/Eval | 14 | 2026-06-18 | When large language models serve as evaluators in multi-agent systems, their systematic evaluation biases propagate through the agent network. |
-| [Scalable Training of Spatially Grounded 2D Vision-Language Models for Radiology](http://arxiv.org/abs/2606.20477v1) | LLM, 多模态, Safety/Eval | 14 | 2026-06-18 | We study how to train visually grounded vision-language models (VLMs) for radiology without manual spatial annotations. |
-| [SoftSkill: Behavioral Compression for Contextual Adaptation](http://arxiv.org/abs/2606.20333v1) | LLM, Agent, Skill/Tool, Reasoning | 14 | 2026-06-18 | Agent skills are commonly deployed as natural-language Markdown files that encode answer policies, evidence-use habits, and task procedures. |
-| [ELVA: Exploring Ranking-Driven Universal Multimodal Retrieval](http://arxiv.org/abs/2606.20280v1) | LLM, 多模态, RAG/Memory, Safety/Eval | 14 | 2026-06-18 | Leveraging Multimodal Large Language Models (MLLMs) via contrastive learning has become a mainstream paradigm for improving the performance of Universal Multimodal Retrieval (UMR). |
-| [Navigating Unreliable Parametric and Contextual Knowledge: Explicit Knowledge Conflict Resolution for LLM Inference](http://arxiv.org/abs/2606.20245v1) | LLM, Agent, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-18 | Large language models (LLMs) have achieved strong performance across a wide range of language-based tasks by leveraging both extensive parametric knowledge and in-context learning ability, enabling them to incorporate external information provided in the input prompt. |
-| [HilDA: Hierarchical Distillation with Diffusion for Advancing Self-Supervised LiDAR Pre-trainin](http://arxiv.org/abs/2606.20189v1) | LLM, Agent, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-18 | Leveraging Vision Foundation Models (VFMs) for camera-to-LiDAR knowledge distillation offers a promising solution to the scarcity of annotated data needed to represent the immense geometric and kinematic diversity of real-world autonomous driving (AD). |
-| [UNIEGO: Proxies as Mediators for Unified Egocentric Video Representation Learning](http://arxiv.org/abs/2606.20559v1) | LLM, 多模态, Reasoning, Safety/Eval | 13 | 2026-06-18 | Egocentric video understanding is inherently limited by the narrow perspective of wearable cameras: a single viewpoint, a single modality, a single model cannot capture the full richness of human action. |
-| [Probe-and-Refine Tuning of Repository Guidance for Coding Agents](http://arxiv.org/abs/2606.20512v1) | LLM, Agent, Skill/Tool, RAG/Memory, Reasoning | 13 | 2026-06-18 | LLM-based coding agents need higher-level operational knowledge about a repository (which files house which subsystems, how to run the test suite, which workflows have historically led to wrong fixes) that does not exist in the code itself. |
-| [CRAX: Fast Safe Reinforcement Learning Benchmarking](http://arxiv.org/abs/2606.20376v1) | Agent, RAG/Memory, Safety/Eval | 13 | 2026-06-18 | Safety is a core concern for deploying reinforcement learning (RL) agents in real-world domains such as robotics and autonomous driving. |
-| [Augmenting Game AI with Deep Reinforcement Learning](http://arxiv.org/abs/2606.20210v1) | 多模态, Agent, Reasoning | 13 | 2026-06-18 | Immersion in video games depends not only on graphics, audio, and game mechanics, but also on the quality of in-game characters. |
-| [FlowMaps: Modeling Long-Term Multimodal Object Dynamics with Flow Matching](http://arxiv.org/abs/2606.20209v1) | 多模态, Agent, Reasoning | 13 | 2026-06-18 | Joint spatial and temporal understanding of 3D scenes is a crucial requirement for robots deployed in everyday household environments. |
-| [Execution-State Capsules: Graph-Bound Execution-State Checkpoint and Restore for Low-Latency, Small-Batch, On-Device Physical-AI Serving](http://arxiv.org/abs/2606.20537v1) | LLM, Agent, RAG/Memory, Reasoning | 12 | 2026-06-18 | Mainstream LLM serving systems reuse prefix work mainly through paged or radix key-value (KV) caches. |
-| [HumanScale: Egocentric Human Video Can Outperform Real-Robot Data for Embodied Pretraining](http://arxiv.org/abs/2606.20521v1) | LLM, 多模态, RAG/Memory, Safety/Eval | 12 | 2026-06-18 | Embodied foundation models are expected to benefit from data scaling like large language models, but face a much tighter data bottleneck. |
-| [Calibration Without Comprehension: Diagnosing the Limits of Fine-Tuning LLMs for Vulnerability Detection in Systems Software](http://arxiv.org/abs/2606.20502v1) | LLM, Reasoning, Safety/Eval | 12 | 2026-06-18 | Whether LLMs scoring well on vulnerability benchmarks genuinely reason about security or merely pattern-match on contaminated data remains unresolved. |
-| [Automating SKILL.md Generation for Computer-Using Agents via Interaction Trajectory Mining](http://arxiv.org/abs/2606.20363v1) | Agent, Skill/Tool, Safety/Eval | 12 | 2026-06-18 | Explicit skill libraries make computer-using agents easier to inspect, but it remains unclear whether such libraries can be mined from interaction data in a way that improves downstream policies. |
 
-# 3. 阅读建议
+# 2. 阅读建议
 
-建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
+正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-生成时间：2026-06-21 15:15:51 CST
+生成时间：2026-06-24 19:43:26 CST

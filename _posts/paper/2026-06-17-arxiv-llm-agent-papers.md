@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "arXiv 论文学习日报：LLM、多模态与 Agent (2026-06-17)"
-subtitle: "自动筛选值得精读的新论文"
+title: "arXiv 论文精读：Seeing Is Not Screening: Multimodal Hidden Instruction Attacks on Agent Skill Scanners (2026-06-17)"
+subtitle: "单篇论文深度拆解"
 date: 2026-06-17 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -21,16 +21,16 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，并按研究价值、工程启发和可复现线索进行排序。
+数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇围绕一篇论文做摘要、问题定义、方法线索、实验判断和局限追问。
 
-筛选不是简单看标题热词，而是优先考虑：
+阅读时优先关注四类问题：
 
-1. 是否切中 LLM / multimodal / agent 方向的关键问题；
-2. 是否有清晰的方法贡献、评测基准或系统实现；
-3. 是否能给实际工程带来可迁移经验；
-4. 是否值得进一步精读 introduction、method、experiment 和 limitation。
+1. 论文定义的问题是否清楚。
+2. 方法里真正起作用的机制是什么。
+3. 实验是否足以支撑主要结论。
+4. 这篇论文能给工程或研究带来哪些可迁移经验。
 
-# 1. 今日最值得读的论文
+# 1. 论文拆解
 
 ## [Seeing Is Not Screening: Multimodal Hidden Instruction Attacks on Agent Skill Scanners](http://arxiv.org/abs/2606.18198v1)
 
@@ -40,199 +40,119 @@ categories: [paper, daily]
 - 发布时间：2026-06-16，更新时间：2026-06-16
 - 类别：cs.CR、cs.CV
 - 主题标签：LLM、多模态、Agent、Skill/Tool、Reasoning
-- 阅读价值评分：16/20
 
 ### 摘要速读
 
 Agent skills are emerging as an important attack surface in LLM-based systems. Through an empirical study of existing skill scanners, we find that current defenses primarily rely on textual descriptions, manifests, and source code as the main signals for security analysis, which can leave visually conveyed malicious intent insufficiently examined.
 
-### 为什么值得读
+### 先给结论
 
-大模型核心方向、多模态/视觉语言模型、Agent 与长程任务、工具使用/技能学习、推理、代码或复杂任务、安全、对齐或鲁棒性、视觉/多模态类别匹配、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+这篇论文非常贴近 agent 工程安全：当 agent 可以安装 skill，skill 本身就变成供应链入口。攻击者不一定直接攻击模型，而是把隐藏指令塞进 Markdown、frontmatter、脚本、链接或参考资料，让 scanner 看漏，让 agent 执行。
 
-### 方法与贡献线索
+读这篇时要把它当成“agent skill 供应链安全”论文。重点不是有没有一个检测分数，而是能否发现隐藏载荷、区分良性高危技能和恶意技能，并给出可复核证据。
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+### 这篇论文的核心主张
 
-### 精读时重点追问
+| 作者主张 | 解读 |
+| --- | --- |
+| Agent skill scanner 面临隐藏指令攻击 | 攻击面来自 skill 包本身，尤其是 Markdown、metadata、脚本和参考链接混合的结构。 |
+| 多模态/文本 scanner 容易漏掉深层载荷 | 如果 scanner 只看摘要或关键词，就会被长文档稀释、格式混淆或间接引用绕过。 |
+| Attention 可用于定位恶意片段 | 关键是 attention 是否能稳定指向真正载荷，而不是只提供事后解释。 |
+| 野外 skill 检测需要误报控制 | 安全技能本来就包含危险命令，检测器必须理解授权上下文和执行意图。 |
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+### 它抓住的矛盾
 
-## [When LLMs Analyze Scars: From Images to Clinically-Meaningful Features](http://arxiv.org/abs/2606.18063v1)
+这类论文的矛盾在于：agent skill 必须给模型足够详细的步骤和命令，才有实用价值；但越详细，越容易藏入恶意指令、越权动作和供应链风险。
 
-- arXiv：[2606.18063](http://arxiv.org/abs/2606.18063v1)
-- PDF：[https://arxiv.org/pdf/2606.18063v1](https://arxiv.org/pdf/2606.18063v1)
-- 作者：Ruman Wang、Hangting Ye
-- 发布时间：2026-06-16，更新时间：2026-06-16
-- 类别：cs.CV、cs.AI、cs.LG
-- 主题标签：LLM、多模态、Reasoning
-- 阅读价值评分：16/20
+安全 scanner 不能简单禁止危险词，因为防御性安全技能天然包含攻击技术名称和命令。真正问题是：**如何在高风险但良性的安全知识，与伪装成技能的恶意指令之间划线。**
 
-### 摘要速读
+### 全文结构线索
 
-Medical image classification faces a fundamental dilemma: while deep learning models achieve remarkable performance at scale, real-world clinical scenarios often suffer from severe data scarcity due to annotation costs, privacy constraints, and disease rarity. This challenge is particularly pronounced in pathological scar classification, where differentiating keloids from hypertrophic scars requires subtle expert knowledge and labeled images are extremely limited.
+没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
-### 为什么值得读
+### 一张图看方法
 
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、安全、对齐或鲁棒性、推理效率或系统优化、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+![Seeing Is Not Screening: Multimodal Hidden Instruction Attacks on Agent Skill Scanners 方法架构图](/img/daily-reports/2026-06-17-paper-seeing-is-not-screening-multimodal-hidden-instruction-attacks-on-agent-skill-scanners-architecture.svg)
 
-### 方法与贡献线索
+这张图不是复述论文流程图，而是把阅读时最该盯住的证据链画出来：输入如何被表示，表示如何被 grounding 或推理模块消费，最后输出如何被实验指标验证。
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+### 方法架构拆分
 
-### 精读时重点追问
+1. **输入层**：agent skill 通常是 Markdown、YAML frontmatter、脚本、参考资料和命令片段的混合体，攻击面不只在自然语言。
+2. **隐藏指令层**：重点看 malicious instruction 如何藏在注释、链接、代码块、图片 alt、配置字段或长文档深处。
+3. **扫描模型层**：skill scanner 要判断哪些内容是能力说明，哪些是越权、泄露、持久化或绕过检查的指令。
+4. **注意力/证据层**：如果论文用 attention 辅助检测，要看它是解释工具、特征来源，还是训练目标的一部分。
+5. **评测层**：必须覆盖真实野外 skill、混淆样本、良性高危技能和对抗改写，否则很容易只检测到关键词。
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
+### 模块拆解
 
-## [ProvenanceGuard: Source-Aware Factuality Verification for MCP-Based LLM Agents](http://arxiv.org/abs/2606.18037v1)
+| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Skill parser | 读取 Markdown、metadata、脚本和引用 | 是否覆盖真实 skill 包结构。 |
+| Risk span detector | 找到隐藏指令或恶意片段 | 是否能跨代码块、链接、注释定位。 |
+| Attention mechanism | 提供检测依据或特征 | 是解释、监督还是核心分类信号。 |
+| Benign/malicious classifier | 区分良性安全技能和恶意载荷 | 误报率、漏报率、对抗改写。 |
+| Review output | 给人工或平台处理结果 | 是否输出证据、风险类型和处置建议。 |
 
-- arXiv：[2606.18037](http://arxiv.org/abs/2606.18037v1)
-- PDF：[https://arxiv.org/pdf/2606.18037v1](https://arxiv.org/pdf/2606.18037v1)
-- 作者：Ander Alvarez、Santhiya Rajan、Samuel Mugel、Román Orús
-- 发布时间：2026-06-16，更新时间：2026-06-16
-- 类别：cs.AI、cs.CL、cs.MA
-- 主题标签：LLM、Agent、Safety/Eval
-- 阅读价值评分：16/20
+### 方法链路细读
 
-### 摘要速读
+```text
+skill package
+  -> parse markdown / metadata / scripts
+  -> locate instruction-like spans
+  -> classify benign high-risk vs malicious
+  -> produce evidence spans
+  -> block, quarantine, or request review
+```
 
-Tool-using LLM agents increasingly use the Model Context Protocol (MCP) to answer from heterogeneous evidence sources, including search, APIs, databases, clinical records, and formulary tools. Standard factuality metrics usually test whether an answer is supported by pooled evidence, missing a provenance-sensitive failure mode: a claim may be supported somewhere while being attributed to the wrong source.
+安全 scanner 的价值取决于证据定位。只给一个风险分数不够，必须指出哪段文本或脚本触发风险，方便人工复核。
 
-### 为什么值得读
+### 关键细节拆解
 
-大模型核心方向、Agent 与长程任务、RAG、记忆或长上下文、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+- **攻击载荷位置**：隐藏指令可以出现在 Markdown 正文、frontmatter、代码块、脚本注释、链接文本和外部引用里，scanner 必须跨结构读取。
+- **良恶性边界**：安全 skill 里天然会出现危险命令，难点不是看到 `rm`、token、credential 就报警，而是判断授权前提和执行意图。
+- **注意力证据**：attention 如果被用来解释检测结果，需要看它是否稳定指向恶意片段，而不是被标题或关键词带偏。
+- **野外分布**：真实 skill 往往写法不规范，benchmark 需要覆盖噪声、混淆、长文档和跨平台格式。
 
-### 方法与贡献线索
+### 方法成败点
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+这类检测方法成立的关键不是高准确率，而是高风险场景下的可复核证据：能不能定位隐藏载荷，能不能区分防御性安全命令和恶意指令，能不能抵抗改写和长文档稀释。
 
-### 精读时重点追问
+### 实验必须回答的问题
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+实验至少要回答：隐藏指令藏在哪里最难检测，良性安全技能误报率是多少，对抗改写后是否仍能定位证据，人工复核成本是否下降。
 
-## [Future Dynamic 3D Reconstruction: A 3D World Model with Disentangled Ego-Motion](http://arxiv.org/abs/2606.18250v1)
+### 实验拆解清单
 
-- arXiv：[2606.18250](http://arxiv.org/abs/2606.18250v1)
-- PDF：[https://arxiv.org/pdf/2606.18250v1](https://arxiv.org/pdf/2606.18250v1)
-- 作者：Nils Morbitzer、Jonathan Evers、Artem Savkin、Thomas Stauner、Nassir Navab、Federico Tombari、等
-- 发布时间：2026-06-16，更新时间：2026-06-16
-- 类别：cs.CV
-- 主题标签：LLM、多模态、Agent、RAG/Memory
-- 阅读价值评分：15/20
+| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 真实样本 | 是否包含野外 agent skill，而不只是合成 prompt。 |
+| 隐藏位置 | 是否覆盖 frontmatter、Markdown、代码块、脚本、链接和外部引用。 |
+| 误报控制 | 是否区分良性安全技能和恶意隐藏指令。 |
+| 证据定位 | 是否输出风险片段，方便人工复核。 |
+| 对抗改写 | 是否测试 paraphrase、分散载荷和长文档稀释。 |
 
-### 摘要速读
+### 实验结果怎么解读
 
-Forecasting the evolution of dynamic environments is crucial for autonomous agents. While generative world models have recently achieved high photorealism in 2D video synthesis by mixing ego-motion and environmental dynamics within the image plane, they exhibit physical inconsistencies, such as morphing or vanishing objects, especially over long time horizons.
+安全检测结果要重点看漏报。误报会影响可用性，但漏报会让 agent 执行恶意 skill。最好看按攻击位置、载荷类型、文档长度、混淆方式拆开的结果，以及是否给出风险证据片段。
 
-### 为什么值得读
+### 局限和追问
 
-大模型核心方向、多模态/视觉语言模型、Agent 与长程任务、训练/后训练方法、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+如果论文没有讲权限边界、状态漂移、工具调用错误和成本控制，那工程落地价值要打折。
 
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
-
-## [EventDrive: Event Cameras for Vision-Language Driving Intelligence](http://arxiv.org/abs/2606.18242v1)
-
-- arXiv：[2606.18242](http://arxiv.org/abs/2606.18242v1)
-- PDF：[https://arxiv.org/pdf/2606.18242v1](https://arxiv.org/pdf/2606.18242v1)
-- 作者：Dongyue Lu、Rong Li、Ao Liang、Lingdong Kong、Wei Yin、Lai Xing Ng、等
-- 发布时间：2026-06-16，更新时间：2026-06-16
-- 类别：cs.CV
-- 主题标签：LLM、多模态、Agent、Reasoning、Safety/Eval
-- 阅读价值评分：15/20
-
-### 摘要速读
-
-Event cameras sense the world through asynchronous brightness changes with microsecond latency and high dynamic range, offering motion fidelity far beyond frame-based sensors and capturing temporal structure that conventional exposures often miss. These properties make events a powerful complement to RGB in autonomous driving, especially under blur, glare, and rapid motion, where frame-based perception can become unreliable.
-
-### 为什么值得读
-
-大模型核心方向、多模态/视觉语言模型、Agent 与长程任务、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
-
-### 精读时重点追问
+精读时重点追问：
 
 - 论文解决的是新问题，还是对已有问题换了一个实验设置？
 - 核心结论是否依赖特定模型、数据集或 prompt 模板？
 - 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
 
-## [RubricsTree: Scalable and Evolving Open-Ended Evaluation of Personal Health Agents across Health Memory and Medical Skills](http://arxiv.org/abs/2606.18203v1)
+### 可以带走的东西
 
-- arXiv：[2606.18203](http://arxiv.org/abs/2606.18203v1)
-- PDF：[https://arxiv.org/pdf/2606.18203v1](https://arxiv.org/pdf/2606.18203v1)
-- 作者：Weizhi Zhang、Zechen Li、Hamid Palangi、Ben Graef、A. Ali Heydari、Simon A. Lee、等
-- 发布时间：2026-06-16，更新时间：2026-06-16
-- 类别：cs.CL、cs.AI
-- 主题标签：LLM、Agent、Skill/Tool、RAG/Memory、Safety/Eval
-- 阅读价值评分：15/20
-
-### 摘要速读
-
-The LLM-empowered personal health agents with user health (sensor) metrics have offered a promising pathway to alleviate global disparities in healthcare access. However, large-scale clinical deployment remains constrained by an open-ended evaluation bottleneck: physician annotation is reliable but costly and unscalable, while LLM-as-a-judge evaluators are scalable but subjective, inconsistent, and sometimes clinically misaligned.
-
-### 为什么值得读
-
-大模型核心方向、Agent 与长程任务、工具使用/技能学习、RAG、记忆或长上下文、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+这篇论文的工程启发很直接：agent skill 需要像依赖包一样做供应链审查。安装前不仅要看能力说明，还要解析 metadata、脚本、链接和隐藏指令，并输出可复核证据。
 
 
-# 2. 候选论文列表
+# 2. 阅读建议
 
-| 论文 | 主题 | 评分 | 发布时间 | 摘要一句话 |
-| --- | --- | ---: | --- | --- |
-| [Seeing Is Not Screening: Multimodal Hidden Instruction Attacks on Agent Skill Scanners](http://arxiv.org/abs/2606.18198v1) | LLM, 多模态, Agent, Skill/Tool, Reasoning | 16 | 2026-06-16 | Agent skills are emerging as an important attack surface in LLM-based systems. |
-| [When LLMs Analyze Scars: From Images to Clinically-Meaningful Features](http://arxiv.org/abs/2606.18063v1) | LLM, 多模态, Reasoning | 16 | 2026-06-16 | Medical image classification faces a fundamental dilemma: while deep learning models achieve remarkable performance at scale, real-world clinical scenarios often suffer from severe data scarcity due to annotation costs, privacy constraints, and disease rarity. |
-| [ProvenanceGuard: Source-Aware Factuality Verification for MCP-Based LLM Agents](http://arxiv.org/abs/2606.18037v1) | LLM, Agent, Safety/Eval | 16 | 2026-06-16 | Tool-using LLM agents increasingly use the Model Context Protocol (MCP) to answer from heterogeneous evidence sources, including search, APIs, databases, clinical records, and formulary tools. |
-| [Future Dynamic 3D Reconstruction: A 3D World Model with Disentangled Ego-Motion](http://arxiv.org/abs/2606.18250v1) | LLM, 多模态, Agent, RAG/Memory | 15 | 2026-06-16 | Forecasting the evolution of dynamic environments is crucial for autonomous agents. |
-| [EventDrive: Event Cameras for Vision-Language Driving Intelligence](http://arxiv.org/abs/2606.18242v1) | LLM, 多模态, Agent, Reasoning, Safety/Eval | 15 | 2026-06-16 | Event cameras sense the world through asynchronous brightness changes with microsecond latency and high dynamic range, offering motion fidelity far beyond frame-based sensors and capturing temporal structure that conventional exposures often miss. |
-| [RubricsTree: Scalable and Evolving Open-Ended Evaluation of Personal Health Agents across Health Memory and Medical Skills](http://arxiv.org/abs/2606.18203v1) | LLM, Agent, Skill/Tool, RAG/Memory, Safety/Eval | 15 | 2026-06-16 | The LLM-empowered personal health agents with user health (sensor) metrics have offered a promising pathway to alleviate global disparities in healthcare access. |
-| [WEQA: Wearable hEalth Question Answering with Query-Adaptive Agentic Reasoning](http://arxiv.org/abs/2606.18147v1) | LLM, Agent, Reasoning, Safety/Eval | 15 | 2026-06-16 | Language models are remarkably capable at medical question answering, in some cases surpassing the accuracy of general physicians. |
-| [OmniPlan: An Adaptive Framework for Timely and Near-Optimal Network Planning Optimization](http://arxiv.org/abs/2606.18105v1) | LLM, RAG/Memory, Reasoning | 15 | 2026-06-16 | Network planning optimization is a fundamental problem across diverse domains, including transportation systems, communication networks, and power grids. |
-| [Agentic AI-based Framework for Mitigating Premature Diagnostic Handoff and Silent Hallucination in Healthcare Applications](http://arxiv.org/abs/2606.18068v1) | LLM, Agent, Reasoning, Safety/Eval | 15 | 2026-06-16 | Recent advances in Large Language Models (LLMs) and multi-agent systems have driven the rise of Agentic AI, showing promise for medical reasoning. |
-| [PseudoBench: Measuring How Agentic Auto-Research Fuels Pseudoscience](http://arxiv.org/abs/2606.18060v1) | LLM, Agent, Safety/Eval | 15 | 2026-06-16 | As Large Language Model based agents enter autonomous scientific research, their ability to resist pseudoscience becomes increasingly important. |
-| [Compositional Skill Routing for LLM Agents: Decompose, Retrieve, and Compose](http://arxiv.org/abs/2606.18051v1) | LLM, Agent, Skill/Tool, Reasoning, Safety/Eval | 15 | 2026-06-16 | LLM agents increasingly rely on external skills -- reusable tool specifications -- but real-world tasks often require composing multiple skills, not just selecting one. |
-| [PhaseWin: An Efficient Search Algorithm for Faithful Visual Attribution](http://arxiv.org/abs/2606.18008v1) | LLM, 多模态, Reasoning, Safety/Eval | 15 | 2026-06-16 | Visual attribution is a fundamental tool for interpreting modern vision and vision-language models, particularly when their decisions must be inspected, diagnosed, or audited. |
-| [ReproRepo: Scaling Reproducibility Audits with GitHub Repository Issues](http://arxiv.org/abs/2606.18237v1) | LLM, Agent, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-16 | Reproducing research results from papers and released code is central to scientific progress. |
-| [EvolveNav: Proactive Preflection and Self-Evolving Memory for Zero-Shot Object Goal Navigation](http://arxiv.org/abs/2606.18235v1) | LLM, Agent, RAG/Memory | 14 | 2026-06-16 | Zero-Shot Object-Goal Navigation (ZS-OGN) requires embodied agents to explore and locate target objects without any prior training. |
-| [Darshana Graph: A Parallel Commentary Corpus for Comparative Indian Philosophy, with Stylometric and Exploratory Graph Analyses](http://arxiv.org/abs/2606.18222v1) | LLM, Reasoning, Safety/Eval | 14 | 2026-06-16 | We introduce Darshana Graph, a corpus of over 125,000 text records spanning classical Hindu, Buddhist, and Jain philosophical traditions, drawn from public-domain and openly licensed translations of sources including the Bhagavad Gita, Brahma Sutras, principal Upanishads, the Pali Canon, and core Jain texts. |
-| [Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients](http://arxiv.org/abs/2606.18216v1) | LLM, 多模态, Safety/Eval | 14 | 2026-06-16 | Knowledge distillation transfers a teacher's competence to a small student but is brittle in the small-student regime: forcing the student to imitate logits from a much larger teacher concentrates it on the teacher's sharpest modes, hurting generalization on benchmark families beyond the training corpus. |
-| [Learning from the Self-future: On-policy Self-distillation for dLLMs](http://arxiv.org/abs/2606.18195v1) | LLM, Reasoning, Safety/Eval | 14 | 2026-06-16 | On-policy self-distillation (OPSD) has proven effective for post-training large language models (LLMs), yet its application to diffusion LLMs (dLLMs) remains unexplored. |
-| [EgoCS-400K: An Egocentric Gameplay Dataset for World Models](http://arxiv.org/abs/2606.18180v1) | 多模态, Agent, RAG/Memory, Safety/Eval | 14 | 2026-06-16 | The shift from video generation to interactive world modeling places new demands on data: beyond captioned videos, world models require temporally aligned video-action-language trajectories grounded in the actions, camera motion, states, and events that drive future scene changes. |
-| [A Neuro-Symbolic Approach to Strategy Synthesis for Strategic Logics](http://arxiv.org/abs/2606.17962v1) | LLM, Agent, Reasoning | 14 | 2026-06-16 | Reasoning about what agents can achieve through strategic interaction is a core challenge in Multi-Agent Systems (MAS). |
-| [Learning Cardiac Electrophysiology Digital Twins Through Agentic Discovery of Hybrid Structure](http://arxiv.org/abs/2606.18154v1) | LLM, Agent, Reasoning | 13 | 2026-06-16 | Building personalized cardiac electrophysiology (EP) digital twins requires identifying the appropriate model structure for each patient, not merely fitting parameters. |
-| [LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scaling](http://arxiv.org/abs/2606.18023v1) | Agent, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 13 | 2026-06-16 | Looped Transformers scale latent computation by repeatedly applying shared blocks, but sequential looping increases latency and KV-cache memory with the loop count. |
-| [Beyond Visual Cues: CoT-Enhanced Reasoning for Semi-supervised Medical Image Segmentation](http://arxiv.org/abs/2606.17958v1) | LLM, 多模态, RAG/Memory, Reasoning | 13 | 2026-06-16 | Semi-supervised medical image segmentation has emerged as a dominant research problem in medical image analysis, mitigating annotation scarcity by leveraging consistency regularization on unlabeled data. |
-| [The Stanford EDGAR Filings Dataset: Reconstructing U.S. Corporate and Financial Disclosures into Layout-Faithful and Token-Efficient Pretraining Data](http://arxiv.org/abs/2606.18192v1) | LLM, Reasoning, Safety/Eval | 12 | 2026-06-16 | As high-quality public web corpora become increasingly exhausted, clean long-context documents have become a scarce and expensive source of training data for large language models (LLMs). |
-| [Qwen-RobotNav Technical Report: A Scalable Navigation Model Designed for an Agentic Navigation System](http://arxiv.org/abs/2606.18112v1) | 多模态, Agent, Reasoning, Safety/Eval | 12 | 2026-06-16 | Agentic navigation systems require a base navigation model whose observation strategy can be externally reconfigured at inference time, because instruction following, object search, target tracking, and autonomous driving share the same perception-planning backbone yet demand fundamentally different strategies for consuming the visual stream. |
-| [Trust the Right Teacher: Quality-Aware Self-Distillation for GUI Grounding](http://arxiv.org/abs/2606.18101v1) | LLM, 多模态, Safety/Eval | 12 | 2026-06-16 | Graphical user interface (GUI) grounding requires vision-language models (VLMs) to identify small target elements in high-resolution screenshots and predict precise screen coordinates. |
+正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-# 3. 阅读建议
-
-建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
-
-生成时间：2026-06-17 15:33:46 CST
+生成时间：2026-06-24 19:43:15 CST

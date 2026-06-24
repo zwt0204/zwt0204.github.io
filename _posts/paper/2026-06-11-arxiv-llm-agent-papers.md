@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "arXiv 论文学习日报：LLM、多模态与 Agent (2026-06-11)"
-subtitle: "自动筛选值得精读的新论文"
+title: "arXiv 论文精读：InternVideo3: Agentify Foundation Models with Multimodal Contextual Reasoning (2026-06-11)"
+subtitle: "单篇论文深度拆解"
 date: 2026-06-11 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -21,16 +21,16 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，并按研究价值、工程启发和可复现线索进行排序。
+数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇围绕一篇论文做摘要、问题定义、方法线索、实验判断和局限追问。
 
-筛选不是简单看标题热词，而是优先考虑：
+阅读时优先关注四类问题：
 
-1. 是否切中 LLM / multimodal / agent 方向的关键问题；
-2. 是否有清晰的方法贡献、评测基准或系统实现；
-3. 是否能给实际工程带来可迁移经验；
-4. 是否值得进一步精读 introduction、method、experiment 和 limitation。
+1. 论文定义的问题是否清楚。
+2. 方法里真正起作用的机制是什么。
+3. 实验是否足以支撑主要结论。
+4. 这篇论文能给工程或研究带来哪些可迁移经验。
 
-# 1. 今日最值得读的论文
+# 1. 论文拆解
 
 ## [InternVideo3: Agentify Foundation Models with Multimodal Contextual Reasoning](http://arxiv.org/abs/2606.12195v1)
 
@@ -40,199 +40,117 @@ categories: [paper, daily]
 - 发布时间：2026-06-10，更新时间：2026-06-10
 - 类别：cs.CV
 - 主题标签：LLM、多模态、Agent、Skill/Tool、RAG/Memory、Reasoning、Safety/Eval
-- 阅读价值评分：18/20
 
 ### 摘要速读
 
 Recent progress in foundation models has shifted toward agentic behavior involving multi-step reasoning and tool use. However, open-source efforts largely focus on text-dominant settings, leaving long-horizon multimodal tasks underexplored.
 
-### 为什么值得读
+### 先给结论
 
-大模型核心方向、多模态/视觉语言模型、Agent 与长程任务、工具使用/技能学习、RAG、记忆或长上下文、推理、代码或复杂任务、训练/后训练方法、推理效率或系统优化、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+这篇论文要看的不是模型答题能力，而是 agent 在长程任务里如何维护状态、选择动作、接收反馈，并把失败路径变成下一步决策依据。解读时应该把它当作一个执行系统，而不是单轮推理模型。
 
-### 方法与贡献线索
+### 这篇论文的核心主张
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+| 作者主张 | 解读 |
+| --- | --- |
+| 论文提出一个具体问题 | 先确认这个问题是否真实存在，而不是已有任务换了名字。 |
+| 方法引入新的模块或流程 | 看模块是否直接服务于问题矛盾。 |
+| 实验展示性能提升 | 检查提升来自方法本身、数据设置，还是 baseline 较弱。 |
+| 作者声称有可迁移价值 | 需要看跨数据集、跨模型或失败案例是否支撑。 |
 
-### 精读时重点追问
+### 它抓住的矛盾
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+这篇论文需要先拆清楚它面对的核心矛盾：现有方法到底缺的是数据、表示、推理、执行反馈，还是评测方式。只有矛盾明确，后面的模块才有判断标准。
 
-## [OpenMedReason: Scientific Reasoning Supervision for Medical Vision-Language Models](http://arxiv.org/abs/2606.12169v1)
+### 全文结构线索
 
-- arXiv：[2606.12169](http://arxiv.org/abs/2606.12169v1)
-- PDF：[https://arxiv.org/pdf/2606.12169v1](https://arxiv.org/pdf/2606.12169v1)
-- 作者：Negin Baghbanzadeh、Pritam Sarkar、Michael Colacci、Abeer Badawi、Adibvafa Fallahpour、Arash Afkanpour、等
-- 发布时间：2026-06-10，更新时间：2026-06-10
-- 类别：cs.CV、cs.AI、cs.CL、cs.LG
-- 主题标签：LLM、多模态、RAG/Memory、Reasoning、Safety/Eval
-- 阅读价值评分：18/20
+没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
-### 摘要速读
+### 一张图看方法
 
-High-stakes clinical use of large vision-language models (LVLMs) requires reasoning that is grounded in visual evidence and clinical knowledge, not just correct final answers. We introduce OpenMedReason, a large-scale, open multimodal medical reasoning corpus comprising approximately 450K image-question-answer instances whose reasoning traces are primarily derived from curated biomedical, human-authored scientific articles.
+![InternVideo3: Agentify Foundation Models with Multimodal Contextual Reasoning 方法架构图](/img/daily-reports/2026-06-11-paper-internvideo3-agentify-foundation-models-with-multimodal-contextual-reasoning-architecture.svg)
 
-### 为什么值得读
+这张图不是复述论文流程图，而是把阅读时最该盯住的证据链画出来：输入如何被表示，表示如何被 grounding 或推理模块消费，最后输出如何被实验指标验证。
 
-大模型核心方向、多模态/视觉语言模型、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、训练/后训练方法、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+### 方法架构拆分
 
-### 方法与贡献线索
+1. **输入层**：确认输入是图片、视频、音频还是多模态组合，以及上下文长度如何控制。
+2. **编码层**：看视觉/音频编码器输出如何压缩、采样或对齐到语言 token。
+3. **跨模态对齐层**：重点看空间、时间、对象和文本概念之间是否有显式绑定。
+4. **推理层**：确认模型是直接回答，还是引入检索、记忆、链式推理或结构化中间表示。
+5. **输出层**：看输出是分类、caption、定位、计划、解释还是可验证证据。
+6. **评测层**：检查指标是否覆盖细粒度理解，而不是只覆盖粗粒度语义匹配。
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+### 模块拆解
 
-### 精读时重点追问
+| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| 输入表示 | 把原始数据变成模型可处理的形式 | 是否丢失关键上下文。 |
+| 核心机制 | 论文真正贡献所在 | 是否有直接消融证明。 |
+| 输出格式 | 决定结果是否可验证 | 是否只是自然语言，还是有结构化证据。 |
+| 评测协议 | 决定结论可信度 | baseline、指标、数据划分是否公平。 |
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
+### 方法链路细读
 
-## [Reroute, Don't Remove: Recoverable Visual Token Routing for Vision-Language Models](http://arxiv.org/abs/2606.12412v1)
+```text
+multimodal input
+  -> encoder / sampler
+  -> token or feature compression
+  -> cross-modal alignment
+  -> reasoning / generation
+  -> task output
+  -> metric and failure analysis
+```
 
-- arXiv：[2606.12412](http://arxiv.org/abs/2606.12412v1)
-- PDF：[https://arxiv.org/pdf/2606.12412v1](https://arxiv.org/pdf/2606.12412v1)
-- 作者：Cheng-Yu Yang、Shao-Yuan Lo、Yu-Lun Liu
-- 发布时间：2026-06-10，更新时间：2026-06-10
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、RAG/Memory、Reasoning
-- 阅读价值评分：16/20
+这条链路的关键是信息有没有在压缩和对齐阶段丢失。很多多模态论文的提升来自更好的采样或数据，而不是模型真的学会了更强推理。
 
-### 摘要速读
+### 关键细节拆解
 
-Vision-language models (VLMs) project images into hundreds to thousands of visual tokens, making decoder inference expensive in both attention computation and KV-cache memory. Existing visual-token reduction methods largely follow a rank-and-remove paradigm: they score visual tokens, keep a compact subset, and permanently discard the rest.
+- **采样策略**：看帧/区域/片段如何选择，是否会丢掉稀疏但关键的证据。
+- **对齐策略**：确认模态对齐靠训练数据、结构设计、显式坐标，还是 prompt 约束。
+- **上下文预算**：长视频或高分辨率输入会带来 token 压力，需要看压缩是否损失细节。
+- **可解释性**：生成的文字是否能追溯到视觉证据。
+- **泛化边界**：看跨数据集、跨场景、跨模型 backbone 是否仍然有效。
 
-### 为什么值得读
+### 方法成败点
 
-大模型核心方向、多模态/视觉语言模型、RAG、记忆或长上下文、推理、代码或复杂任务、推理效率或系统优化、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+方法是否成立，不能只看模块名称。要看每个模块是否对应问题矛盾，消融是否证明必要性，输出是否能被实验指标直接验证。
 
-### 方法与贡献线索
+### 实验必须回答的问题
 
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
+实验至少要回答：主结果是否稳定、关键模块是否必要、泛化是否成立、失败案例是否解释了方法边界。
 
-### 精读时重点追问
+### 实验拆解清单
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
+| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 数据覆盖 | 是否覆盖多场景、多对象、多时间跨度和难例。 |
+| 对齐指标 | 是否有定位、引用、时间段或证据级指标。 |
+| 消融实验 | 是否拆开编码器、采样、检索、推理模块分别验证。 |
+| 成本指标 | 是否报告 token、延迟、显存或调用次数。 |
+| 泛化能力 | 是否跨数据集、跨模型或跨任务验证。 |
 
-## [DIRECT: When and Where Should You Allocate Test-Time Compute in Embodied Planners?](http://arxiv.org/abs/2606.12402v1)
+### 实验结果怎么解读
 
-- arXiv：[2606.12402](http://arxiv.org/abs/2606.12402v1)
-- PDF：[https://arxiv.org/pdf/2606.12402v1](https://arxiv.org/pdf/2606.12402v1)
-- 作者：Jadelynn Dao、Milan Ganai、Yasmina Abukhadra、Ajay Sridhar、Mozhgan Nasr Azadani、Katie Luo、等
-- 发布时间：2026-06-10，更新时间：2026-06-10
-- 类别：cs.RO、cs.AI、cs.CV
-- 主题标签：LLM、多模态、Agent、RAG/Memory、Reasoning
-- 阅读价值评分：16/20
+读实验时不要只看总分。至少拆成主结果、消融实验、跨数据泛化、成本分析和失败案例五块。主结果说明“有没有用”，消融说明“哪个模块有用”，泛化说明“是不是只对一个数据集有用”，失败案例说明“什么时候不要用”。
 
-### 摘要速读
+### 局限和追问
 
-Vision-Language Models (VLMs) are increasingly deployed as high-level planners for embodied agents, with an emerging strategy of scaling test-time compute to improve capability. However, we observe that doing so increases latency, token usage, and FLOPs while yielding uneven, often diminishing gains in downstream success, limiting where embodied agents can be deployed.
+如果论文没有讲权限边界、状态漂移、工具调用错误和成本控制，那工程落地价值要打折。
 
-### 为什么值得读
-
-大模型核心方向、多模态/视觉语言模型、Agent 与长程任务、RAG、记忆或长上下文、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
-
-## [Breaking Entropy Bounds: Accelerating RL Training via MTP with Rejection Sampling](http://arxiv.org/abs/2606.12370v1)
-
-- arXiv：[2606.12370](http://arxiv.org/abs/2606.12370v1)
-- PDF：[https://arxiv.org/pdf/2606.12370v1](https://arxiv.org/pdf/2606.12370v1)
-- 作者：Yucheng Li、Huiqiang Jiang、Yang Xu、Jianxin Yang、Yi Zhang、Yizhong Cao、等
-- 发布时间：2026-06-10，更新时间：2026-06-10
-- 类别：cs.LG、cs.CL
-- 主题标签：LLM、Agent、Reasoning
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-Reinforcement learning (RL) has become a key component in modern large language models, yet the rollout stage remains the key bottleneck in RL training pipelines. Although Multi-Token Prediction (MTP) offers a natural solution to accelerate rollouts through speculative decoding, many studies have observed that MTP acceptance rates degrade significantly during RL training, leading to limited speedup performance.
-
-### 为什么值得读
-
-大模型核心方向、Agent 与长程任务、推理、代码或复杂任务、训练/后训练方法、推理效率或系统优化、类别与 LLM/Agent 高相关、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
+精读时重点追问：
 
 - 论文解决的是新问题，还是对已有问题换了一个实验设置？
 - 核心结论是否依赖特定模型、数据集或 prompt 模板？
 - 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
 
-## [Doc-to-Atom: Learning to Compile and Compose Memory Atoms](http://arxiv.org/abs/2606.12400v1)
+### 可以带走的东西
 
-- arXiv：[2606.12400](http://arxiv.org/abs/2606.12400v1)
-- PDF：[https://arxiv.org/pdf/2606.12400v1](https://arxiv.org/pdf/2606.12400v1)
-- 作者：Xingjian Diao、Wenbo Li、Yashas Malur Saidutta、Avinash Amballa、Lazar Valkov、Srinivas Chappidi
-- 发布时间：2026-06-10，更新时间：2026-06-10
-- 类别：cs.CL、cs.IR
-- 主题标签：LLM、RAG/Memory、Reasoning、Safety/Eval
-- 阅读价值评分：15/20
-
-### 摘要速读
-
-Long input sequences are central to document understanding and multi-step reasoning in Large Language Models, yet the quadratic cost of attention makes inference both memory-intensive and slow. Context distillation mitigates this by compressing contextual information into model parameters, and recent work such as Doc-to-LoRA amortizes context distillation into a single forward pass that generates one LoRA adapter per document.
-
-### 为什么值得读
-
-大模型核心方向、RAG、记忆或长上下文、推理、代码或复杂任务、训练/后训练方法、推理效率或系统优化、类别与 LLM/Agent 高相关、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像知识增强或记忆系统工作，阅读重点应放在检索粒度、上下文压缩、状态更新和噪声控制。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 检索/记忆模块在噪声、过期信息和长上下文压力下是否仍然稳定？
+这篇论文的价值不只在最终指标，而在它如何拆问题、设计中间表示、把结果变成可验证证据。读完后应该能回答：它解决了什么矛盾，哪个模块真正解决这个矛盾，实验有没有支撑这个解释。
 
 
-# 2. 候选论文列表
+# 2. 阅读建议
 
-| 论文 | 主题 | 评分 | 发布时间 | 摘要一句话 |
-| --- | --- | ---: | --- | --- |
-| [InternVideo3: Agentify Foundation Models with Multimodal Contextual Reasoning](http://arxiv.org/abs/2606.12195v1) | LLM, 多模态, Agent, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 18 | 2026-06-10 | Recent progress in foundation models has shifted toward agentic behavior involving multi-step reasoning and tool use. |
-| [OpenMedReason: Scientific Reasoning Supervision for Medical Vision-Language Models](http://arxiv.org/abs/2606.12169v1) | LLM, 多模态, RAG/Memory, Reasoning, Safety/Eval | 18 | 2026-06-10 | High-stakes clinical use of large vision-language models (LVLMs) requires reasoning that is grounded in visual evidence and clinical knowledge, not just correct final answers. |
-| [Reroute, Don't Remove: Recoverable Visual Token Routing for Vision-Language Models](http://arxiv.org/abs/2606.12412v1) | LLM, 多模态, RAG/Memory, Reasoning | 16 | 2026-06-10 | Vision-language models (VLMs) project images into hundreds to thousands of visual tokens, making decoder inference expensive in both attention computation and KV-cache memory. |
-| [DIRECT: When and Where Should You Allocate Test-Time Compute in Embodied Planners?](http://arxiv.org/abs/2606.12402v1) | LLM, 多模态, Agent, RAG/Memory, Reasoning | 16 | 2026-06-10 | Vision-Language Models (VLMs) are increasingly deployed as high-level planners for embodied agents, with an emerging strategy of scaling test-time compute to improve capability. |
-| [Breaking Entropy Bounds: Accelerating RL Training via MTP with Rejection Sampling](http://arxiv.org/abs/2606.12370v1) | LLM, Agent, Reasoning | 16 | 2026-06-10 | Reinforcement learning (RL) has become a key component in modern large language models, yet the rollout stage remains the key bottleneck in RL training pipelines. |
-| [Doc-to-Atom: Learning to Compile and Compose Memory Atoms](http://arxiv.org/abs/2606.12400v1) | LLM, RAG/Memory, Reasoning, Safety/Eval | 15 | 2026-06-10 | Long input sequences are central to document understanding and multi-step reasoning in Large Language Models, yet the quadratic cost of attention makes inference both memory-intensive and slow. |
-| [TAHOE: Text-to-SQL with Automated Hint Optimization from Experience](http://arxiv.org/abs/2606.12387v1) | LLM, Agent, RAG/Memory, Reasoning | 15 | 2026-06-10 | Large Language Models (LLMs) have democratized database access through Text-to-SQL, but moving from prototypes to production remains difficult. |
-| [APPO: Agentic Procedural Policy Optimization](http://arxiv.org/abs/2606.12384v1) | LLM, Agent, Skill/Tool, Safety/Eval | 15 | 2026-06-10 | Recent advances in agentic Reinforcement Learning (RL) have substantially improved the multi-turn tool-use capabilities of large language model agents. |
-| [Natural-Language Temporal Grounding in Hour-Long Videos is a Search Problem: A Benchmark and Empirical Decomposition](http://arxiv.org/abs/2606.12300v1) | LLM, 多模态, Safety/Eval | 15 | 2026-06-10 | Temporal grounding--returning the interval $[t_s, t_e]$ for a natural-language query over a video--is the language interface to long-form video, yet has been studied on short videos; the dynamics of hour-scale natural-language grounding remain underexplored. |
-| [CCKS: Consensus-based Communication and Knowledge Sharing](http://arxiv.org/abs/2606.12281v1) | Agent, Reasoning | 15 | 2026-06-10 | In Decentralized Training and Decentralized Execution (DTDE) for cooperative Multi-Agent Reinforcement Learning (MARL), action-advising-based knowledge sharing promotes interpretable and scalable cooperation among agents. |
-| [Implicit Neural Representations of Individual Behavior](http://arxiv.org/abs/2606.12200v1) | 多模态, Agent, Reasoning | 15 | 2026-06-10 | We study policy representation learning from unlabeled multi-policy behavioral data. |
-| [System Report for CCL25-Eval Task 5: New Dataset and LoRA-Fine-Tuned Qwen2.5](http://arxiv.org/abs/2606.12392v1) | LLM, Safety/Eval | 14 | 2026-06-10 | Recently, large language models (LLMs) have achieved promising progress in the fields of classical Chinese translation and the generation of classical poetry. |
-| [Which Models Are Our Models Built On? Auditing Invisible Dependencies in Modern LLMs](http://arxiv.org/abs/2606.12385v1) | LLM, Agent, RAG/Memory, Safety/Eval | 14 | 2026-06-10 | Modern LLM training pipelines increasingly rely on other models to generate data, filter corpora, judge outputs, and guide development decisions. |
-| [Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks](http://arxiv.org/abs/2606.12344v1) | Agent, Skill/Tool, Safety/Eval | 14 | 2026-06-10 | General-purpose agents such as OpenClaw are increasingly used as autonomous tool users, but their coding ability is difficult to measure under SWE-bench: a generic agent does not by itself satisfy the clean Docker workspace, patch, and prediction contract required for scoring. |
-| [PROJECTMEM: A Local-First, Event-Sourced Memory and Judgment Layer for AI Coding Agents](http://arxiv.org/abs/2606.12329v1) | Agent, RAG/Memory, Reasoning | 14 | 2026-06-10 | AI coding assistants now support a growing share of software work, from quick scripts to production applications. |
-| [DrivingAgent: Design and Scheduling Agents for Autonomous Driving Systems](http://arxiv.org/abs/2606.12236v1) | LLM, Agent, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-10 | Many autonomous driving systems are increasingly incorporating foundation models to improve generalization and handle long-tail scenarios. |
-| [AerialClaw: An Open-Source Framework for LLM-Driven Autonomous Aerial Agents](http://arxiv.org/abs/2606.12142v1) | LLM, Agent, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-10 | Unmanned aerial vehicles (UAVs) are increasingly used in inspection, search and rescue, environmental monitoring, and emergency response. |
-| [Soft-Prompt Tuning for Fair and Efficient LLM Benchmark Evaluation](http://arxiv.org/abs/2606.12117v1) | LLM, RAG/Memory, Safety/Eval | 14 | 2026-06-10 | Benchmark scores often misrepresent a large language model's (LLM's) knowledge, because they rely, e.g., on the model's ability to follow specific formatting requirements. |
-| [Bridging the Morphology Gap: Adapting VLA Models to Dexterous Manipulation via Intent-Conditioned Fine-Tuning](http://arxiv.org/abs/2606.12109v1) | 多模态, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-10 | Vision-Language-Action (VLA) models have demonstrated remarkable zero-shot generalization in robotic manipulation, yet the vast majority of pre-trained pipelines remain strictly confined to low-DoF parallel grippers. |
-| [Context-Driven Incremental Compression for Multi-Turn Dialogue Generation](http://arxiv.org/abs/2606.12411v1) | Agent, RAG/Memory, Safety/Eval | 13 | 2026-06-10 | Modern conversational agents condition on an ever-growing dialogue history at each turn, incurring redundant attention and encoding costs that grow with conversation length. |
-| [UniIntervene: Agentic Intervention for Efficient Real-World Reinforcement Learning](http://arxiv.org/abs/2606.12372v1) | Agent, RAG/Memory | 13 | 2026-06-10 | Human-in-the-loop reinforcement learning (HiL-RL) has emerged as an effective paradigm for real-world robotic manipulation, enabling online policy improvement with human guidance. |
-| [On Subquadratic Architectures: From Applications to Principles](http://arxiv.org/abs/2606.12364v1) | LLM, RAG/Memory, Reasoning | 13 | 2026-06-10 | Transformers dominate modern sequence modeling, but their quadratic attention incurs substantial computational cost. |
-| [ALIGNBEAM : Inference-Time Alignment Transfer via Cross-Vocabulary Logit Mixing](http://arxiv.org/abs/2606.12342v1) | LLM, Safety/Eval | 13 | 2026-06-10 | Domain fine-tuning degrades the safety of large language models: fine-tuned specialists readily comply with harmful prompts framed in domain language. |
-| [A Five-Plane Reference Architecture for Runtime Governance of Production AI Agents](http://arxiv.org/abs/2606.12320v1) | Agent, Reasoning, Safety/Eval | 13 | 2026-06-10 | Enterprise security was built to govern data boundaries: the protected surface was data at rest and in transit, and the controls -- access control, data-loss prevention, perimeter inspection -- governed crossings of that boundary. |
-| [Bridging Day and Night: Unsupervised Cross-Domain Re-Identification with Synergistic Prompt and Prototype Learning](http://arxiv.org/abs/2606.12258v1) | LLM, 多模态, RAG/Memory, Safety/Eval | 13 | 2026-06-10 | Cross-domain day-night re-identification (ReID) is fundamentally challenged by the substantial visual appearance discrepancies between daytime and nighttime scenes. |
+正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-# 3. 阅读建议
-
-建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
-
-生成时间：2026-06-11 15:14:37 CST
+生成时间：2026-06-24 19:43:00 CST

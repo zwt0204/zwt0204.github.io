@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "arXiv 论文学习日报：LLM、多模态与 Agent (2026-06-23)"
-subtitle: "自动筛选值得精读的新论文"
+title: "arXiv 论文精读：Detecting Malicious Agent Skills in the Wild using Attention (2026-06-23)"
+subtitle: "单篇论文深度拆解"
 date: 2026-06-23 10:30:00 +0800
 author: "zwt"
 header-img: "img/post-bg-2015.jpg"
@@ -21,16 +21,16 @@ categories: [paper, daily]
 
 # 0. 说明
 
-数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇自动检索近期与 LLM、多模态、Agent、工具使用、Skill、RAG、长上下文和模型评测相关的论文，并按研究价值、工程启发和可复现线索进行排序。
+数据来源：[arXiv API](https://export.arxiv.org/api/query)。本篇围绕一篇论文做摘要、问题定义、方法线索、实验判断和局限追问。
 
-筛选不是简单看标题热词，而是优先考虑：
+阅读时优先关注四类问题：
 
-1. 是否切中 LLM / multimodal / agent 方向的关键问题；
-2. 是否有清晰的方法贡献、评测基准或系统实现；
-3. 是否能给实际工程带来可迁移经验；
-4. 是否值得进一步精读 introduction、method、experiment 和 limitation。
+1. 论文定义的问题是否清楚。
+2. 方法里真正起作用的机制是什么。
+3. 实验是否足以支撑主要结论。
+4. 这篇论文能给工程或研究带来哪些可迁移经验。
 
-# 1. 今日最值得读的论文
+# 1. 论文拆解
 
 ## [Detecting Malicious Agent Skills in the Wild using Attention](http://arxiv.org/abs/2606.23416v1)
 
@@ -40,199 +40,119 @@ categories: [paper, daily]
 - 发布时间：2026-06-22，更新时间：2026-06-22
 - 类别：cs.CR、cs.AI
 - 主题标签：LLM、Agent、Skill/Tool
-- 阅读价值评分：17/20
 
 ### 摘要速读
 
 LLM agents increasingly load skills, file-based packages of natural-language instructions written by third parties and distributed through marketplaces, that execute with the user's privileges. A single malicious skill can exfiltrate data, hijack the agent, or persist as a supply-chain foothold, which turns the skill marketplace into a new attack surface for agentic systems.
 
-### 为什么值得读
+### 先给结论
 
-大模型核心方向、Agent 与长程任务、工具使用/技能学习、评测基准或数据集、类别与 LLM/Agent 高相关、方法贡献明确、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+这篇论文非常贴近 agent 工程安全：当 agent 可以安装 skill，skill 本身就变成供应链入口。攻击者不一定直接攻击模型，而是把隐藏指令塞进 Markdown、frontmatter、脚本、链接或参考资料，让 scanner 看漏，让 agent 执行。
 
-### 方法与贡献线索
+读这篇时要把它当成“agent skill 供应链安全”论文。重点不是有没有一个检测分数，而是能否发现隐藏载荷、区分良性高危技能和恶意技能，并给出可复核证据。
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+### 这篇论文的核心主张
 
-### 精读时重点追问
+| 作者主张 | 解读 |
+| --- | --- |
+| Agent skill scanner 面临隐藏指令攻击 | 攻击面来自 skill 包本身，尤其是 Markdown、metadata、脚本和参考链接混合的结构。 |
+| 多模态/文本 scanner 容易漏掉深层载荷 | 如果 scanner 只看摘要或关键词，就会被长文档稀释、格式混淆或间接引用绕过。 |
+| Attention 可用于定位恶意片段 | 关键是 attention 是否能稳定指向真正载荷，而不是只提供事后解释。 |
+| 野外 skill 检测需要误报控制 | 安全技能本来就包含危险命令，检测器必须理解授权上下文和执行意图。 |
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+### 它抓住的矛盾
 
-## [VideoAgent: All-in-One Framework for Video Understanding and Editing](http://arxiv.org/abs/2606.23327v1)
+这类论文的矛盾在于：agent skill 必须给模型足够详细的步骤和命令，才有实用价值；但越详细，越容易藏入恶意指令、越权动作和供应链风险。
 
-- arXiv：[2606.23327](http://arxiv.org/abs/2606.23327v1)
-- PDF：[https://arxiv.org/pdf/2606.23327v1](https://arxiv.org/pdf/2606.23327v1)
-- 作者：Hengji Zhou、Lingxuan Huang、Jian Wang、Bing Zhou、Si Wu、Lianghao Xia、等
-- 发布时间：2026-06-22，更新时间：2026-06-22
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、Agent、Reasoning、Safety/Eval
-- 阅读价值评分：17/20
+安全 scanner 不能简单禁止危险词，因为防御性安全技能天然包含攻击技术名称和命令。真正问题是：**如何在高风险但良性的安全知识，与伪装成技能的恶意指令之间划线。**
 
-### 摘要速读
+### 全文结构线索
 
-Video editing has become essential in digital media creation, yet existing automated systems are restricted to short segment processing and domain-specific tasks. They face two critical limitations: i) inability to handle diverse video comprehension and editing operations, and ii) lack of long-video understanding for coherent narrative creation.
+没有从 ar5iv 抓到可靠章节结构，因此这次先基于 arXiv 元数据和摘要做精读入口判断。正式阅读时仍应打开 PDF 核对 introduction、method、experiment 和 limitation。
 
-### 为什么值得读
+### 一张图看方法
 
-多模态/视觉语言模型、Agent 与长程任务、推理、代码或复杂任务、评测基准或数据集、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+![Detecting Malicious Agent Skills in the Wild using Attention 方法架构图](/img/daily-reports/2026-06-23-paper-detecting-malicious-agent-skills-in-the-wild-using-attention-architecture.svg)
 
-### 方法与贡献线索
+这张图不是复述论文流程图，而是把阅读时最该盯住的证据链画出来：输入如何被表示，表示如何被 grounding 或推理模块消费，最后输出如何被实验指标验证。
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+### 方法架构拆分
 
-### 精读时重点追问
+1. **输入层**：agent skill 通常是 Markdown、YAML frontmatter、脚本、参考资料和命令片段的混合体，攻击面不只在自然语言。
+2. **隐藏指令层**：重点看 malicious instruction 如何藏在注释、链接、代码块、图片 alt、配置字段或长文档深处。
+3. **扫描模型层**：skill scanner 要判断哪些内容是能力说明，哪些是越权、泄露、持久化或绕过检查的指令。
+4. **注意力/证据层**：如果论文用 attention 辅助检测，要看它是解释工具、特征来源，还是训练目标的一部分。
+5. **评测层**：必须覆盖真实野外 skill、混淆样本、良性高危技能和对抗改写，否则很容易只检测到关键词。
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+### 模块拆解
 
-## [Tmax: A simple recipe for terminal agents](http://arxiv.org/abs/2606.23321v1)
+| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Skill parser | 读取 Markdown、metadata、脚本和引用 | 是否覆盖真实 skill 包结构。 |
+| Risk span detector | 找到隐藏指令或恶意片段 | 是否能跨代码块、链接、注释定位。 |
+| Attention mechanism | 提供检测依据或特征 | 是解释、监督还是核心分类信号。 |
+| Benign/malicious classifier | 区分良性安全技能和恶意载荷 | 误报率、漏报率、对抗改写。 |
+| Review output | 给人工或平台处理结果 | 是否输出证据、风险类型和处置建议。 |
 
-- arXiv：[2606.23321](http://arxiv.org/abs/2606.23321v1)
-- PDF：[https://arxiv.org/pdf/2606.23321v1](https://arxiv.org/pdf/2606.23321v1)
-- 作者：Hamish Ivison、Junjie Oscar Yin、Rulin Shao、Teng Xiao、Nathan Lambert、Hannaneh Hajishirzi
-- 发布时间：2026-06-22，更新时间：2026-06-22
-- 类别：cs.CL
-- 主题标签：LLM、Agent、Reasoning、Safety/Eval
-- 阅读价值评分：17/20
+### 方法链路细读
 
-### 摘要速读
+```text
+skill package
+  -> parse markdown / metadata / scripts
+  -> locate instruction-like spans
+  -> classify benign high-risk vs malicious
+  -> produce evidence spans
+  -> block, quarantine, or request review
+```
 
-Terminal-using agents have quickly become the most popular downstream application of language models (LMs). Despite their prevalence, relatively little academic work has examined RL-based training of these models, likely due to difficult benchmarks, a lack of data, and a lack of simple baseline recipes.
+安全 scanner 的价值取决于证据定位。只给一个风险分数不够，必须指出哪段文本或脚本触发风险，方便人工复核。
 
-### 为什么值得读
+### 关键细节拆解
 
-大模型核心方向、Agent 与长程任务、推理、代码或复杂任务、评测基准或数据集、类别与 LLM/Agent 高相关、方法贡献明确、可能有代码或数据可复现、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+- **攻击载荷位置**：隐藏指令可以出现在 Markdown 正文、frontmatter、代码块、脚本注释、链接文本和外部引用里，scanner 必须跨结构读取。
+- **良恶性边界**：安全 skill 里天然会出现危险命令，难点不是看到 `rm`、token、credential 就报警，而是判断授权前提和执行意图。
+- **注意力证据**：attention 如果被用来解释检测结果，需要看它是否稳定指向恶意片段，而不是被标题或关键词带偏。
+- **野外分布**：真实 skill 往往写法不规范，benchmark 需要覆盖噪声、混淆、长文档和跨平台格式。
 
-### 方法与贡献线索
+### 方法成败点
 
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
+这类检测方法成立的关键不是高准确率，而是高风险场景下的可复核证据：能不能定位隐藏载荷，能不能区分防御性安全命令和恶意指令，能不能抵抗改写和长文档稀释。
 
-### 精读时重点追问
+### 实验必须回答的问题
 
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
+实验至少要回答：隐藏指令藏在哪里最难检测，良性安全技能误报率是多少，对抗改写后是否仍能定位证据，人工复核成本是否下降。
 
-## [AIR: Adaptive Interleaved Reasoning with Code in MLLMs](http://arxiv.org/abs/2606.23678v1)
+### 实验拆解清单
 
-- arXiv：[2606.23678](http://arxiv.org/abs/2606.23678v1)
-- PDF：[https://arxiv.org/pdf/2606.23678v1](https://arxiv.org/pdf/2606.23678v1)
-- 作者：Cong Han、Xiaohan Lan、Haibo Qiu、Yujie Zhong
-- 发布时间：2026-06-22，更新时间：2026-06-22
-- 类别：cs.CV、cs.AI
-- 主题标签：LLM、多模态、Skill/Tool、RAG/Memory、Reasoning、Safety/Eval
-- 阅读价值评分：16/20
+| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 真实样本 | 是否包含野外 agent skill，而不只是合成 prompt。 |
+| 隐藏位置 | 是否覆盖 frontmatter、Markdown、代码块、脚本、链接和外部引用。 |
+| 误报控制 | 是否区分良性安全技能和恶意隐藏指令。 |
+| 证据定位 | 是否输出风险片段，方便人工复核。 |
+| 对抗改写 | 是否测试 paraphrase、分散载荷和长文档稀释。 |
 
-### 摘要速读
+### 实验结果怎么解读
 
-Following the paradigm shift initiated by OpenAI o3, interleaved reasoning with code to enhance multimodal large language models (MLLMs) has become a pivotal research frontier. The existing literature focuses primarily on tool-use within vision-perception tasks.
+安全检测结果要重点看漏报。误报会影响可用性，但漏报会让 agent 执行恶意 skill。最好看按攻击位置、载荷类型、文档长度、混淆方式拆开的结果，以及是否给出风险证据片段。
 
-### 为什么值得读
+### 局限和追问
 
-大模型核心方向、多模态/视觉语言模型、工具使用/技能学习、推理、代码或复杂任务、评测基准或数据集、训练/后训练方法、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、方法贡献明确。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
+如果论文没有讲权限边界、状态漂移、工具调用错误和成本控制，那工程落地价值要打折。
 
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
-
-## [TailorMind: Towards Preference-Aligned Multimodal Content Generation](http://arxiv.org/abs/2606.23643v1)
-
-- arXiv：[2606.23643](http://arxiv.org/abs/2606.23643v1)
-- PDF：[https://arxiv.org/pdf/2606.23643v1](https://arxiv.org/pdf/2606.23643v1)
-- 作者：Hengji Zhou、Ye Liu、Yufeng Liu、Si Wu、Lianghao Xia、Liqiang Nie
-- 发布时间：2026-06-22，更新时间：2026-06-22
-- 类别：cs.AI
-- 主题标签：多模态、Reasoning、Safety/Eval
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-Personalized content systems depend on available UGC and struggle when suitable content is absent, delayed, or costly to create. Although multimodal generators can synthesize content on demand, how to translate behavioral traces into generation-ready preferences remains underexplored.
-
-### 为什么值得读
-
-多模态/视觉语言模型、RAG、记忆或长上下文、推理、代码或复杂任务、评测基准或数据集、安全、对齐或鲁棒性、类别与 LLM/Agent 高相关、方法贡献明确、摘要中有实验或对比信号。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像多模态建模工作，阅读重点应放在模态对齐、数据配比、视觉编码器/语言模型连接方式和推理链路。
-
-### 精读时重点追问
-
-- 论文解决的是新问题，还是对已有问题换了一个实验设置？
-- 核心结论是否依赖特定模型、数据集或 prompt 模板？
-- 跨模态对齐收益来自模型结构、训练数据，还是评测集偏好？
-
-## [VeriEvol: Scaling Multimodal Mathematical Reasoning via Verifiable Evol-Instruct](http://arxiv.org/abs/2606.23543v1)
-
-- arXiv：[2606.23543](http://arxiv.org/abs/2606.23543v1)
-- PDF：[https://arxiv.org/pdf/2606.23543v1](https://arxiv.org/pdf/2606.23543v1)
-- 作者：Haoling Li、Kai Zheng、Jie Wu、Can Xu、Qingfeng Sun、Han Hu、等
-- 发布时间：2026-06-22，更新时间：2026-06-22
-- 类别：cs.AI、cs.CL、cs.CV、cs.LG
-- 主题标签：多模态、Agent、Reasoning、Safety/Eval
-- 阅读价值评分：16/20
-
-### 摘要速读
-
-Scaling reinforcement learning for visual mathematical reasoning requires more than generating harder questions: as data volume grows, the reward labels themselves must remain reliable. Yet existing data pipelines scale supervision while trusting the labeller, and policy-side methods assume the underlying answers are already correct.
-
-### 为什么值得读
-
-多模态/视觉语言模型、Agent 与长程任务、推理、代码或复杂任务、评测基准或数据集、训练/后训练方法、类别与 LLM/Agent 高相关、视觉/多模态类别匹配、可能有代码或数据可复现。如果时间有限，建议先看 introduction 的问题定义，再看方法图和实验主表，最后检查限制条件与失败案例。
-
-### 方法与贡献线索
-
-这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。
-
-### 精读时重点追问
+精读时重点追问：
 
 - 论文解决的是新问题，还是对已有问题换了一个实验设置？
 - 核心结论是否依赖特定模型、数据集或 prompt 模板？
 - 如果放到更长任务链路里，工具调用错误、状态漂移和权限边界如何处理？
 
+### 可以带走的东西
 
-# 2. 候选论文列表
+这篇论文的工程启发很直接：agent skill 需要像依赖包一样做供应链审查。安装前不仅要看能力说明，还要解析 metadata、脚本、链接和隐藏指令，并输出可复核证据。
 
-| 论文 | 主题 | 评分 | 发布时间 | 摘要一句话 |
-| --- | --- | ---: | --- | --- |
-| [Detecting Malicious Agent Skills in the Wild using Attention](http://arxiv.org/abs/2606.23416v1) | LLM, Agent, Skill/Tool | 17 | 2026-06-22 | LLM agents increasingly load skills, file-based packages of natural-language instructions written by third parties and distributed through marketplaces, that execute with the user's privileges. |
-| [VideoAgent: All-in-One Framework for Video Understanding and Editing](http://arxiv.org/abs/2606.23327v1) | LLM, 多模态, Agent, Reasoning, Safety/Eval | 17 | 2026-06-22 | Video editing has become essential in digital media creation, yet existing automated systems are restricted to short segment processing and domain-specific tasks. |
-| [Tmax: A simple recipe for terminal agents](http://arxiv.org/abs/2606.23321v1) | LLM, Agent, Reasoning, Safety/Eval | 17 | 2026-06-22 | Terminal-using agents have quickly become the most popular downstream application of language models (LMs). |
-| [AIR: Adaptive Interleaved Reasoning with Code in MLLMs](http://arxiv.org/abs/2606.23678v1) | LLM, 多模态, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 16 | 2026-06-22 | Following the paradigm shift initiated by OpenAI o3, interleaved reasoning with code to enhance multimodal large language models (MLLMs) has become a pivotal research frontier. |
-| [TailorMind: Towards Preference-Aligned Multimodal Content Generation](http://arxiv.org/abs/2606.23643v1) | 多模态, Reasoning, Safety/Eval | 16 | 2026-06-22 | Personalized content systems depend on available UGC and struggle when suitable content is absent, delayed, or costly to create. |
-| [VeriEvol: Scaling Multimodal Mathematical Reasoning via Verifiable Evol-Instruct](http://arxiv.org/abs/2606.23543v1) | 多模态, Agent, Reasoning, Safety/Eval | 16 | 2026-06-22 | Scaling reinforcement learning for visual mathematical reasoning requires more than generating harder questions: as data volume grows, the reward labels themselves must remain reliable. |
-| [TriggerBench: Investigating Prospective Memory for Large Language Models](http://arxiv.org/abs/2606.23459v1) | LLM, RAG/Memory, Reasoning, Safety/Eval | 16 | 2026-06-22 | While Large Language Models (LLMs) are increasingly deployed in long interactions, existing evaluations focus predominantly on retrospective memory (RM) via explicit queries. |
-| [Towards Root Memories: Benchmarking and Enhancing Implicit Logical Memory Retrieval for Personalized LLMs](http://arxiv.org/abs/2606.23283v1) | LLM, Agent, RAG/Memory, Reasoning, Safety/Eval | 16 | 2026-06-22 | Memory systems are essential for personalized Large Language Models (LLMs). |
-| [On the Limits of Prompt-Conditioned Language Models as General-Purpose Learners](http://arxiv.org/abs/2606.23668v1) | LLM, 多模态, RAG/Memory, Reasoning, Safety/Eval | 15 | 2026-06-22 | Large Language Models (LLMs) are frequently portrayed as general-purpose solvers capable of solving arbitrary tasks. |
-| [Dense Reward for Multi-View 3D Reasoning with Global Maps and Local Views](http://arxiv.org/abs/2606.23557v1) | LLM, 多模态, Reasoning | 15 | 2026-06-22 | Multi-view 3D Visual Question Answering (MV3D-VQA) requires integrating partial observations into a coherent 3D scene representation and selecting informative viewpoints for multi-step spatial reasoning. |
-| [LightSTAR: Efficient Visual Document Retrieval via Lightweight Selection with Vision-Adaptive Refinement](http://arxiv.org/abs/2606.23539v1) | LLM, 多模态, Reasoning | 15 | 2026-06-22 | Visual document retrieval requires rapidly locating relevant pages from large multi-modal corpora in response to user queries. |
-| [Self-Compacting Language Model Agents](http://arxiv.org/abs/2606.23525v1) | LLM, Agent, Reasoning, Safety/Eval | 15 | 2026-06-22 | Long agent traces composed of chains of thought and tool calls accumulate stale content that anchor subsequent generations, and eventually outgrow the context window. |
-| [Concordia: JIT-Compiled Persistent-Kernel Checkpointing for Fault-Tolerant LLM Inference](http://arxiv.org/abs/2606.23521v1) | LLM, Agent, RAG/Memory, Reasoning | 15 | 2026-06-22 | Long-running LLM agents keep valuable state resident on GPUs: KV caches, request schedulers, communication state, and sometimes online adapters. |
-| [Semantic Browsing: Controllable Diversity for Image Generation](http://arxiv.org/abs/2606.23679v1) | LLM, 多模态, Agent, RAG/Memory | 14 | 2026-06-22 | Modern text-to-image models excel in visual fidelity and prompt adherence. |
-| [EnterpriseClawBench: Benchmarking Agents from Real Workplace Sessions](http://arxiv.org/abs/2606.23654v1) | Agent, Skill/Tool, Reasoning, Safety/Eval | 14 | 2026-06-22 | Enterprise agents increasingly operate inside workspaces: they read heterogeneous files, invoke tools, and deliver business artifacts. |
-| [HoloAgent-0: A Unified Embodied Agent Framework with 3D Spatial Memory](http://arxiv.org/abs/2606.23565v1) | LLM, Agent, Skill/Tool, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-22 | LLM agents follow a practical execution loop in digital environments: they reason over structured states, invoke tools, inspect feedback, and revise actions. |
-| [AOHP: An Open-Source OS-Level Agent Harness for Personalized, Efficient and Secure Interaction](http://arxiv.org/abs/2606.23449v1) | Agent, RAG/Memory, Safety/Eval | 14 | 2026-06-22 | AI agents are driving a new software paradigm, with the ability to autonomously call tools, extract information, manage memory, and complete tasks that span applications and data sources. |
-| [Litmus: Zero-Label, Code-Driven Metric Specification for Evaluating AI Systems](http://arxiv.org/abs/2606.23403v1) | LLM, Agent, RAG/Memory, Reasoning, Safety/Eval | 14 | 2026-06-22 | As agentic LLM systems move from prototypes to deployment across increasingly diverse domains, evaluating them has become both more important and more difficult. |
-| [GRINQH: Graded Input-based Quantization Hierarchy for Efficient LLM Generation](http://arxiv.org/abs/2606.23419v1) | LLM, RAG/Memory | 13 | 2026-06-22 | Autoregressive decoding with LLMs is primarily bottlenecked by GPU memory bandwidth, especially in edge-computing settings. |
-| [HyperQuant: A Rate-Distortion-Optimal Quantization Pipeline for Large Language and Diffusion Models](http://arxiv.org/abs/2606.23406v1) | LLM, 多模态, Reasoning | 13 | 2026-06-22 | We present HyperQuant (Hadamard, optimallY Packing, Entropy Rice-coding), a unified post-training quantization pipeline for the weights and the KV cache of large language and diffusion transformers. |
-| [Faithful Grounded Visual Reasoning via Learned Proxy-Tokens](http://arxiv.org/abs/2606.23354v1) | LLM, 多模态, RAG/Memory, Reasoning | 13 | 2026-06-22 | Multimodal Large Language Models (MLLMs) have achieved remarkable success in Visual Question Answering (VQA), yet their "black-box" nature hinders deployment in critical domains. |
-| [Data Selection Through Iterative Self-Filtering for Vision-Language Settings](http://arxiv.org/abs/2606.23611v1) | LLM, 多模态 | 12 | 2026-06-22 | The availability of large amounts of clean data is paramount to training neural networks. |
-| [Distribution-Aware Diffusion-LLM for Robust Ultra-Long-Term Time Series Forecasting](http://arxiv.org/abs/2606.23391v1) | LLM, 多模态, Safety/Eval | 12 | 2026-06-22 | Time series forecasting is a fundamental machine learning task. |
-| [Randomized YaRN Improves Length Generalization for Long-Context Reasoning](http://arxiv.org/abs/2606.23687v1) | LLM, Reasoning, Safety/Eval | 11 | 2026-06-22 | Large language models (LLMs) are typically pretrained on short sequences and then extended to work on longer sequences with additional training. |
-| [MAS-PromptBench: When Does Prompt Optimization Improve Multi-Agent LLM Systems?](http://arxiv.org/abs/2606.23664v1) | LLM, Agent, Safety/Eval | 11 | 2026-06-22 | Multi-agent systems (MAS) offer a scalable path forward for agentic AI, comprising multiple LLM-based agents, each assigned a system prompt and a position within a workflow that governs inter-agent coordination and output aggregation. |
 
-# 3. 阅读建议
+# 2. 阅读建议
 
-建议先读评分最高的 3 篇。对 agent / skill 类论文，重点看任务设定是否真实、工具调用是否可控、状态管理是否清楚；对多模态论文，重点看数据配比、模态对齐和评测是否覆盖真实使用场景；对 RAG / memory 论文，重点看检索粒度、噪声控制、时效性和长上下文成本。
+正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-生成时间：2026-06-23 14:32:01 CST
+生成时间：2026-06-24 19:43:33 CST

@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "GitHub Trending 学习日报：2026-06-23"
-subtitle: "自动筛选今日值得阅读的开源项目"
+title: "GitHub Trending 精读：mukul975/Anthropic-Cybersecurity-Skills (2026-06-23)"
+subtitle: "单个开源项目深度拆解"
 date: 2026-06-23
 author: "zwt"
 header-img: "img/LLMs.png"
@@ -14,172 +14,157 @@ tags:
 categories: [github]
 ---
 
-# GitHub Trending 学习日报 2026-06-23
+# GitHub Trending 精读 2026-06-23
 
-数据来源：[GitHub Trending Daily](https://github.com/trending?since=daily)。本篇自动抓取当日 Trending 仓库，并按技术主题、增长速度、社区成熟度和源码学习价值筛选出值得重点阅读的项目。
+数据来源：[GitHub Trending Daily](https://github.com/trending?since=daily)。本篇围绕一个开源项目做介绍、结构线索梳理和源码阅读拆解。
 
-## 筛选逻辑
+## 分析目标
 
-我会优先关注四类信号：
+这篇文章关注四类问题：
 
-1. 是否代表一个正在变热的技术方向，例如 AI agent、LLM infra、数据库、编译器、云原生或安全工具。
-2. 是否有明确的工程入口，适合顺着 README、示例、CLI/API 和测试一路读到核心实现。
-3. 是否有足够的社区反馈，包括 star、fork、issue、release 或 topic。
-4. 是否能沉淀可迁移经验，例如架构边界、扩展机制、错误处理、性能优化或文档组织。
+1. 项目试图解决什么具体问题。
+2. README 和目录结构透露了怎样的实现边界。
+3. 源码阅读应该从哪条主链路进入。
+4. 哪些工程经验可以迁移到自己的项目里。
 
-## 今日重点项目
+## 项目拆解
 
-### [mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills)
+## [mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills)
 
-- 语言：未标注
-- Stars：18,938，Forks：2,232，今日新增：956
-- Topics：暂无
-- 学习价值评分：20/20
+- 语言：Python
+- Stars：20,267，Forks：2,352，今日新增：956
+- Topics：ai-agents、claude-code、cloud-security、cybersecurity、devsecops、ethical-hacking
+- 官网/演示：[https://mahipal.engineer/Anthropic-Cybersecurity-Skills/](https://mahipal.engineer/Anthropic-Cybersecurity-Skills/)
+- 项目类型：AI/Agent 工程项目
 
 **项目简介**：817 structured cybersecurity skills for AI agents · Mapped to 6 frameworks: MITRE ATT&CK, NIST CSF 2.0, MITRE ATLAS, D3FEND, NIST AI RMF & MITRE F3 (Fight Fraud) · agentskills.io standard · Works with Claude Code, GitHub Copilot, Codex CLI, Cursor, Gemini CLI & 20+ platforms · 29 security domains · Apache 2.0
 
-**为什么值得看**：AI / LLM、智能体实践、安全工程、命令行工具设计、今日关注度极高、社区验证充分。这类项目的学习价值通常不只在功能本身，更在它如何把用户入口、核心抽象、工程边界和生态扩展组织到一起。
+### 项目定位
 
-**源码阅读重点**：
+从仓库描述、主题标签和语言栈看，这是一个 AI/Agent 工程项目。拆解它时，重点放在它如何定义用户入口、组织核心抽象、隔离外部依赖，以及是否具备可复用的工程边界。
+
+### 核心问题
+
+它是否把“模型调用”包装成了可靠的软件系统：任务状态如何保存，工具权限如何收口，失败后如何重试或回滚，日志是否足够复盘一次 agent 行为。
+
+如果读完只能留下一个判断，就应该是：这个项目到底靠什么建立护城河，是工程设计、生态位置、领域知识组织，还是某个可复用的技术抽象。
+
+### 一张图看架构
+
+![mukul975/Anthropic-Cybersecurity-Skills 架构拆解图](/img/daily-reports/2026-06-23-github-mukul975-anthropic-cybersecurity-skills-architecture.svg)
+
+这张图的读法是从左到右追输入、加工、执行和反馈：每一层都要问清楚“它吃什么、产出什么、失败时谁兜底”。只有这条链路清楚，后面的源码阅读才不会停留在目录浏览。
+
+### 架构拆分
+
+1. **领域知识层**：仓库的核心不是一个单一运行时，而是一批结构化安全技能。需要先看每个 skill 如何描述目标、适用场景、参考资料和执行步骤。
+2. **标准映射层**：`mappings/` 这类目录通常负责把技能映射到 MITRE ATT&CK、NIST、OWASP 等外部框架。这里决定了项目是否只是文件集合，还是可检索、可治理的知识库。
+3. **执行脚本层**：`skills/*/scripts/agent.py` 这类文件是关键细节。它们说明 skill 是否只是一段说明文字，还是包含可执行的检查、采集或分析动作。
+4. **参考资料层**：`references/api-reference.md` 这类文件用于把操作步骤落到具体 API、命令或工具上。这里要看引用是否足够具体，是否能被 agent 稳定消费。
+5. **工具与平台适配层**：README 里提到多个 AI coding/agent 平台时，要确认仓库是否提供统一格式，还是每个平台靠人工约定兼容。
+6. **维护与质量层**：这类知识库的长期价值取决于版本同步、重复技能治理、标准更新和安全误用边界，而不只是条目数量。
+
+### 关键细节拆解
+
+- **技能粒度**：检查一个 skill 是否足够小，能被 agent 独立调用；如果一个 skill 同时覆盖侦察、利用、检测和报告，执行边界就会变模糊。
+- **输入输出**：每个 skill 应该明确需要哪些上下文、凭据、日志、文件或环境信息，以及产出是结论、命令、报告还是证据。
+- **安全边界**：安全技能库必须区分防御、检测、演练和可能被滥用的攻击步骤。最好能在 skill 元数据里表达风险等级和授权前提。
+- **标准映射质量**：映射到 MITRE/NIST 不应只是标签堆叠，要能解释 skill 对应哪个 tactic、technique、control 或风险场景。
+- **可执行性**：`scripts/agent.py` 这类脚本要看是否有参数校验、错误处理、dry-run、日志和最小依赖；否则 skill 很难稳定接入自动化 agent。
+- **更新机制**：安全框架会变，工具命令会变，API 会变。项目需要能批量发现过期引用、重复技能和断链文档。
+
+### 代码调用链路
+
+![mukul975/Anthropic-Cybersecurity-Skills 代码调用链图](/img/daily-reports/2026-06-23-github-mukul975-anthropic-cybersecurity-skills-call-chain.svg)
+
+1. **发现阶段：`index.json`**
+   这是仓库级索引，记录 skill 名称、描述、路径和生成时间。agent 或平台不用一开始加载 800 多个完整 Markdown，而是先扫这个索引或 frontmatter，快速缩小候选技能集合。
+
+2. **加载阶段：`skills/<name>/SKILL.md`**
+   每个 skill 的 YAML frontmatter 承担“机器可检索元数据”：`name`、`description`、`domain`、`subdomain`、`tags`、`mitre_attack`、`nist_csf` 等。Markdown 正文承担“人和 agent 都能读的执行剧本”：Overview、Prerequisites、Objectives、Workflow、Validation Criteria。
+
+3. **补充上下文：`references/*.md`**
+   `references/standards.md` 和 `references/api-reference.md` 把 skill 从“步骤说明”变成“有依据的操作单元”。前者负责标准映射，后者负责工具/API/命令字段解释。
+
+4. **执行入口：`skills/*/scripts/agent.py`**
+   代表性脚本使用 `argparse` 定义参数和模式，然后进入 `main()`。这说明它不是被框架强绑定的服务，而是可以被 agent、人工 operator 或自动化流程独立调用的 helper。
+
+5. **模式分支：`enumerate` / `impacket` / `sharpdpapi`**
+   以 DPAPI skill 为例，脚本先校验 `--profile`、`--pvk` 等输入，再进入不同模式：`enumerate_artifacts()` 只枚举文件；`impacket` 模式在枚举后调用 `decrypt_masterkey_impacket()`；`sharpdpapi` 模式走 `sharpdpapi_triage()`。
+
+6. **外部命令边界：`run_cmd()`**
+   脚本没有重写 DPAPI 密码学，而是通过 `subprocess.run()` 编排 SharpDPAPI 或 Impacket。这个边界很重要：仓库提供的是“安全工作流编排”，不是重新实现所有底层安全工具。
+
+7. **质量门禁：`tools/validate-skill.py`**
+   PR 或批量维护时，`main()` 会遍历 skill 目录，调用 `validate_skill()`，再由 `parse_frontmatter()` 解析 YAML-like frontmatter。它检查必填字段、kebab-case、描述长度、domain、subdomain 和 tags。这个脚本是知识库长期不失控的关键。
+
+### 建议顺着这条链路读
+
+建议从用户入口读到 agent loop：先找 CLI/Web/API 入口，再追踪 request 如何变成 plan、tool call、observation、memory/context update，最后看结果如何返回给用户。
+
+### README 和代码结构线索
+
+- README 结构：Anthropic Cybersecurity Skills / The largest open-source cybersecurity skills library for AI agents / Give any AI agent the security skills of a senior analyst / Six frameworks, one skill library / 🆕 MITRE Fight Fraud Framework (F3) — 94 fraud-relevant skills / MITRE ATT&CK v19.1 — 754/754 skills mapped
+- 开篇信息：> ⚠️ **Community Project** — This is an independent, community-created project. Not affiliated with Anthropic PBC. A junior analyst knows which Volatility3 plugin to run on a suspicious memory dump, which Sigma rules catch Kerberoasting, and how to scope a cloud breach across three providers. **Your AI agent doesn't — unless you give it these skills.** This repo contains **817 structured cybersecurity skills** spanning **29 security domains**, each following the [agentskills.io](https://agentskills.io) open standar
+
+值得优先打开的文件或目录：
+
+- `README.md`
+- `mappings/README.md`
+- `mappings/mitre-attack/README.md`
+- `mappings/nist-csf/README.md`
+- `mappings/owasp/README.md`
+- `tools/README.md`
+- `.github/ISSUE_TEMPLATE/config.yml`
+- `skills/abusing-dpapi-for-credential-access/references/api-reference.md`
+- `skills/abusing-dpapi-for-credential-access/scripts/agent.py`
+- `skills/abusing-shadow-credentials-for-privesc/references/api-reference.md`
+- `skills/abusing-shadow-credentials-for-privesc/scripts/agent.py`
+- `skills/acquiring-disk-image-with-dd-and-dcfldd/references/api-reference.md`
+
+### 关键文件怎么读
+
+| 文件/目录 | 阅读重点 |
+| --- | --- |
+| `README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `mappings/README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `mappings/mitre-attack/README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `mappings/nist-csf/README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `mappings/owasp/README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `tools/README.md` | 确认项目承诺、安装方式、核心概念和使用边界。 |
+| `.github/ISSUE_TEMPLATE/config.yml` | 看配置约束、默认行为、兼容平台和发布/集成方式。 |
+| `skills/abusing-dpapi-for-credential-access/references/api-reference.md` | 看单个能力单元的目录结构、输入输出、脚本与参考资料如何组合。 |
+| `skills/abusing-dpapi-for-credential-access/scripts/agent.py` | 看单个能力单元的目录结构、输入输出、脚本与参考资料如何组合。 |
+| `skills/abusing-shadow-credentials-for-privesc/references/api-reference.md` | 看单个能力单元的目录结构、输入输出、脚本与参考资料如何组合。 |
+| `skills/abusing-shadow-credentials-for-privesc/scripts/agent.py` | 看单个能力单元的目录结构、输入输出、脚本与参考资料如何组合。 |
+| `skills/acquiring-disk-image-with-dd-and-dcfldd/references/api-reference.md` | 看单个能力单元的目录结构、输入输出、脚本与参考资料如何组合。 |
+
+具体可以按这个顺序推进：
+
 1. 入口层：看它把 CLI、Web、SDK 或配置文件暴露成怎样的用户接口。
 2. 核心层：找最稳定的领域模型、调度逻辑、状态管理或数据结构。
 3. 边界层：关注外部服务、文件系统、网络请求、模型调用或数据库访问如何被隔离。
 4. Agent/LLM 链路：重点看工具调用、上下文管理、权限控制、失败重试和可观测日志。
 
-**建议学习路径**：
+### 读代码时要特别检查的地方
+
 1. 先读 README，确认项目解决的真实问题和目标用户。
-2. 浏览目录结构，找入口文件、核心抽象、测试目录和示例代码。
-3. 选择一个最小功能链路，从 API/CLI 入口追到核心实现。
-4. 对照近期 Issue、Release 和 PR，理解项目当前的工程取舍。
-5. 用一个小样例跑通核心路径，再回头看错误处理、配置系统和扩展点。
+2. 找最小可运行例子，顺着入口追到核心实现，不要停在安装命令。
+3. 画出核心对象之间的关系：谁负责状态，谁负责 IO，谁负责策略，谁负责错误处理。
+4. 对照测试、Issue、Release，看维护者真正花时间处理的是功能扩张、性能、兼容性还是稳定性。
+5. 最后回看配置、日志、扩展点和失败回退，这些地方最能反映项目是否可长期维护。
 
-**可复用的工程经验**：重点观察它如何处理默认配置、失败回退、外部依赖、用户可扩展能力和文档示例。真正值得迁移到自己项目里的，往往是这些长期维护能力，而不是某个孤立 API。
+### 风险与局限
 
-### [calesthio/OpenMontage](https://github.com/calesthio/OpenMontage)
+重点警惕三类风险：工具调用边界不清导致越权，长上下文堆叠导致状态漂移，以及错误恢复只靠 prompt 而没有工程级保护。
 
-- 语言：未标注
-- Stars：12,923，Forks：1,610，今日新增：2,938
-- Topics：暂无
-- 学习价值评分：14/20
+Trending 项目还要额外注意热度偏差：短期 star 增长只能说明被看见，不等于架构成熟。精读时不要只看 README 的宣传语，要至少追一条真实执行路径。
 
-**项目简介**：World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skills. Turn your AI coding assistant into a full video production studio.
+### 可以带走的工程经验
 
-**为什么值得看**：AI / LLM、智能体实践、今日关注度极高、社区验证充分。这类项目的学习价值通常不只在功能本身，更在它如何把用户入口、核心抽象、工程边界和生态扩展组织到一起。
+真正可复用的经验通常在 provider 抽象、tool registry、权限模型、执行日志、配置加载和测试夹具里，而不是某个具体 prompt。
 
-**源码阅读重点**：
-1. 入口层：看它把 CLI、Web、SDK 或配置文件暴露成怎样的用户接口。
-2. 核心层：找最稳定的领域模型、调度逻辑、状态管理或数据结构。
-3. 边界层：关注外部服务、文件系统、网络请求、模型调用或数据库访问如何被隔离。
-4. Agent/LLM 链路：重点看工具调用、上下文管理、权限控制、失败重试和可观测日志。
-
-**建议学习路径**：
-1. 先读 README，确认项目解决的真实问题和目标用户。
-2. 浏览目录结构，找入口文件、核心抽象、测试目录和示例代码。
-3. 选择一个最小功能链路，从 API/CLI 入口追到核心实现。
-4. 对照近期 Issue、Release 和 PR，理解项目当前的工程取舍。
-5. 用一个小样例跑通核心路径，再回头看错误处理、配置系统和扩展点。
-
-**可复用的工程经验**：重点观察它如何处理默认配置、失败回退、外部依赖、用户可扩展能力和文档示例。真正值得迁移到自己项目里的，往往是这些长期维护能力，而不是某个孤立 API。
-
-### [jamiepine/voicebox](https://github.com/jamiepine/voicebox)
-
-- 语言：未标注
-- Stars：32,516，Forks：3,949，今日新增：529
-- Topics：暂无
-- 学习价值评分：10/20
-
-**项目简介**：The open-source AI voice studio. Clone, dictate, create.
-
-**为什么值得看**：AI / LLM、今日关注度极高、社区验证充分。这类项目的学习价值通常不只在功能本身，更在它如何把用户入口、核心抽象、工程边界和生态扩展组织到一起。
-
-**源码阅读重点**：
-1. 入口层：看它把 CLI、Web、SDK 或配置文件暴露成怎样的用户接口。
-2. 核心层：找最稳定的领域模型、调度逻辑、状态管理或数据结构。
-3. 边界层：关注外部服务、文件系统、网络请求、模型调用或数据库访问如何被隔离。
-4. 质量链路：重点看测试、示例、CI、发布脚本和文档是否能支撑长期维护。
-
-**建议学习路径**：
-1. 先读 README，确认项目解决的真实问题和目标用户。
-2. 浏览目录结构，找入口文件、核心抽象、测试目录和示例代码。
-3. 选择一个最小功能链路，从 API/CLI 入口追到核心实现。
-4. 对照近期 Issue、Release 和 PR，理解项目当前的工程取舍。
-5. 用一个小样例跑通核心路径，再回头看错误处理、配置系统和扩展点。
-
-**可复用的工程经验**：重点观察它如何处理默认配置、失败回退、外部依赖、用户可扩展能力和文档示例。真正值得迁移到自己项目里的，往往是这些长期维护能力，而不是某个孤立 API。
-
-### [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis)
-
-- 语言：未标注
-- Stars：46,131，Forks：42,038，今日新增：1,557
-- Topics：暂无
-- 学习价值评分：10/20
-
-**项目简介**：LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.
-
-**为什么值得看**：大模型工程、今日关注度极高、社区验证充分。这类项目的学习价值通常不只在功能本身，更在它如何把用户入口、核心抽象、工程边界和生态扩展组织到一起。
-
-**源码阅读重点**：
-1. 入口层：看它把 CLI、Web、SDK 或配置文件暴露成怎样的用户接口。
-2. 核心层：找最稳定的领域模型、调度逻辑、状态管理或数据结构。
-3. 边界层：关注外部服务、文件系统、网络请求、模型调用或数据库访问如何被隔离。
-4. Agent/LLM 链路：重点看工具调用、上下文管理、权限控制、失败重试和可观测日志。
-
-**建议学习路径**：
-1. 先读 README，确认项目解决的真实问题和目标用户。
-2. 浏览目录结构，找入口文件、核心抽象、测试目录和示例代码。
-3. 选择一个最小功能链路，从 API/CLI 入口追到核心实现。
-4. 对照近期 Issue、Release 和 PR，理解项目当前的工程取舍。
-5. 用一个小样例跑通核心路径，再回头看错误处理、配置系统和扩展点。
-
-**可复用的工程经验**：重点观察它如何处理默认配置、失败回退、外部依赖、用户可扩展能力和文档示例。真正值得迁移到自己项目里的，往往是这些长期维护能力，而不是某个孤立 API。
-
-### [JCodesMore/ai-website-cloner-template](https://github.com/JCodesMore/ai-website-cloner-template)
-
-- 语言：未标注
-- Stars：17,962，Forks：2,759，今日新增：100
-- Topics：暂无
-- 学习价值评分：10/20
-
-**项目简介**：Clone any website with one command using AI coding agents
-
-**为什么值得看**：AI / LLM、智能体实践、社区验证充分。这类项目的学习价值通常不只在功能本身，更在它如何把用户入口、核心抽象、工程边界和生态扩展组织到一起。
-
-**源码阅读重点**：
-1. 入口层：看它把 CLI、Web、SDK 或配置文件暴露成怎样的用户接口。
-2. 核心层：找最稳定的领域模型、调度逻辑、状态管理或数据结构。
-3. 边界层：关注外部服务、文件系统、网络请求、模型调用或数据库访问如何被隔离。
-4. Agent/LLM 链路：重点看工具调用、上下文管理、权限控制、失败重试和可观测日志。
-
-**建议学习路径**：
-1. 先读 README，确认项目解决的真实问题和目标用户。
-2. 浏览目录结构，找入口文件、核心抽象、测试目录和示例代码。
-3. 选择一个最小功能链路，从 API/CLI 入口追到核心实现。
-4. 对照近期 Issue、Release 和 PR，理解项目当前的工程取舍。
-5. 用一个小样例跑通核心路径，再回头看错误处理、配置系统和扩展点。
-
-**可复用的工程经验**：重点观察它如何处理默认配置、失败回退、外部依赖、用户可扩展能力和文档示例。真正值得迁移到自己项目里的，往往是这些长期维护能力，而不是某个孤立 API。
-
-
-## 全量候选列表
-
-| 项目 | 语言 | Stars | 今日新增 | 简介 |
-| --- | --- | ---: | ---: | --- |
-| [calesthio/OpenMontage](https://github.com/calesthio/OpenMontage) | - | 12,923 | 2,938 | World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skills. Turn your AI coding assistant into a full video production studio. |
-| [palmier-io/palmier-pro](https://github.com/palmier-io/palmier-pro) | - | 7,745 | 2,463 | macOS video editor built for AI |
-| [jamiepine/voicebox](https://github.com/jamiepine/voicebox) | - | 32,516 | 529 | The open-source AI voice studio. Clone, dictate, create. |
-| [mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills) | - | 18,938 | 956 | 817 structured cybersecurity skills for AI agents · Mapped to 6 frameworks: MITRE ATT&CK, NIST CSF 2.0, MITRE ATLAS, D3FEND, NIST AI RMF & MITRE F3 (Fight Fraud) · agentskills.io standard · Works with Claude Code, GitHub Copilot, Codex CLI, Cursor, Gemini CLI & 20+ platforms · 29 security domains · Apache 2.0 |
-| [penpot/penpot](https://github.com/penpot/penpot) | - | 53,004 | 728 | Penpot: The open-source design tool for design and code collaboration |
-| [Stirling-Tools/Stirling-PDF](https://github.com/Stirling-Tools/Stirling-PDF) | - | 83,210 | 547 | #1 PDF Application on GitHub that lets you edit PDFs on any device anywhere |
-| [garrytan/gstack](https://github.com/garrytan/gstack) | - | 113,384 | 573 | Use Garry Tan's exact Claude Code setup: 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, Doc Engineer, and QA |
-| [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | - | 30,219 | 395 | Write HTML. Render video. Built for agents. |
-| [tursodatabase/turso](https://github.com/tursodatabase/turso) | - | 21,611 | 540 | Turso is an in-process SQL database, compatible with SQLite. |
-| [bytedance/deer-flow](https://github.com/bytedance/deer-flow) | - | 73,448 | 738 | An open-source long-horizon SuperAgent harness that researches, codes, and creates. With the help of sandboxes, memories, tools, skill, subagents and message gateway, it handles different levels of tasks that could take minutes to hours. |
-| [DeusData/codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) | - | 11,929 | 1,185 | High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph — average repo in milliseconds. 158 languages, sub-ms queries, 99% fewer tokens. Single static binary, zero dependencies. |
-| [ZhuLinsen/daily_stock_analysis](https://github.com/ZhuLinsen/daily_stock_analysis) | - | 46,131 | 1,557 | LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs. |
-| [firecrawl/firecrawl](https://github.com/firecrawl/firecrawl) | - | 137,588 | 615 | The API to search, scrape, and interact with the web at scale. 🔥 |
-| [JCodesMore/ai-website-cloner-template](https://github.com/JCodesMore/ai-website-cloner-template) | - | 17,962 | 100 | Clone any website with one command using AI coding agents |
-| [lyogavin/airllm](https://github.com/lyogavin/airllm) | - | 21,137 | 193 | AirLLM 70B inference with single 4GB GPU |
 
 ---
 
-生成时间：2026-06-23 14:02:52 CST
+生成时间：2026-06-24 19:44:02 CST

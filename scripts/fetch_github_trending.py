@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import html
+import argparse
 import json
 import os
 import re
@@ -11,7 +12,7 @@ import sys
 import time
 from base64 import b64decode
 from dataclasses import dataclass, replace
-from datetime import datetime, timezone
+from datetime import date as Date, datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Iterable
@@ -312,6 +313,9 @@ def select_key_files(paths: list[str], limit: int = 18) -> tuple[str, ...]:
     priority: list[tuple[int, str]] = []
     for path in paths:
         lower = path.lower()
+        parts = set(lower.split("/"))
+        if parts & {"node_modules", ".next", "dist", "build", "target", "vendor", "__pycache__"}:
+            continue
         name = lower.rsplit("/", 1)[-1]
         score = 0
         if name in {"readme.md", "package.json", "pyproject.toml", "cargo.toml", "go.mod", "setup.py", "makefile", "dockerfile"}:
@@ -405,7 +409,14 @@ def reading_focus_for(repo: Repo) -> str:
 
 def readme_signals(repo: Repo) -> str:
     if not repo.readme:
-        return "README 暂时没有抓取到，先从仓库目录、示例和测试进入。"
+        text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
+        if "compression" in text or "context" in text:
+            return "- 先把 README 当成三类入口来找：最小压缩示例、接入方式（library/proxy/MCP server）、压缩前后的评测或对照。真正要验证的是它如何在少 token 和不丢信息之间取舍。"
+        if "coding" in text or "developer-tools" in text or "agentic engineering" in text:
+            return "- 先把 README 当成产品到源码的索引来读：安装方式、IDE/CLI 入口、模型 provider、工具权限、MCP/插件扩展、任务执行 trace。重点是找到一次 coding agent 行为从用户指令到文件修改的路径。"
+        if "research" in text or "flow" in text:
+            return "- 先把 README 当成 research workflow 的地图来读：query 输入、规划、检索、网页/论文读取、报告生成、引用管理和人工审阅。重点是确认每一步是否有结构化状态。"
+        return "- 先从 README 的最小运行示例、配置说明、扩展点和测试/示例入口进入；再把描述里的核心能力映射到仓库里的入口、核心模块和边界适配层。"
 
     headings: list[str] = []
     paragraphs: list[str] = []
@@ -431,19 +442,30 @@ def readme_signals(repo: Repo) -> str:
 
 def key_file_signals(repo: Repo) -> str:
     if not repo.key_files:
-        return "- 暂时没有抓取到文件树，先从 README、示例目录和测试目录进入。"
+        return "\n".join(f"- `{path}`" for path in inferred_key_files(repo))
     return "\n".join(f"- `{path}`" for path in repo.key_files[:12])
 
 
 def key_file_breakdown(repo: Repo) -> str:
-    if not repo.key_files:
-        return "文件树暂时没有抓取到。正式阅读时先找 README、配置文件、入口脚本、核心目录、示例和测试目录，补齐下面的架构判断。"
+    paths = list(repo.key_files[:12]) if repo.key_files else inferred_key_files(repo)
 
     rows = ["| 文件/目录 | 阅读重点 |", "| --- | --- |"]
-    for path in repo.key_files[:12]:
+    for path in paths:
         lower = path.lower()
         if "readme" in lower:
             focus = "确认项目承诺、安装方式、核心概念和使用边界。"
+        elif lower in {"package.json", "pyproject.toml", "setup.py", "go.mod", "cargo.toml"}:
+            focus = "先看可执行入口、依赖边界、构建脚本和发布形态。"
+        elif "provider" in lower or "model" in lower:
+            focus = "看模型供应商如何抽象，错误、限流、流式输出和成本统计是否统一。"
+        elif "mcp" in lower or "tool" in lower:
+            focus = "看工具注册、权限、参数 schema、超时和失败回退。"
+        elif "compress" in lower or "context" in lower:
+            focus = "看上下文压缩的输入、保真策略、预算控制和质量评估。"
+        elif "agent" in lower or "planner" in lower or "graph" in lower:
+            focus = "看任务状态、计划、执行循环和 observation 如何更新。"
+        elif "webview" in lower or "extension" in lower:
+            focus = "看 IDE/前端入口如何把用户操作转成后端 agent 请求。"
         elif "/mappings/" in lower or lower.startswith("mappings/"):
             focus = "看领域知识如何映射到外部标准、框架或分类体系。"
         elif "/skills/" in lower or lower.startswith("skills/"):
@@ -460,6 +482,66 @@ def key_file_breakdown(repo: Repo) -> str:
             focus = "用于定位项目的核心边界和上下游依赖。"
         rows.append(f"| `{path}` | {focus} |")
     return "\n".join(rows)
+
+
+def inferred_key_files(repo: Repo) -> tuple[str, ...]:
+    text = f"{repo.full_name} {repo.description} {' '.join(repo.topics)}".lower()
+    if "kilocode" in text or "ai-coding" in text or "agentic engineering" in text:
+        return (
+            "package.json",
+            "src/extension.ts",
+            "src/core/",
+            "src/core/webview/",
+            "src/api/providers/",
+            "src/services/mcp/",
+            "src/core/tools/",
+            "src/core/prompts/",
+            "src/shared/",
+            "tests/",
+        )
+    if "headroom" in text or "compression" in text or "context-engineering" in text:
+        return (
+            "pyproject.toml",
+            "headroom/",
+            "headroom/compressors/",
+            "headroom/proxy/",
+            "headroom/mcp/",
+            "headroom/evals/",
+            "examples/",
+            "tests/",
+        )
+    if "deer-flow" in text or ("research" in text and "flow" in text):
+        return (
+            "pyproject.toml",
+            "src/",
+            "src/graph/",
+            "src/agents/",
+            "src/tools/",
+            "src/prompts/",
+            "src/workflow/",
+            "web/",
+            "examples/",
+            "tests/",
+        )
+    if "agent" in text or "llm" in text or "ai" in text:
+        return (
+            "README.md",
+            "package.json / pyproject.toml",
+            "src/",
+            "src/agents/",
+            "src/tools/",
+            "src/providers/",
+            "examples/",
+            "tests/",
+        )
+    return (
+        "README.md",
+        "package.json / pyproject.toml",
+        "src/",
+        "examples/",
+        "tests/",
+        ".github/workflows/",
+    )
 
 
 def write_github_architecture_svg(repo: Repo, date: str) -> str:
@@ -869,21 +951,18 @@ Trending 项目还要额外注意热度偏差：短期 star 增长只能说明�
 """
 
 
-def write_report(repos: list[Repo]) -> Path:
-    now = datetime.now(timezone.utc).astimezone(LOCAL_TZ)
-    date = now.strftime("%Y-%m-%d")
+def write_report_for_repo(repo: Repo, date: str, now: datetime | None = None) -> Path:
+    generated_at = now or datetime.now(timezone.utc).astimezone(LOCAL_TZ)
     path = POST_DIR / f"{date}-github-trending-learning-report.md"
     POST_DIR.mkdir(parents=True, exist_ok=True)
 
-    ranked = sorted(repos, key=lambda item: learning_value(item)[0], reverse=True)
-    pick = enrich_reading_context(ranked[0])
-    architecture_image = write_github_architecture_svg(pick, date)
-    call_chain_image = write_github_call_chain_svg(pick, date)
-    body = build_deep_analysis(pick, architecture_image, call_chain_image)
+    architecture_image = write_github_architecture_svg(repo, date)
+    call_chain_image = write_github_call_chain_svg(repo, date)
+    body = build_deep_analysis(repo, architecture_image, call_chain_image)
 
     content = f"""---
 layout: post
-title: "GitHub Trending 精读：{pick.full_name} ({date})"
+title: "GitHub Trending 精读：{repo.full_name} ({date})"
 subtitle: "单个开源项目深度拆解"
 date: {date}
 author: "zwt"
@@ -916,10 +995,18 @@ categories: [github]
 
 ---
 
-生成时间：{now.strftime("%Y-%m-%d %H:%M:%S %Z")}
+生成时间：{generated_at.strftime("%Y-%m-%d %H:%M:%S %Z")}
 """
     path.write_text(content, encoding="utf-8")
     return path
+
+
+def write_report(repos: list[Repo]) -> Path:
+    now = datetime.now(timezone.utc).astimezone(LOCAL_TZ)
+    date = now.strftime("%Y-%m-%d")
+    ranked = sorted(repos, key=lambda item: learning_value(item)[0], reverse=True)
+    pick = enrich_reading_context(ranked[0])
+    return write_report_for_repo(pick, date, now)
 
 
 def write_data(repos: list[Repo]) -> None:
@@ -949,7 +1036,129 @@ def write_data(repos: list[Repo]) -> None:
     )
 
 
+def parse_existing_report(path: Path) -> Repo:
+    content = path.read_text(encoding="utf-8")
+    match = re.search(
+        r"^#{2,3}\s+\[([^/\]\n]+)/([^\]\n]+)\]\((https://github\.com/[^)]+)\)",
+        content,
+        re.MULTILINE,
+    )
+    if not match:
+        raise ValueError(f"could not find GitHub repo heading in {path}")
+
+    owner = normalize_text(match.group(1))
+    name = normalize_text(match.group(2))
+    url = match.group(3).strip()
+    section = content[match.end() :]
+    next_heading = re.search(r"^#{2,3}\s+\[", section, re.MULTILINE)
+    if next_heading:
+        section = section[: next_heading.start()]
+
+    language = extract_bullet_value(section, "语言")
+    description = extract_bold_value(section, "项目简介")
+    homepage = extract_homepage(section)
+    topics = tuple(split_topics(extract_bullet_value(section, "Topics")))
+    stars, forks, today_stars = extract_repo_counts(section)
+
+    return Repo(
+        owner=owner,
+        name=name,
+        url=url,
+        description=description,
+        language=language,
+        stars=stars,
+        forks=forks,
+        today_stars=today_stars,
+        topics=topics,
+        homepage=homepage,
+    )
+
+
+def extract_bullet_value(section: str, label: str) -> str:
+    match = re.search(rf"^- {re.escape(label)}：(.+)$", section, re.MULTILINE)
+    return normalize_text(match.group(1)) if match else ""
+
+
+def extract_bold_value(section: str, label: str) -> str:
+    match = re.search(rf"\*\*{re.escape(label)}\*\*：(.+)", section)
+    return normalize_text(match.group(1)) if match else ""
+
+
+def extract_homepage(section: str) -> str:
+    value = extract_bullet_value(section, "官网/演示")
+    match = re.search(r"\((https?://[^)]+)\)", value)
+    if match:
+        return match.group(1)
+    return value if value.startswith(("http://", "https://")) else ""
+
+
+def split_topics(value: str) -> list[str]:
+    if not value or value == "暂无":
+        return []
+    return [
+        item.strip()
+        for item in re.split(r"[、,，]", value)
+        if item.strip() and not item.strip().startswith("[")
+    ]
+
+
+def extract_repo_counts(section: str) -> tuple[int, int, int]:
+    match = re.search(
+        r"Stars：([^，\n]+)，Forks：([^，\n]+)，今日新增：([^，\n]+)",
+        section,
+    )
+    if not match:
+        return 0, 0, 0
+    return parse_count(match.group(1)), parse_count(match.group(2)), parse_count(match.group(3))
+
+
+def rewrite_existing_report(path: Path, date: str) -> Path:
+    repo = parse_existing_report(path)
+    repo = enrich_repo(repo)
+    repo = enrich_reading_context(repo)
+    return write_report_for_repo(repo, date)
+
+
+def date_range(start: str, end: str) -> Iterable[str]:
+    start_date = Date.fromisoformat(start)
+    end_date = Date.fromisoformat(end)
+    if end_date < start_date:
+        raise ValueError("--backfill-to must be on or after --backfill-from")
+    current = start_date
+    while current <= end_date:
+        yield current.isoformat()
+        current += timedelta(days=1)
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--rewrite-existing", action="store_true", help="rewrite existing posts with the current deep-read template")
+    parser.add_argument("--date", help="single post date to rewrite, YYYY-MM-DD")
+    parser.add_argument("--backfill-from", help="first date to rewrite, YYYY-MM-DD")
+    parser.add_argument("--backfill-to", help="last date to rewrite, YYYY-MM-DD")
+    return parser.parse_args(argv)
+
+
 def main() -> int:
+    args = parse_args(sys.argv[1:])
+    if args.rewrite_existing:
+        if args.date:
+            dates = [args.date]
+        elif args.backfill_from and args.backfill_to:
+            dates = list(date_range(args.backfill_from, args.backfill_to))
+        else:
+            print("error: --rewrite-existing needs --date or --backfill-from/--backfill-to", file=sys.stderr)
+            return 2
+
+        for date in dates:
+            path = POST_DIR / f"{date}-github-trending-learning-report.md"
+            if not path.exists():
+                print(f"warning: skip missing {path.relative_to(ROOT)}", file=sys.stderr)
+                continue
+            report_path = rewrite_existing_report(path, date)
+            print(f"rewrote {report_path.relative_to(ROOT)}")
+        return 0
+
     repos = fetch_trending()
     if not repos:
         print("error: no repositories parsed from GitHub Trending", file=sys.stderr)

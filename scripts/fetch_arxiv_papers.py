@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 import html
+import argparse
 import json
 import re
 import sys
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import date as Date, datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -181,6 +182,57 @@ def fetch_papers() -> list[Paper]:
         )
 
     return papers
+
+
+def fetch_papers_by_ids(arxiv_ids: list[str]) -> list[Paper]:
+    if not arxiv_ids:
+        return []
+    url = ARXIV_API + "?" + urlencode({"id_list": ",".join(arxiv_ids)})
+    root = ET.fromstring(get_url(url))
+    papers: list[Paper] = []
+    for entry in root.findall("atom:entry", ATOM_NS):
+        paper = paper_from_entry(entry)
+        if paper.arxiv_id:
+            papers.append(paper)
+    return papers
+
+
+def paper_from_entry(entry: ET.Element) -> Paper:
+    abs_url = text_of(entry, "atom:id")
+    arxiv_id = parse_arxiv_id(abs_url)
+    links = entry.findall("atom:link", ATOM_NS)
+    pdf_url = ""
+    for link in links:
+        if link.attrib.get("title") == "pdf" or link.attrib.get("type") == "application/pdf":
+            pdf_url = link.attrib.get("href", "")
+            break
+    if not pdf_url and arxiv_id:
+        pdf_url = f"https://arxiv.org/pdf/{arxiv_id}"
+
+    authors = tuple(
+        normalize_text(author.findtext("atom:name", default="", namespaces=ATOM_NS))
+        for author in entry.findall("atom:author", ATOM_NS)
+    )
+    categories = tuple(
+        category.attrib.get("term", "")
+        for category in entry.findall("atom:category", ATOM_NS)
+        if category.attrib.get("term")
+    )
+    primary = entry.find("arxiv:primary_category", ATOM_NS)
+
+    return Paper(
+        arxiv_id=arxiv_id,
+        title=normalize_text(text_of(entry, "atom:title")),
+        abstract=normalize_text(text_of(entry, "atom:summary")),
+        authors=tuple(author for author in authors if author),
+        abs_url=abs_url or f"http://arxiv.org/abs/{arxiv_id}",
+        pdf_url=pdf_url,
+        published=text_of(entry, "atom:published"),
+        updated=text_of(entry, "atom:updated"),
+        primary_category=primary.attrib.get("term", "") if primary is not None else "",
+        categories=categories,
+        comment=normalize_text(text_of(entry, "arxiv:comment")),
+    )
 
 
 class OutlineParser(HTMLParser):
@@ -362,8 +414,62 @@ def topic_tags(paper: Paper) -> list[str]:
     return tags or ["AI"]
 
 
+def paper_text(paper: Paper) -> str:
+    return f"{paper.title} {paper.abstract}".lower()
+
+
+def is_unidrive(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "unidrive" in text or "autonomous driving" in text or "driving" in text
+
+
+def is_long_video_memory(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "memdreamer" in text or ("long video" in text and ("memory" in text or "retrieval" in text))
+
+
+def is_spatial_reasoning_benchmark(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "spatialworld" in text or ("spatial reasoning" in text and "benchmark" in text)
+
+
+def is_tool_calling_knowledge(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "tool calling" in text or ("experiential knowledge" in text and "tool" in text)
+
+
+def is_interleaved_generation(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "interleavethinker" in text or "interleaved generation" in text
+
+
+def is_medical_hallucination(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "clinhallu" in text or ("hallucination" in text and "medical" in text)
+
+
+def is_iqa_alignment(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "image quality assessment" in text or ("semantics" in text and "distortions" in text)
+
+
+def is_skill_scanner_security(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "skill scanner" in text or "malicious agent skills" in text or "hidden instruction" in text
+
+
+def is_active_perception(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "active perception" in text or "omni-modal" in text
+
+
+def is_remote_sensing_dataset(paper: Paper) -> bool:
+    text = paper_text(paper)
+    return "sarlo" in text or "remote sensing" in text or "sar " in text
+
+
 def method_guess(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
+    text = paper_text(paper)
     if "agent" in text or "tool" in text or "skill" in text:
         return "这篇更像 agent 能力构建工作，阅读重点应放在动作空间、工具接口、任务分解、反馈信号和失败恢复。"
     if "multimodal" in text or "vision" in text or "video" in text or "image" in text:
@@ -408,8 +514,57 @@ def contribution_lens(paper: Paper) -> tuple[str, str, str, str]:
 
 
 def paper_architecture_breakdown(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "driving" in text or "autonomous driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """1. **长视频输入层**：先确认论文处理的是分钟级、小时级还是多片段视频。长视频的核心压力不是“看不懂画面”，而是视觉 token 爆炸、注意力稀释和稀疏证据难召回。
+2. **感知缓存层**：MemDreamer 这类方法会把低层感知从最终推理里拆出来。重点看它如何把片段、对象、事件或场景变化写入层次化记忆，而不是每次都把原始帧重新喂给模型。
+3. **图记忆层**：标题里的 hierarchical graph memory 是关键。要看节点代表什么、边代表什么、时间关系如何编码，以及记忆是否支持增量更新。
+4. **Agentic retrieval 层**：推理阶段不再一次性读完整视频，而是像 agent 一样带着问题检索记忆。这里要看检索动作、停止条件、查询改写和失败重试。
+5. **推理生成层**：最终回答应来自检索到的证据链，而不是模型凭常识补全。需要关注答案是否能回指到片段、对象或事件。
+6. **验证层**：实验必须覆盖长程依赖、稀疏证据、多跳事件和干扰片段，否则不能证明它真的解决长视频问题。"""
+    if is_spatial_reasoning_benchmark(paper):
+        return """1. **任务环境层**：确认 SpatialWorld 里的任务是静态图片问答、可交互环境，还是需要连续操作的真实空间任务。
+2. **空间状态层**：看论文如何表达位置、方向、相对关系、遮挡、距离和可达性；空间推理的核心往往在状态表示。
+3. **交互动作层**：benchmark 如果强调 interactive，就要看 agent 能执行哪些观察、移动、选择或操作动作。
+4. **反馈层**：每次交互后环境给什么反馈，反馈是视觉、文本、坐标还是成功/失败信号。
+5. **评价层**：指标需要区分语言理解错误、空间关系错误、动作规划错误和执行错误。"""
+    if is_tool_calling_knowledge(paper):
+        return """1. **任务输入层**：先看 benchmark 或训练任务如何要求模型选择工具、填参数、解释调用结果。
+2. **经验采集层**：experiential knowledge 的重点是模型从历史调用、错误反馈或成功轨迹里沉淀什么知识。
+3. **知识激活层**：重点看这些经验在推理时如何被召回，是检索、prompt 注入、参数化记忆，还是策略模块。
+4. **工具执行层**：工具 schema、参数约束、调用顺序和异常返回必须清楚，否则提升很可能只是 prompt 技巧。
+5. **评测层**：实验要分开看工具选择、参数正确率、多步调用成功率和错误恢复能力。"""
+    if is_interleaved_generation(paper):
+        return """1. **生成状态层**：interleaved generation 的关键是模型不是一次性输出答案，而是在思考、动作、观察、生成之间切换。
+2. **强化信号层**：看奖励如何定义，奖励是否能区分“会写中间过程”和“真的完成任务”。
+3. **动作/文本交错层**：需要确认模型何时写 reasoning，何时调用工具或生成内容，是否有显式控制 token。
+4. **训练稳定层**：强化这类交错行为容易出现格式崩坏、过度思考或无效动作，需要看约束和采样策略。
+5. **评测层**：实验必须比较端到端答案质量、交互效率、调用次数和失败轨迹。"""
+    if is_medical_hallucination(paper):
+        return """1. **临床任务层**：先确认 benchmark 覆盖诊断、影像描述、病历推理还是治疗建议。医疗幻觉必须按任务阶段拆。
+2. **阶段划分层**：ClinHallu 的价值应在 stage-wise diagnosis：是观察阶段错、证据归纳错、推理链错，还是最终建议错。
+3. **证据绑定层**：医疗 MLLM 的回答必须回到影像区域、病例文本、检查结果或指南依据。
+4. **幻觉标注层**：看论文如何定义 hallucination，是否区分事实错误、过度推断、遗漏证据和不安全建议。
+5. **风险评估层**：医疗评测不能只看准确率，还要看错误严重度、可解释性和人工一致性。"""
+    if is_skill_scanner_security(paper):
+        return """1. **输入层**：agent skill 通常是 Markdown、YAML frontmatter、脚本、参考资料和命令片段的混合体，攻击面不只在自然语言。
+2. **隐藏指令层**：重点看 malicious instruction 如何藏在注释、链接、代码块、图片 alt、配置字段或长文档深处。
+3. **扫描模型层**：skill scanner 要判断哪些内容是能力说明，哪些是越权、泄露、持久化或绕过检查的指令。
+4. **注意力/证据层**：如果论文用 attention 辅助检测，要看它是解释工具、特征来源，还是训练目标的一部分。
+5. **评测层**：必须覆盖真实野外 skill、混淆样本、良性高危技能和对抗改写，否则很容易只检测到关键词。"""
+    if is_active_perception(paper):
+        return """1. **感知动作层**：active perception 的关键是模型能主动选择看哪里、听哪里、放大哪里或请求哪种模态。
+2. **跨模态状态层**：omni-modal 不是模态堆叠，而是不同模态证据如何进入同一个推理状态。
+3. **推理控制层**：看模型如何决定下一步感知动作，是否有不确定性、信息增益或任务目标驱动。
+4. **成本层**：主动感知会增加交互和计算成本，必须看动作次数、延迟和 token/feature 预算。
+5. **验证层**：实验要证明主动感知比被动全量输入更有效，而不是只靠更多信息取胜。"""
+    if is_remote_sensing_dataset(paper):
+        return """1. **数据采集层**：SAR/遥感数据的价值首先取决于覆盖区域、传感器类型、分辨率、成像角度和时间跨度。
+2. **光学-雷达对齐层**：如果数据集同时涉及 SAR、optical 和 language，要看跨模态配准误差如何处理。
+3. **语言标注层**：自然语言描述是否只是类别标签扩写，还是包含地物关系、空间布局、场景用途和变化线索。
+4. **任务定义层**：数据集应明确支持检索、caption、定位、变化检测、VQA 还是 foundation model 预训练。
+5. **评测层**：需要看跨地区、跨地貌、跨传感器和长尾目标上的泛化，而不只是随机划分得分。"""
+    if is_unidrive(paper):
         return """1. **输入层**：先确认论文使用的是单帧、多帧、视频片段、传感器融合结果，还是已有感知模型输出。自动驾驶风险理解的难点往往来自长时序和小目标同时存在。
 2. **视觉表示层**：看图像/视频特征如何进入语言模型，是否保留空间坐标、框、mask、轨迹或区域级证据。
 3. **Grounding 层**：标题里的 grounding 是关键。需要确认模型是否能把语言解释绑定回具体目标、位置、时间片段或风险区域。
@@ -438,8 +593,54 @@ def paper_architecture_breakdown(paper: Paper) -> str:
 
 
 def paper_detail_breakdown(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "driving" in text or "autonomous driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """- **记忆写入粒度**：长视频不能把每帧都进记忆。要看节点是 clip、object、event、scene graph 还是 narration，以及粒度过粗时是否会漏稀疏证据。
+- **图边语义**：hierarchical graph memory 的边如果只表示相邻片段，价值有限；更有价值的是对象共现、时间先后、因果线索和跨片段引用。
+- **检索策略**：agentic retrieval 应该能根据问题动态选择记忆子图，而不是一次性 top-k 检索。重点看是否有多轮查询、query refinement 和停止条件。
+- **感知/推理解耦**：解耦的好处是节省 token 和避免注意力稀释，但风险是感知阶段一旦漏写，推理阶段无法补救。
+- **证据可追溯**：回答最好能回到视频片段或记忆节点；否则“记忆”只是隐藏 prompt，难以验证。"""
+    if is_spatial_reasoning_benchmark(paper):
+        return """- **空间关系覆盖**：检查任务是否覆盖左/右、前/后、遮挡、距离、朝向、可达性、多物体关系，而不是只测简单位置词。
+- **交互真实性**：interactive benchmark 要看 agent 是否真的需要观察和行动；如果一次截图就能答，大部分交互设计就是噪声。
+- **错误归因**：空间任务失败可能来自视觉识别、语言理解、坐标推理或动作规划，评测应能拆开这些错误。
+- **真实世界噪声**：Real-world tasks 要覆盖视角变化、遮挡、尺度变化、物体相似和环境杂乱。"""
+    if is_tool_calling_knowledge(paper):
+        return """- **经验来源**：经验知识是从成功轨迹、失败轨迹、人工规则还是模型自反思中来，决定它能不能泛化。
+- **激活时机**：工具调用前需要激活工具选择知识，参数填充前需要激活 schema 约束，调用后需要激活错误解释知识。
+- **错误恢复**：真正有价值的 tool calling 提升应该体现在多步失败恢复，而不是单步函数名预测。
+- **污染风险**：如果经验库直接记住测试工具或任务模板，指标提升会被数据泄漏放大。"""
+    if is_interleaved_generation(paper):
+        return """- **交错协议**：要看论文是否定义清楚 thought、action、observation、answer 的格式边界，否则模型容易生成看似复杂但不可执行的中间过程。
+- **奖励分配**：强化 agentic interleaving 的难点是 credit assignment：到底奖励最终答案、过程格式、工具调用成功，还是中间证据质量。
+- **退化模式**：常见失败包括过度思考、重复调用、提前输出、格式漂移和把 observation 编造成文本。
+- **效率权衡**：交错生成通常更慢，必须用更高成功率或更强可验证性抵消额外成本。"""
+    if is_medical_hallucination(paper):
+        return """- **阶段级幻觉**：把错误拆成 observation、evidence selection、reasoning、diagnosis、recommendation，才能知道模型在医疗链路里哪里最危险。
+- **临床严重度**：同样是错误，漏掉危急征象和措辞不严谨的风险完全不同。benchmark 应该区分 severity。
+- **证据缺失**：医疗 MLLM 容易在影像证据不足时补充常识。需要看标注是否要求“无法判断”或不确定性表达。
+- **人工一致性**：医学幻觉标注需要医生一致性或明确指南，否则 judge 噪声会污染结论。"""
+    if is_iqa_alignment(paper):
+        return """- **语义/失真解耦**：AI 生成图像质量评估不能把“语义好看”和“画质无瑕疵”混在一起；两流设计的价值就在拆开这两个信号。
+- **尺度问题**：多尺度分支要证明既能看全局语义，也能抓局部瑕疵，例如纹理、边缘、手部、文字和细小伪影。
+- **人类偏好对齐**：IQA 最终要对齐人类质量判断，需看标注来源、主观一致性和跨模型生成图的泛化。
+- **评价泄漏**：如果测试图像来自少数生成器，模型可能学到生成器指纹，而不是真正评估质量。"""
+    if is_skill_scanner_security(paper):
+        return """- **攻击载荷位置**：隐藏指令可以出现在 Markdown 正文、frontmatter、代码块、脚本注释、链接文本和外部引用里，scanner 必须跨结构读取。
+- **良恶性边界**：安全 skill 里天然会出现危险命令，难点不是看到 `rm`、token、credential 就报警，而是判断授权前提和执行意图。
+- **注意力证据**：attention 如果被用来解释检测结果，需要看它是否稳定指向恶意片段，而不是被标题或关键词带偏。
+- **野外分布**：真实 skill 往往写法不规范，benchmark 需要覆盖噪声、混淆、长文档和跨平台格式。"""
+    if is_active_perception(paper):
+        return """- **看哪里的问题**：主动感知的核心是选择信息，而不是把所有模态都塞进去。要看模型如何决定下一次观察区域或模态。
+- **不确定性驱动**：好的 active perception 应该在不确定时获取证据，在确定时停止，而不是固定轮数。
+- **多模态冲突**：omni-modal 任务里不同模态可能冲突，论文需要说明如何仲裁视觉、音频、文本或传感器证据。
+- **成本收益**：多看一步是否真的提升准确率，还是只增加延迟和 token，这是落地判断的关键。"""
+    if is_remote_sensing_dataset(paper):
+        return """- **80cm 分辨率含义**：分辨率决定能否看到小型建筑、道路、车辆、农田纹理等细粒度目标，也决定语言标注能细到什么程度。
+- **SAR 与光学互补**：SAR 能穿云、对结构敏感，光学更符合人眼语义。数据集若能对齐两者，才有跨模态基础模型价值。
+- **全球覆盖**：worldwide 数据集要看区域分布是否均衡，是否覆盖城市、农田、海岸、山地、沙漠等不同地貌。
+- **语言质量**：语言描述不能只是“there is a building”，需要体现空间布局、目标关系、场景属性和遥感特有信息。"""
+    if is_unidrive(paper):
         return """- **时序推理细节**：摘要强调 temporal reasoning，要看模型处理连续帧时是否真的建模时间关系，还是只把多帧拼成上下文。
 - **空间精度细节**：摘要提到 small、distant、partially occluded hazards，实验必须覆盖小目标、遮挡、远距离目标和边缘区域。
 - **证据绑定细节**：interpretable risk understanding 不能只生成合理解释，还要能指出解释对应的目标、区域或时间片段。
@@ -466,8 +667,66 @@ def paper_detail_breakdown(paper: Paper) -> str:
 
 
 def paper_method_chain(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "driving" in text or "autonomous driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """```text
+long video
+  -> clip/object/event perception
+  -> hierarchical graph memory write
+  -> question-driven agentic retrieval
+  -> evidence subgraph assembly
+  -> multimodal reasoning
+  -> answer with traceable support
+```
+
+这条链路要重点看“写入”和“检索”之间是否闭环。长视频理解最怕前面为了省 token 过度压缩，后面再靠语言模型想象缺失证据。"""
+    if is_tool_calling_knowledge(paper):
+        return """```text
+task
+  -> infer needed tool
+  -> activate experiential knowledge
+  -> fill schema-constrained arguments
+  -> execute / simulate tool call
+  -> read feedback
+  -> repair or continue
+```
+
+工具调用论文不能只看函数名选择。真正困难的是参数、顺序和错误恢复，尤其是工具返回和下一步推理之间的接口。"""
+    if is_interleaved_generation(paper):
+        return """```text
+task state
+  -> generate reasoning segment
+  -> choose action or content segment
+  -> observe feedback / partial result
+  -> update state
+  -> repeat until final answer
+```
+
+这条链路的关键是交错是否被任务需要。如果中间过程不能改变后续动作，那 interleaving 只是输出格式；如果 observation 能改变策略，才是 agentic generation。"""
+    if is_skill_scanner_security(paper):
+        return """```text
+skill package
+  -> parse markdown / metadata / scripts
+  -> locate instruction-like spans
+  -> classify benign high-risk vs malicious
+  -> produce evidence spans
+  -> block, quarantine, or request review
+```
+
+安全 scanner 的价值取决于证据定位。只给一个风险分数不够，必须指出哪段文本或脚本触发风险，方便人工复核。"""
+    if is_remote_sensing_dataset(paper):
+        return """```text
+SAR / optical imagery
+  -> geo-alignment and tiling
+  -> language annotation
+  -> dataset filtering
+  -> benchmark task construction
+  -> model evaluation
+  -> geographic generalization analysis
+```
+
+数据集论文的链路重点不是模型多复杂，而是数据是否可用、可对齐、可复现、能逼出模型短板。"""
+    if is_unidrive(paper):
         return """```text
 driving scene input
   -> visual / temporal evidence extraction
@@ -515,8 +774,56 @@ input
 
 
 def paper_experiment_checklist(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "driving" in text or "autonomous driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 长程依赖 | 是否覆盖小时级视频、跨片段事件和稀疏证据问题。 |
+| 记忆消融 | 去掉 graph memory、层次结构或检索 agent 后性能是否明显下降。 |
+| 检索质量 | 是否评估召回到的片段/节点是否真的支持答案。 |
+| Token/成本 | 是否报告相比全视频输入节省多少 token、显存或延迟。 |
+| 失败案例 | 是否展示漏写记忆、检索错片段、推理错因果的案例。 |"""
+    if is_tool_calling_knowledge(paper):
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 工具选择 | 是否区分选择正确工具和填对参数。 |
+| 多步调用 | 是否覆盖工具链组合，而不只是单函数调用。 |
+| 经验消融 | 去掉 experiential knowledge 后是否明显下降。 |
+| 错误恢复 | 是否统计调用失败后的修复率。 |
+| 泛化 | 是否验证未见工具、未见任务和 schema 变化。 |"""
+    if is_interleaved_generation(paper):
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 交错必要性 | 相比直接生成，交错过程是否带来稳定收益。 |
+| 奖励设计 | 奖励是否避免只优化格式而不优化任务成功。 |
+| 成本 | 是否报告额外轮数、token、工具调用和延迟。 |
+| 失败轨迹 | 是否展示过度思考、重复行动、格式漂移等问题。 |
+| 泛化 | 是否跨任务或跨模型验证。 |"""
+    if is_medical_hallucination(paper):
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 阶段诊断 | 是否把幻觉定位到观察、证据、推理、结论等阶段。 |
+| 临床严重度 | 是否按风险等级区分错误。 |
+| 专家标注 | 是否有医生标注、一致性或指南依据。 |
+| 多模型覆盖 | 是否覆盖不同 MLLM 和不同医疗子任务。 |
+| 失败样例 | 是否展示危险误诊、证据缺失和过度推断。 |"""
+    if is_skill_scanner_security(paper):
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 真实样本 | 是否包含野外 agent skill，而不只是合成 prompt。 |
+| 隐藏位置 | 是否覆盖 frontmatter、Markdown、代码块、脚本、链接和外部引用。 |
+| 误报控制 | 是否区分良性安全技能和恶意隐藏指令。 |
+| 证据定位 | 是否输出风险片段，方便人工复核。 |
+| 对抗改写 | 是否测试 paraphrase、分散载荷和长文档稀释。 |"""
+    if is_remote_sensing_dataset(paper):
+        return """| 检查点 | 需要看到的证据 |
+| --- | --- |
+| 覆盖范围 | 是否说明国家/地区、地貌、季节、传感器分布。 |
+| 配准质量 | SAR、光学和语言是否可靠对齐。 |
+| 标注质量 | 是否有人审、过滤规则和一致性统计。 |
+| 任务价值 | 是否支持检索、caption、定位、VQA 或预训练。 |
+| 泛化 | 是否跨地区、跨传感器、跨地貌划分评估。 |"""
+    if is_unidrive(paper):
         return """| 检查点 | 需要看到的证据 |
 | --- | --- |
 | 时序能力 | 是否比较单帧、多帧、长视频窗口；是否展示时间错位或延迟风险案例。 |
@@ -551,8 +858,44 @@ def paper_experiment_checklist(paper: Paper) -> str:
 
 
 def paper_interpretation_intro(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """这篇论文抓住的是长视频理解里最现实的瓶颈：模型不是完全看不懂视频，而是 **看完整视频太贵，看压缩视频又容易丢掉关键证据**。MemDreamer 的标题已经把解法说得很清楚：把 perception 和 reasoning 解耦，用层次化图记忆保存视频证据，再让 agentic retrieval 在推理时主动找相关记忆。
+
+所以这篇不是普通的视频问答论文，而是一篇“长视频记忆系统”论文。它真正要证明的是：记忆写入是否足够保真，检索是否能找回稀疏证据，推理是否真的基于这些证据，而不是把长视频问题重新包装成短文本推理。"""
+    if is_spatial_reasoning_benchmark(paper):
+        return """这篇论文的重点不是再做一个多模态排行榜，而是问一个更扎实的问题：多模态 agent 在真实空间任务里，到底会不会理解位置、方向、距离、遮挡、可达性和交互反馈。
+
+SpatialWorld 作为 benchmark，价值取决于它能否把“看图说话”推进到“带着空间目标行动”。如果任务只需要描述图片，它测不到 agent；如果任务必须通过观察、动作和反馈逐步完成，它才能暴露空间推理系统的短板。"""
+    if is_tool_calling_knowledge(paper):
+        return """这篇论文把 tool calling 的问题从“模型会不会选函数名”推进到“模型能不能从经验里学会更可靠地调用工具”。标题里的 experiential knowledge integration and activation 是核心：经验如何沉淀、何时激活、如何影响工具选择和参数填写。
+
+真正值得看的不是它把提示词写得多复杂，而是它是否把工具调用变成一个可积累、可检索、可纠错的过程。"""
+    if is_interleaved_generation(paper):
+        return """InterleaveThinker 关注的是 agentic generation 里的一个关键能力：模型不能只在开头想完、最后输出，而要在推理、生成、观察、修正之间交错推进。
+
+这篇论文要证明的是：强化这种 interleaved 行为是否真的提高任务成功率，而不是让输出变长、格式变复杂。读它时要紧盯奖励设计、交错协议和失败轨迹。"""
+    if is_medical_hallucination(paper):
+        return """ClinHallu 的价值在于把医疗 MLLM 幻觉从一个总分问题拆成阶段问题。医疗链路里，模型可能在观察影像时错、选择证据时错、推理时错，也可能最后建议时错；这些错误的风险完全不同。
+
+所以这篇更像一篇诊断工具论文：它不是只问模型有没有错，而是问模型在临床推理链的哪一步开始错，以及这个错误会造成多大风险。"""
+    if is_iqa_alignment(paper):
+        return """这篇论文关注 AI 生成图像质量评估里一个容易被混淆的问题：语义是否正确，和图像是否有失真，并不是同一个信号。一个图可以语义很对但局部细节崩坏，也可以画质很干净但语义不符合指令。
+
+它的 two-stream / multi-scale 设计要证明的是：把 semantics 和 distortions 解耦，是否能更接近人类对 AIGC 图像质量的判断。"""
+    if is_skill_scanner_security(paper):
+        return """这篇论文非常贴近 agent 工程安全：当 agent 可以安装 skill，skill 本身就变成供应链入口。攻击者不一定直接攻击模型，而是把隐藏指令塞进 Markdown、frontmatter、脚本、链接或参考资料，让 scanner 看漏，让 agent 执行。
+
+读这篇时要把它当成“agent skill 供应链安全”论文。重点不是有没有一个检测分数，而是能否发现隐藏载荷、区分良性高危技能和恶意技能，并给出可复核证据。"""
+    if is_active_perception(paper):
+        return """这篇论文讨论的是 omni-modal 理解里的主动感知：模型不只是被动接收一堆模态，而是把“下一步该看什么、听什么、放大什么”当成推理动作。
+
+它的核心价值取决于两点：主动获取证据是否比全量被动输入更有效，以及模型是否知道什么时候停止继续感知。"""
+    if is_remote_sensing_dataset(paper):
+        return """SARLO-80 这类论文要按数据集论文读：重点不是模型结构，而是数据是否足够稀缺、覆盖是否足够广、模态是否对齐、标注是否能支撑后续 foundation model 训练和评测。
+
+80cm 级遥感/SAR-光学-语言数据如果做得扎实，价值在于给遥感多模态模型提供更细粒度、更全球化、更接近真实应用的数据底座。"""
+    if is_unidrive(paper):
         return """这篇论文的核心不是再做一个“会描述驾驶场景”的多模态模型，而是在处理自动驾驶风险理解里一个很具体的矛盾：**视频模型有时间信息，但容易牺牲空间精度；高分辨率单帧模型看得清，但容易缺少动态上下文。**
 
 UniDrive 的思路是把这两个能力拆开，再重新融合：一条分支负责多帧时序语义，一条分支负责最新帧的高分辨率空间细节，最后用 gated cross-attention 把“动态上下文”和“精确视觉证据”对齐。它最后不是只输出一句 caption，而是同时生成自然语言风险描述和风险对象的 bounding box。这个设计使它更像一个 **可解释风险理解框架**，而不只是自动驾驶场景 captioner。"""
@@ -564,8 +907,44 @@ UniDrive 的思路是把这两个能力拆开，再重新融合：一条分支�
 
 
 def paper_core_claims(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """| 作者主张 | 解读 |
+| --- | --- |
+| 长视频直接输入会导致 token explosion 和 attention dilution | 这是全文出发点：长视频不是简单扩大上下文就能解决，计算和注意力都会被大量无关帧稀释。 |
+| Decoupling perception and reasoning | 感知阶段先把视频变成可检索记忆，推理阶段再按问题读取证据，避免每个问题都重读全视频。 |
+| Hierarchical graph memory | 记忆不是平铺文本摘要，而应保留片段、事件、对象和关系层次。重点看图结构是否真的承载时序/关系信息。 |
+| Agentic retrieval | 检索不是一次 top-k，而是带着问题多步探索记忆。它应该提升稀疏证据召回和多跳推理。 |
+| 长视频理解能力提升 | 需要用长程依赖、稀疏证据和干扰片段实验来支撑，不能只看普通视频 QA 平均分。 |"""
+    if is_tool_calling_knowledge(paper):
+        return """| 作者主张 | 解读 |
+| --- | --- |
+| 现有 LLM tool calling 受限于缺少经验 | 工具调用失败常常不是不会说话，而是不知道历史上哪些参数、顺序和错误恢复策略有效。 |
+| Experiential knowledge 可以被集成 | 关键要看经验以什么形式保存：示例轨迹、规则、检索库、记忆项还是训练信号。 |
+| Activation 决定知识是否有用 | 经验只有在正确任务、正确工具、正确参数阶段被激活才有价值。 |
+| 工具调用性能提升 | 应拆成工具选择、参数正确、多步链路、失败恢复和未见工具泛化。 |"""
+    if is_interleaved_generation(paper):
+        return """| 作者主张 | 解读 |
+| --- | --- |
+| Agentic interleaved generation 值得强化 | 作者认为推理和生成交错出现，比一次性思考后输出更适合复杂任务。 |
+| 强化学习可以塑造交错行为 | 重点看奖励是否真的鼓励有效行动，而不是鼓励更长、更像格式的中间过程。 |
+| 交错过程提升任务表现 | 需要看成功率、调用效率、失败轨迹和消融，而不是只看最终文字质量。 |
+| 方法可迁移到多类 agent 任务 | 需要跨任务验证，否则可能只是某类 benchmark 的格式优化。 |"""
+    if is_skill_scanner_security(paper):
+        return """| 作者主张 | 解读 |
+| --- | --- |
+| Agent skill scanner 面临隐藏指令攻击 | 攻击面来自 skill 包本身，尤其是 Markdown、metadata、脚本和参考链接混合的结构。 |
+| 多模态/文本 scanner 容易漏掉深层载荷 | 如果 scanner 只看摘要或关键词，就会被长文档稀释、格式混淆或间接引用绕过。 |
+| Attention 可用于定位恶意片段 | 关键是 attention 是否能稳定指向真正载荷，而不是只提供事后解释。 |
+| 野外 skill 检测需要误报控制 | 安全技能本来就包含危险命令，检测器必须理解授权上下文和执行意图。 |"""
+    if is_remote_sensing_dataset(paper):
+        return """| 作者主张 | 解读 |
+| --- | --- |
+| SARLO-80 提供全球范围 80cm 级遥感数据 | 数据覆盖和分辨率是主要贡献，需要看地理、地貌和传感器分布。 |
+| SAR / optical / language 组合有训练价值 | SAR 和光学互补，语言则把地物语义显式化，三者对齐质量决定数据集上限。 |
+| 数据可支持遥感 VLM/foundation model | 要看任务定义是否足够丰富，而不只是图片-caption 对。 |
+| 可作为跨地区泛化评测 | 真正价值在跨地貌、跨传感器、跨地区，而不是随机划分高分。 |"""
+    if is_unidrive(paper):
         return """| 作者主张 | 解读 |
 | --- | --- |
 | 现有 MLLM 在自动驾驶风险理解中存在 temporal reasoning 与 spatial precision 的 trade-off | 这是全文的问题定义。作者认为单帧/低分辨率方案会漏小目标、远目标、遮挡目标；语言中心的驾驶模型又缺少 grounded evidence。 |
@@ -583,8 +962,24 @@ def paper_core_claims(paper: Paper) -> str:
 
 
 def paper_problem_interpretation(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """MemDreamer 抓住的矛盾是：长视频理解需要保留大量时序证据，但大模型上下文和注意力机制并不适合直接吞下完整视频。
+
+- 全量输入会爆 token，注意力被大量无关帧稀释。
+- 预先压缩成摘要会丢掉稀疏但关键的证据。
+- 只做一次静态检索，很难完成多跳、跨片段、问题驱动的证据组合。
+
+所以它要回答的问题是：**能不能先把视频变成可查询记忆，再让推理过程像 agent 一样主动探索记忆。**"""
+    if is_skill_scanner_security(paper):
+        return """这类论文的矛盾在于：agent skill 必须给模型足够详细的步骤和命令，才有实用价值；但越详细，越容易藏入恶意指令、越权动作和供应链风险。
+
+安全 scanner 不能简单禁止危险词，因为防御性安全技能天然包含攻击技术名称和命令。真正问题是：**如何在高风险但良性的安全知识，与伪装成技能的恶意指令之间划线。**"""
+    if is_remote_sensing_dataset(paper):
+        return """遥感多模态模型常见瓶颈不是缺一个更大的 backbone，而是缺高质量、全球覆盖、跨传感器、带语言语义的数据。
+
+SAR 有全天时全天候优势，但不直观；光学图像语义直观，但受云层和光照影响；语言标注能连接地物与任务，但容易粗糙。SARLO-80 的问题就是：**能不能把这三类信号对齐成可训练、可评测的数据底座。**"""
+    if is_unidrive(paper):
         return """UniDrive 抓住的是自动驾驶场景理解里很典型的“鱼和熊掌”问题：
 
 - 如果模型主要看视频，它能理解目标运动和场景变化，但为了控制 token / feature 成本，往往会降低分辨率或稀释空间细节。
@@ -596,8 +991,47 @@ def paper_problem_interpretation(paper: Paper) -> str:
 
 
 def paper_module_interpretation(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Perception stage | 从长视频中抽取可存储证据，避免推理时重读全视频 | 抽取粒度、覆盖率、是否保留时间和对象关系。 |
+| Hierarchical graph memory | 把片段、事件、对象和关系组织成可查询结构 | 节点/边定义、层次结构、更新策略和压缩损失。 |
+| Agentic retrieval | 根据问题多步探索相关记忆 | 查询生成、检索停止、错误恢复和证据召回率。 |
+| Reasoning stage | 基于检索证据完成问答或理解任务 | 是否能引用证据，是否会脱离记忆编造。 |
+| Evaluation protocol | 证明长视频能力和成本优势 | 长程依赖、稀疏证据、消融、token/延迟成本。 |"""
+    if is_tool_calling_knowledge(paper):
+        return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Experience collection | 收集工具调用成功/失败轨迹 | 经验来源是否可靠，是否覆盖失败修复。 |
+| Knowledge integration | 把经验组织成可用知识 | 是检索库、规则、prompt 片段还是训练信号。 |
+| Activation mechanism | 在当前任务中唤起相关经验 | 是否按工具、参数、错误类型精准激活。 |
+| Tool execution | 生成并执行工具调用 | schema 约束、参数正确率、多步顺序。 |
+| Feedback repair | 根据结果修复下一步 | 是否统计失败恢复，而非只统计首轮正确。 |"""
+    if is_interleaved_generation(paper):
+        return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Interleaving protocol | 定义思考、动作、观察、答案如何交替出现 | 格式是否可执行，是否防止状态混乱。 |
+| Reinforcement objective | 强化有效交错行为 | 奖励是否绑定任务成功，而非中间过程长度。 |
+| Policy behavior | 决定何时继续推理、何时输出或行动 | 是否减少无效循环、重复调用和提前停止。 |
+| Evaluation trace | 展示交错过程是否有用 | 轨迹质量、成本、失败模式和消融。 |"""
+    if is_skill_scanner_security(paper):
+        return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| Skill parser | 读取 Markdown、metadata、脚本和引用 | 是否覆盖真实 skill 包结构。 |
+| Risk span detector | 找到隐藏指令或恶意片段 | 是否能跨代码块、链接、注释定位。 |
+| Attention mechanism | 提供检测依据或特征 | 是解释、监督还是核心分类信号。 |
+| Benign/malicious classifier | 区分良性安全技能和恶意载荷 | 误报率、漏报率、对抗改写。 |
+| Review output | 给人工或平台处理结果 | 是否输出证据、风险类型和处置建议。 |"""
+    if is_remote_sensing_dataset(paper):
+        return """| 模块 | 它在解决什么 | 需要重点核对什么 |
+| --- | --- | --- |
+| SAR imagery | 提供全天时、结构敏感遥感视角 | 分辨率、传感器、噪声和地理分布。 |
+| Optical imagery | 提供直观语义和视觉纹理 | 与 SAR 的配准误差和时间差。 |
+| Language annotation | 把地物、布局和场景用途文本化 | 描述粒度、标注流程、质量控制。 |
+| Dataset splits | 支撑训练和评测 | 是否按地区/地貌/传感器做泛化划分。 |
+| Benchmarks | 验证数据集用途 | 检索、caption、VQA、定位或预训练指标。 |"""
+    if is_unidrive(paper):
         return """| 模块 | 它在解决什么 | 需要重点核对什么 |
 | --- | --- | --- |
 | Multi-frame visual input | 给模型动态上下文，避免只看单帧导致误判风险趋势 | 输入帧数、采样间隔、时间窗口是否足够覆盖风险形成过程。 |
@@ -615,8 +1049,27 @@ def paper_module_interpretation(paper: Paper) -> str:
 
 
 def paper_method_success_conditions(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """MemDreamer 是否成立，主要看三件事：
+
+1. **记忆是否保真**
+   如果层次化图记忆漏掉关键片段，后面的 agentic retrieval 再聪明也找不回来。论文需要证明记忆写入不是简单摘要，而是保留对象、事件和时间关系。
+
+2. **检索是否真的 agentic**
+   如果只是一次 top-k 检索，和普通 RAG 差别有限。要看是否有多步查询、根据中间证据改写问题、停止条件和失败恢复。
+
+3. **收益是否来自长视频机制**
+   需要消融 graph memory、hierarchy、retrieval agent，并报告 token/延迟成本。否则提升可能来自更强 backbone 或更多上下文。"""
+    if is_tool_calling_knowledge(paper):
+        return """方法是否成立，关键看经验知识有没有跨任务泛化。如果经验只是在测试集上记住工具模板，价值有限；如果它能帮助模型处理未见参数、工具组合和失败返回，才说明 experiential knowledge 真的进入了 tool calling 策略。"""
+    if is_interleaved_generation(paper):
+        return """InterleaveThinker 成立的前提是交错过程改变了决策，而不是只改变了输出格式。要看去掉 interleaving 或去掉强化目标后，成功率、轨迹质量和成本是否发生可解释变化。"""
+    if is_skill_scanner_security(paper):
+        return """这类检测方法成立的关键不是高准确率，而是高风险场景下的可复核证据：能不能定位隐藏载荷，能不能区分防御性安全命令和恶意指令，能不能抵抗改写和长文档稀释。"""
+    if is_remote_sensing_dataset(paper):
+        return """SARLO-80 是否成立，主要看数据质量而不是模型分数。需要证明 SAR、光学和语言对齐可靠，全球覆盖不是口号，标注粒度足以支撑细粒度遥感理解，并且跨地区划分下仍有评测价值。"""
+    if is_unidrive(paper):
         return """UniDrive 的方法是否成立，主要看三个点：
 
 1. **双分支是不是各司其职**
@@ -631,8 +1084,30 @@ def paper_method_success_conditions(paper: Paper) -> str:
 
 
 def paper_result_interpretation(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """读实验时不要只看总分，要把结果拆成四类：
+
+1. **长视频主结果**
+   看 MemDreamer 是否在更长时长、更稀疏证据、更强干扰的视频上提升明显。如果短视频也提升，可能是通用模型增强；如果长视频提升更大，才贴合问题定义。
+
+2. **记忆与检索消融**
+   去掉 hierarchical graph memory、去掉 agentic retrieval、改成普通摘要或普通 top-k 检索，性能应该出现有解释的下降。
+
+3. **成本收益**
+   长视频方法必须报告 token、显存、推理延迟或检索轮数。否则“更准”可能只是更贵。
+
+4. **失败案例**
+   最该看的失败不是答错，而是为什么答错：感知阶段没写入，检索阶段找错，还是推理阶段误解证据。"""
+    if is_tool_calling_knowledge(paper):
+        return """结果要分层读：工具选择正确率只能说明模型知道用哪个 API；参数正确率说明 schema 理解；多步成功率说明流程控制；失败恢复率才说明经验知识有实际价值。若论文只报告总体 accuracy，需要谨慎。"""
+    if is_interleaved_generation(paper):
+        return """结果要同时看成功率和效率。Interleaving 如果让任务更稳但 token 翻倍，需要判断是否值得；如果轨迹更长但无法解释失败，那它只是更复杂的输出格式。消融实验应证明强化目标和交错协议都必要。"""
+    if is_skill_scanner_security(paper):
+        return """安全检测结果要重点看漏报。误报会影响可用性，但漏报会让 agent 执行恶意 skill。最好看按攻击位置、载荷类型、文档长度、混淆方式拆开的结果，以及是否给出风险证据片段。"""
+    if is_remote_sensing_dataset(paper):
+        return """数据集论文的实验不是为了证明某个模型最强，而是证明数据能支撑有意义的任务。读结果时应看跨地区/跨传感器泛化、SAR 与 optical 的互补收益、语言标注带来的增益，以及长尾地物上的失败。"""
+    if is_unidrive(paper):
         return """从摘要看，实验结论分成三组，读正文时应该分开验证：
 
 1. **主 benchmark：DRAMA-Reasoning**
@@ -650,8 +1125,20 @@ def paper_result_interpretation(paper: Paper) -> str:
 
 
 def paper_takeaway(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """这篇论文最值得带走的是“长视频不要硬塞上下文”的问题拆法：先把感知结果写成可查询记忆，再让推理过程按问题主动取证。这个思路对长视频、长文档、多轮 agent trace 都有参考价值。
+
+但也要记住它的风险：记忆一旦写错或漏写，后面检索再复杂也只能在错误空间里搜索。"""
+    if is_tool_calling_knowledge(paper):
+        return """这篇论文的启发是：tool calling 需要经验层。工程上可以把成功调用、失败返回、参数修复和工具组合沉淀成可检索知识，而不是每次都让模型从 schema 零开始猜。"""
+    if is_interleaved_generation(paper):
+        return """这篇论文值得带走的是：复杂任务里的生成不一定是线性的。让模型在推理、行动、观察和输出之间切换，可能比一次性长答案更可控，但前提是每次切换都能改变状态。"""
+    if is_skill_scanner_security(paper):
+        return """这篇论文的工程启发很直接：agent skill 需要像依赖包一样做供应链审查。安装前不仅要看能力说明，还要解析 metadata、脚本、链接和隐藏指令，并输出可复核证据。"""
+    if is_remote_sensing_dataset(paper):
+        return """SARLO-80 的可迁移价值在数据工程：跨传感器对齐、全球覆盖、细粒度语言标注和泛化划分，往往比单个模型结构更能推动遥感多模态能力。"""
+    if is_unidrive(paper):
         return """这篇论文真正值得带走的点，是把“自动驾驶解释”从纯文本描述拉回到 **时序证据 + 空间证据 + grounded object** 的闭环。对安全关键场景来说，解释不是越像人话越好，而是越能回指证据越好。
 
 我会把它归类为一篇值得读方法结构的论文：不一定要照搬 UniDrive 的具体模块，但“动态语义一条支路、精细感知一条支路、再用 gated fusion 对齐”的问题拆法，对很多多模态风险理解任务都有参考价值。"""
@@ -659,8 +1146,30 @@ def paper_takeaway(paper: Paper) -> str:
 
 
 def paper_experiment_questions(paper: Paper) -> str:
-    text = f"{paper.title} {paper.abstract}".lower()
-    if "unidrive" in text or "autonomous driving" in text or "driving" in text:
+    text = paper_text(paper)
+    if is_long_video_memory(paper):
+        return """这篇实验最少要回答四个问题：
+
+1. **记忆是否比直接上下文更有效？**
+   要比较全视频输入、摘要压缩、普通 RAG 和层次化图记忆。
+
+2. **检索是否找到了正确证据？**
+   不能只看答案对错，还要看检索片段是否支持答案。
+
+3. **长视频越长收益是否越明显？**
+   如果视频变长后优势不扩大，说明方法可能没有真正解决 token explosion。
+
+4. **成本是否可接受？**
+   Agentic retrieval 会带来多轮检索和推理成本，需要量化。"""
+    if is_tool_calling_knowledge(paper):
+        return """实验至少要回答：经验知识从哪里来，激活是否精准，多步调用是否提升，失败恢复是否提升，未见工具和 schema 变化下是否还能工作。"""
+    if is_interleaved_generation(paper):
+        return """实验至少要回答：交错生成是否必要，强化信号是否有效，额外 token/步骤是否值得，失败轨迹是否比普通生成更容易诊断。"""
+    if is_skill_scanner_security(paper):
+        return """实验至少要回答：隐藏指令藏在哪里最难检测，良性安全技能误报率是多少，对抗改写后是否仍能定位证据，人工复核成本是否下降。"""
+    if is_remote_sensing_dataset(paper):
+        return """实验至少要回答：数据覆盖是否均衡，SAR/optical/language 是否对齐，任务是否真实，跨地区/跨传感器泛化是否比随机划分更有挑战。"""
+    if is_unidrive(paper):
         return """这篇实验最少要回答四个问题：
 
 1. **captioning 和 grounding 是否同时提升？**
@@ -681,9 +1190,59 @@ def write_paper_architecture_svg(paper: Paper, date: str) -> str:
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
     filename = f"{date}-paper-{slugify(paper.title)}-architecture.svg"
     path = ASSET_DIR / filename
-    text = f"{paper.title} {paper.abstract}".lower()
+    text = paper_text(paper)
 
-    if "driving" in text or "autonomous driving" in text:
+    if is_long_video_memory(paper):
+        boxes = [
+            ("长视频", "clips / events"),
+            ("感知写入", "objects / scenes"),
+            ("图记忆", "hierarchy / edges"),
+            ("主动检索", "query / evidence"),
+            ("推理生成", "answer / trace"),
+            ("验证", "long-range / cost"),
+        ]
+        caption = "长视频记忆论文阅读链路：先看证据如何写入，再看 agentic retrieval 是否能找回关键片段。"
+    elif is_tool_calling_knowledge(paper):
+        boxes = [
+            ("任务", "tool need"),
+            ("经验库", "success / failure"),
+            ("知识激活", "retrieve / inject"),
+            ("工具调用", "schema / args"),
+            ("反馈修复", "error / retry"),
+            ("评测", "multi-step"),
+        ]
+        caption = "工具调用论文阅读链路：经验如何进入工具选择、参数填写和失败恢复。"
+    elif is_interleaved_generation(paper):
+        boxes = [
+            ("任务状态", "context"),
+            ("思考片段", "reason"),
+            ("动作/生成", "act / write"),
+            ("观察反馈", "observe"),
+            ("状态更新", "policy"),
+            ("结果评测", "success / cost"),
+        ]
+        caption = "交错生成论文阅读链路：判断每次 thought/action/observation 是否改变后续决策。"
+    elif is_skill_scanner_security(paper):
+        boxes = [
+            ("Skill 包", "md / yaml / script"),
+            ("结构解析", "spans"),
+            ("风险定位", "hidden instruction"),
+            ("分类判断", "benign / malicious"),
+            ("证据输出", "review"),
+            ("部署处置", "block / allow"),
+        ]
+        caption = "Agent skill 安全论文阅读链路：从包解析到隐藏指令定位，再到可复核处置。"
+    elif is_remote_sensing_dataset(paper):
+        boxes = [
+            ("SAR 图像", "structure"),
+            ("光学图像", "semantics"),
+            ("地理配准", "alignment"),
+            ("语言标注", "caption / tags"),
+            ("任务构造", "VQA / retrieval"),
+            ("泛化评测", "region / sensor"),
+        ]
+        caption = "遥感多模态数据集阅读链路：重点看跨传感器对齐、语言质量和泛化划分。"
+    elif is_unidrive(paper):
         boxes = [
             ("场景输入", "多帧 / 风险目标"),
             ("视觉表示", "区域 / 坐标 / 轨迹"),
@@ -881,21 +1440,18 @@ def build_deep_paper_section(paper: Paper, architecture_image: str, outline: tup
 """
 
 
-def write_report(papers: list[Paper]) -> Path:
-    now = datetime.now(timezone.utc).astimezone(LOCAL_TZ)
-    date = now.strftime("%Y-%m-%d")
+def write_report_for_paper(paper: Paper, date: str, now: datetime | None = None) -> Path:
+    generated_at = now or datetime.now(timezone.utc).astimezone(LOCAL_TZ)
     path = POST_DIR / f"{date}-arxiv-llm-agent-papers.md"
     POST_DIR.mkdir(parents=True, exist_ok=True)
 
-    ranked = sorted(papers, key=lambda paper: paper_score(paper)[0], reverse=True)
-    pick = ranked[0]
-    outline = fetch_paper_outline(pick)
-    architecture_image = write_paper_architecture_svg(pick, date)
-    top_section = build_deep_paper_section(pick, architecture_image, outline)
+    outline = fetch_paper_outline(paper)
+    architecture_image = write_paper_architecture_svg(paper, date)
+    top_section = build_deep_paper_section(paper, architecture_image, outline)
 
     content = f"""---
 layout: post
-title: "arXiv 论文精读：{yaml_escape(pick.title)} ({date})"
+title: "arXiv 论文精读：{yaml_escape(paper.title)} ({date})"
 subtitle: "单篇论文深度拆解"
 date: {date} 10:30:00 +0800
 author: "zwt"
@@ -933,10 +1489,17 @@ categories: [paper, daily]
 
 正式阅读时建议按 introduction、method、experiment、limitation 的顺序走一遍，并把摘要里的核心 claim 逐条映射到实验表、消融实验和失败案例上。
 
-生成时间：{now.strftime("%Y-%m-%d %H:%M:%S %Z")}
+生成时间：{generated_at.strftime("%Y-%m-%d %H:%M:%S %Z")}
 """
     path.write_text(content, encoding="utf-8")
     return path
+
+
+def write_report(papers: list[Paper]) -> Path:
+    now = datetime.now(timezone.utc).astimezone(LOCAL_TZ)
+    date = now.strftime("%Y-%m-%d")
+    ranked = sorted(papers, key=lambda paper: paper_score(paper)[0], reverse=True)
+    return write_report_for_paper(ranked[0], date, now)
 
 
 def write_data(papers: list[Paper]) -> None:
@@ -971,7 +1534,144 @@ def write_data(papers: list[Paper]) -> None:
     )
 
 
+def parse_existing_report(path: Path) -> Paper:
+    content = path.read_text(encoding="utf-8")
+    match = re.search(r"^## \[([^\]\n]+)\]\((https?://arxiv\.org/abs/[^)]+)\)", content, re.MULTILINE)
+    if not match:
+        raise ValueError(f"could not find arXiv paper heading in {path}")
+
+    title = normalize_text(match.group(1))
+    abs_url = match.group(2).strip()
+    section = content[match.end() :]
+    next_heading = re.search(r"^## \[", section, re.MULTILINE)
+    if next_heading:
+        section = section[: next_heading.start()]
+
+    arxiv_id = extract_arxiv_id(section) or parse_arxiv_id(abs_url)
+    pdf_url = extract_markdown_link(section, "PDF") or f"https://arxiv.org/pdf/{arxiv_id}"
+    authors = tuple(author for author in split_authors(extract_bullet_value(section, "作者")) if author)
+    published, updated = extract_dates(section)
+    categories = tuple(split_categories(extract_bullet_value(section, "类别")))
+    abstract = extract_abstract(section)
+
+    return Paper(
+        arxiv_id=arxiv_id,
+        title=title,
+        abstract=abstract,
+        authors=authors,
+        abs_url=abs_url,
+        pdf_url=pdf_url,
+        published=published,
+        updated=updated,
+        primary_category=categories[0] if categories else "",
+        categories=categories,
+    )
+
+
+def extract_bullet_value(section: str, label: str) -> str:
+    match = re.search(rf"^- {re.escape(label)}：(.+)$", section, re.MULTILINE)
+    return normalize_text(match.group(1)) if match else ""
+
+
+def extract_markdown_link(section: str, label: str) -> str:
+    value = extract_bullet_value(section, label)
+    match = re.search(r"\((https?://[^)]+)\)", value)
+    return match.group(1) if match else value
+
+
+def extract_arxiv_id(section: str) -> str:
+    value = extract_bullet_value(section, "arXiv")
+    match = re.search(r"(\d{4}\.\d{4,5})(?:v\d+)?", value)
+    return match.group(1) if match else ""
+
+
+def split_authors(value: str) -> list[str]:
+    if not value or value == "未知":
+        return ()
+    return [
+        item.strip()
+        for item in re.split(r"[、,，]", value.replace("等", ""))
+        if item.strip()
+    ]
+
+
+def split_categories(value: str) -> list[str]:
+    if not value or value == "未标注":
+        return []
+    return [item.strip() for item in re.split(r"[、,，]", value) if item.strip()]
+
+
+def extract_dates(section: str) -> tuple[str, str]:
+    value = extract_bullet_value(section, "发布时间")
+    match = re.search(r"(\d{4}-\d{2}-\d{2}).*?更新时间：(\d{4}-\d{2}-\d{2})", value)
+    if match:
+        return match.group(1), match.group(2)
+    match = re.search(r"(\d{4}-\d{2}-\d{2})", value)
+    if match:
+        return match.group(1), match.group(1)
+    return "", ""
+
+
+def extract_abstract(section: str) -> str:
+    match = re.search(r"### 摘要速读\s+(.+?)(?=\n### |\n## |\Z)", section, re.S)
+    if not match:
+        return ""
+    return normalize_text(re.sub(r"\n+", " ", match.group(1)))
+
+
+def rewrite_existing_report(path: Path, date: str) -> Path:
+    parsed = parse_existing_report(path)
+    paper = parsed
+    try:
+        fresh = fetch_papers_by_ids([parsed.arxiv_id])
+        if fresh:
+            paper = fresh[0]
+    except (HTTPError, URLError, TimeoutError, ET.ParseError) as exc:
+        print(f"warning: failed to refresh arXiv metadata for {parsed.arxiv_id}: {exc}", file=sys.stderr)
+    return write_report_for_paper(paper, date)
+
+
+def date_range(start: str, end: str) -> Iterable[str]:
+    start_date = Date.fromisoformat(start)
+    end_date = Date.fromisoformat(end)
+    if end_date < start_date:
+        raise ValueError("--backfill-to must be on or after --backfill-from")
+    current = start_date
+    while current <= end_date:
+        yield current.isoformat()
+        current += timedelta(days=1)
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--rewrite-existing", action="store_true", help="rewrite existing posts with the current paper-interpretation template")
+    parser.add_argument("--date", help="single post date to rewrite, YYYY-MM-DD")
+    parser.add_argument("--backfill-from", help="first date to rewrite, YYYY-MM-DD")
+    parser.add_argument("--backfill-to", help="last date to rewrite, YYYY-MM-DD")
+    return parser.parse_args(argv)
+
+
 def main() -> int:
+    args = parse_args(sys.argv[1:])
+    if args.rewrite_existing:
+        if args.date:
+            dates = [args.date]
+        elif args.backfill_from and args.backfill_to:
+            dates = list(date_range(args.backfill_from, args.backfill_to))
+        else:
+            print("error: --rewrite-existing needs --date or --backfill-from/--backfill-to", file=sys.stderr)
+            return 2
+
+        for date in dates:
+            path = POST_DIR / f"{date}-arxiv-llm-agent-papers.md"
+            if not path.exists():
+                print(f"warning: skip missing {path.relative_to(ROOT)}", file=sys.stderr)
+                continue
+            report_path = rewrite_existing_report(path, date)
+            print(f"rewrote {report_path.relative_to(ROOT)}")
+            time.sleep(0.5)
+        return 0
+
     papers = fetch_papers()
     if not papers:
         print("error: no papers parsed from arXiv", file=sys.stderr)
