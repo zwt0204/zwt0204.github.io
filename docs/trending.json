@@ -1,12 +1,41 @@
 [
   {
+    "full_name": "Shubhamsaboo/awesome-llm-apps",
+    "url": "https://github.com/Shubhamsaboo/awesome-llm-apps",
+    "description": "100+ AI Agent & RAG apps you can actually run — clone, customize, ship.",
+    "language": "Python",
+    "stars": 121081,
+    "forks": 17907,
+    "today_stars": 1106,
+    "topics": [
+      "agents",
+      "llms",
+      "python",
+      "rag"
+    ],
+    "homepage": "https://www.theunwindai.com",
+    "learning_score": 20
+  },
+  {
+    "full_name": "mattpocock/skills",
+    "url": "https://github.com/mattpocock/skills",
+    "description": "Skills for Real Engineers. Straight from my .claude directory.",
+    "language": "Shell",
+    "stars": 170707,
+    "forks": 14689,
+    "today_stars": 1679,
+    "topics": [],
+    "homepage": "",
+    "learning_score": 6
+  },
+  {
     "full_name": "OpenCut-app/OpenCut",
     "url": "https://github.com/OpenCut-app/OpenCut",
     "description": "The open-source CapCut alternative",
     "language": "TypeScript",
-    "stars": 67206,
-    "forks": 7080,
-    "today_stars": 1229,
+    "stars": 69444,
+    "forks": 7222,
+    "today_stars": 4276,
     "topics": [
       "editor",
       "oss",
@@ -16,13 +45,37 @@
     "learning_score": 7
   },
   {
+    "full_name": "virattt/ai-hedge-fund",
+    "url": "https://github.com/virattt/ai-hedge-fund",
+    "description": "An AI Hedge Fund Team",
+    "language": "Python",
+    "stars": 61955,
+    "forks": 10918,
+    "today_stars": 109,
+    "topics": [],
+    "homepage": "",
+    "learning_score": 6
+  },
+  {
+    "full_name": "Nutlope/hallmark",
+    "url": "https://github.com/Nutlope/hallmark",
+    "description": "Anti-AI-slop design skill for Claude Code, Cursor, and Codex.",
+    "language": "CSS",
+    "stars": 6314,
+    "forks": 358,
+    "today_stars": 1015,
+    "topics": [],
+    "homepage": "https://www.usehallmark.com/",
+    "learning_score": 8
+  },
+  {
     "full_name": "HKUDS/Vibe-Trading",
     "url": "https://github.com/HKUDS/Vibe-Trading",
     "description": "\"Vibe-Trading: Your Personal Trading Agent\"",
     "language": "Python",
-    "stars": 22025,
-    "forks": 3811,
-    "today_stars": 1153,
+    "stars": 23049,
+    "forks": 3952,
+    "today_stars": 1256,
     "topics": [
       "ai-agent",
       "algorithmic-trading",
@@ -39,66 +92,13 @@
     "learning_score": 18
   },
   {
-    "full_name": "moeru-ai/airi",
-    "url": "https://github.com/moeru-ai/airi",
-    "description": "💖🧸 Self hosted, you-owned Grok Companion, a container of souls of waifu, cyber livings to bring them into our worlds, wishing to achieve Neuro-sama's altitude. Capable of realtime voice chat, Minecraft, Factorio playing. Web / macOS / Windows supported.",
-    "language": "TypeScript",
-    "stars": 42040,
-    "forks": 4226,
-    "today_stars": 78,
-    "topics": [
-      "ai-companion",
-      "ai-vtuber",
-      "airi",
-      "digital-life",
-      "grok-companion",
-      "live2d",
-      "neuro-sama",
-      "neurosama",
-      "openclaw",
-      "vrm",
-      "vtuber"
-    ],
-    "homepage": "https://airi.moeru.ai/docs/",
-    "learning_score": 7
-  },
-  {
-    "full_name": "Shubhamsaboo/awesome-llm-apps",
-    "url": "https://github.com/Shubhamsaboo/awesome-llm-apps",
-    "description": "100+ AI Agent & RAG apps you can actually run — clone, customize, ship.",
-    "language": "Python",
-    "stars": 119878,
-    "forks": 17793,
-    "today_stars": 996,
-    "topics": [
-      "agents",
-      "llms",
-      "python",
-      "rag"
-    ],
-    "homepage": "https://www.theunwindai.com",
-    "learning_score": 20
-  },
-  {
-    "full_name": "Nutlope/hallmark",
-    "url": "https://github.com/Nutlope/hallmark",
-    "description": "Anti-AI-slop design skill for Claude Code, Cursor, and Codex.",
-    "language": "CSS",
-    "stars": 5360,
-    "forks": 318,
-    "today_stars": 794,
-    "topics": [],
-    "homepage": "https://www.usehallmark.com/",
-    "learning_score": 8
-  },
-  {
     "full_name": "Raphire/Win11Debloat",
     "url": "https://github.com/Raphire/Win11Debloat",
     "description": "A simple, lightweight PowerShell script that allows you to remove pre-installed apps, disable telemetry, as well as perform various other changes to declutter and customize your Windows experience. Win11Debloat works for both Windows 10 and Windows 11.",
     "language": "PowerShell",
-    "stars": 51022,
-    "forks": 2099,
-    "today_stars": 118,
+    "stars": 51861,
+    "forks": 2142,
+    "today_stars": 783,
     "topics": [
       "automated",
       "bloatware",
@@ -122,16 +122,108 @@
       "windows11"
     ],
     "homepage": "",
+    "learning_score": 9
+  },
+  {
+    "full_name": "hasaneyldrm/exercises-dataset",
+    "url": "https://github.com/hasaneyldrm/exercises-dataset",
+    "description": "1,324-exercise fitness dataset — animation GIFs, 180×180 thumbnails, muscle-group & equipment data, and step-by-step instructions in 6 languages. The exercise data layer behind the LogPress app.",
+    "language": "HTML",
+    "stars": 13708,
+    "forks": 1638,
+    "today_stars": 851,
+    "topics": [
+      "dataset",
+      "exercise-database",
+      "exercises",
+      "fitness",
+      "fitness-app",
+      "gym",
+      "json",
+      "logpress",
+      "react-native",
+      "workout"
+    ],
+    "homepage": "",
+    "learning_score": 7
+  },
+  {
+    "full_name": "penpot/penpot",
+    "url": "https://github.com/penpot/penpot",
+    "description": "Penpot: The open-source design platform for Product teams that need scalable collaboration.",
+    "language": "Clojure",
+    "stars": 56248,
+    "forks": 3694,
+    "today_stars": 395,
+    "topics": [
+      "clojure",
+      "clojurescript",
+      "design",
+      "prototyping",
+      "ui",
+      "ux-design",
+      "ux-experience"
+    ],
+    "homepage": "https://penpot.app",
     "learning_score": 5
+  },
+  {
+    "full_name": "AIEraDev/Clypra",
+    "url": "https://github.com/AIEraDev/Clypra",
+    "description": "A modern video editor built with Tauri, React, and TypeScript. Focus on building free capabilities of premium capcut functionalities",
+    "language": "TypeScript",
+    "stars": 2705,
+    "forks": 282,
+    "today_stars": 85,
+    "topics": [
+      "clypra",
+      "video-editor"
+    ],
+    "homepage": "https://clypra.abdulkabirmusa.com",
+    "learning_score": 4
+  },
+  {
+    "full_name": "par274/sharpemu",
+    "url": "https://github.com/par274/sharpemu",
+    "description": "An experimental PlayStation 5 emulator project.",
+    "language": "C#",
+    "stars": 2212,
+    "forks": 143,
+    "today_stars": 332,
+    "topics": [
+      "csharp",
+      "emulation",
+      "emulator",
+      "playstation5",
+      "ps5",
+      "windows"
+    ],
+    "homepage": "",
+    "learning_score": 3
+  },
+  {
+    "full_name": "chenyme/grok2api",
+    "url": "https://github.com/chenyme/grok2api",
+    "description": "面向 Grok Build、Grok Web 与 Grok Console 的多账号 API 网关",
+    "language": "Go",
+    "stars": 5911,
+    "forks": 1934,
+    "today_stars": 186,
+    "topics": [
+      "grok",
+      "grok-imagine"
+    ],
+    "homepage": "",
+    "learning_score": 3
   },
   {
     "full_name": "Graphify-Labs/graphify",
     "url": "https://github.com/Graphify-Labs/graphify",
     "description": "AI coding assistant skill (Claude Code, Codex, OpenCode, Cursor, Gemini CLI, and more). Turn any folder of code, SQL schemas, R scripts, shell scripts, docs, papers, images, or videos into a queryable knowledge graph. App code + database schema + infrastructure in one graph.",
     "language": "Python",
-    "stars": 85049,
-    "forks": 8398,
-    "today_stars": 1095,
+    "stars": 86643,
+    "forks": 8521,
+    "today_stars": 1851,
     "topics": [
       "antigravity",
       "claude-code",
@@ -149,62 +241,35 @@
     "learning_score": 16
   },
   {
-    "full_name": "hasaneyldrm/exercises-dataset",
-    "url": "https://github.com/hasaneyldrm/exercises-dataset",
-    "description": "1,324-exercise fitness dataset — animation GIFs, 180×180 thumbnails, muscle-group & equipment data, and step-by-step instructions in 6 languages. The exercise data layer behind the LogPress app.",
-    "language": "HTML",
-    "stars": 12792,
-    "forks": 1525,
-    "today_stars": 451,
+    "full_name": "HenryNdubuaku/maths-cs-ai-compendium",
+    "url": "https://github.com/HenryNdubuaku/maths-cs-ai-compendium",
+    "description": "Become a cracked AI/ML Research Engineer",
+    "language": "TypeScript",
+    "stars": 5381,
+    "forks": 712,
+    "today_stars": 112,
     "topics": [
-      "dataset",
-      "exercise-database",
-      "exercises",
-      "fitness",
-      "fitness-app",
-      "gym",
-      "json",
-      "logpress",
-      "react-native",
-      "workout"
+      "ai-textbook",
+      "algorithms",
+      "artificial-intelligence",
+      "computer-science",
+      "computer-vision",
+      "deep-learning",
+      "jax",
+      "linear-algebra",
+      "machine-learning",
+      "machine-learning-algorithms",
+      "math",
+      "mathematics",
+      "multimodal-learning",
+      "nlp",
+      "probability",
+      "python",
+      "reinforcement-learning",
+      "speech-processing",
+      "statistics"
     ],
     "homepage": "",
-    "learning_score": 5
-  },
-  {
-    "full_name": "github/spec-kit",
-    "url": "https://github.com/github/spec-kit",
-    "description": "💫 Toolkit to help you get started with Spec-Driven Development",
-    "language": "Python",
-    "stars": 120761,
-    "forks": 10746,
-    "today_stars": 543,
-    "topics": [
-      "ai",
-      "copilot",
-      "development",
-      "engineering",
-      "prd",
-      "spec",
-      "spec-driven"
-    ],
-    "homepage": "https://github.github.com/spec-kit/",
-    "learning_score": 11
-  },
-  {
-    "full_name": "coreyhaines31/marketingskills",
-    "url": "https://github.com/coreyhaines31/marketingskills",
-    "description": "Marketing skills for Claude Code and AI agents. CRO, copywriting, SEO, analytics, and growth engineering.",
-    "language": "JavaScript",
-    "stars": 38768,
-    "forks": 6213,
-    "today_stars": 299,
-    "topics": [
-      "claude",
-      "codex",
-      "marketing"
-    ],
-    "homepage": "https://marketing-skills.com",
-    "learning_score": 13
+    "learning_score": 8
   }
 ]
