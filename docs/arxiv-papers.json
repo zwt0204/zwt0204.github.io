@@ -1679,7 +1679,7 @@
     "categories": [
       "cs.CL"
     ],
-    "comment": "23 pages. Resubmission of submit/7557765, which expired due to an arXiv system bug (confirmed in support ticket AH-199019); the overfull-box correction requested by moderators has been applied. Original submission held in moderation since 14 May 2026. Therefore, request priority review/approval",
+    "comment": "23 pages. Rubrics, prompts, and demonstration tasks are publicly available.",
     "topics": [
       "LLM",
       "RAG/Memory",
