@@ -4,9 +4,9 @@
     "url": "https://github.com/morluto/rea",
     "description": "Reverse engineer anything with agents, from app behavior down to native binaries.",
     "language": "TypeScript",
-    "stars": 179083,
-    "forks": 43139,
-    "today_stars": 45327,
+    "stars": 218508,
+    "forks": 54025,
+    "today_stars": 54679,
     "topics": [
       "agent-skills",
       "ai-agents",
@@ -18,7 +18,6 @@
       "ctf",
       "decompiler",
       "developer-tools",
-      "disassembler",
       "dsh",
       "dsh-plugin",
       "ghidra",
@@ -26,6 +25,7 @@
       "llm",
       "mcp",
       "model-context-protocol",
+      "rea",
       "reverse-engineering",
       "static-analysis"
     ],
@@ -37,9 +37,9 @@
     "url": "https://github.com/bilawalsidhu/gods-eye-view",
     "description": "A spy satellite simulator in your browser, except the data is real. Live open source spatial intelligence on a photorealistic 3D globe.",
     "language": "JavaScript",
-    "stars": 54323,
-    "forks": 10690,
-    "today_stars": 1895,
+    "stars": 55852,
+    "forks": 10892,
+    "today_stars": 1961,
     "topics": [
       "3d-globe",
       "cesium",
@@ -58,13 +58,45 @@
     "learning_score": 11
   },
   {
+    "full_name": "debpalash/VoiceStudio",
+    "url": "https://github.com/debpalash/VoiceStudio",
+    "description": "VoiceStudio is the open-source, fully-local ElevenLabs alternative — voice cloning, voice design, video dubbing, dictation, transcription & audiobook creation in 646 languages.",
+    "language": "Python",
+    "stars": 64221,
+    "forks": 7137,
+    "today_stars": 1748,
+    "topics": [
+      "ai",
+      "audiobook",
+      "cuda",
+      "dubbing",
+      "elevenlabs-alternative",
+      "huggingface",
+      "local-first",
+      "mlx",
+      "omnivoice-studio",
+      "speech-to-text",
+      "text-to-speech",
+      "transcription",
+      "translate",
+      "tts",
+      "voice-ai",
+      "voice-cloning",
+      "voice-generation",
+      "voicestudio",
+      "workflow"
+    ],
+    "homepage": "https://voicestudio.sh",
+    "learning_score": 11
+  },
+  {
     "full_name": "mksglu/context-mode",
     "url": "https://github.com/mksglu/context-mode",
     "description": "Context window optimization for AI coding agents. Sandboxes tool output (98% reduction), persists session memory, and   enforces routing across 17 platforms via MCP + hooks.",
     "language": "TypeScript",
-    "stars": 27641,
-    "forks": 1960,
-    "today_stars": 246,
+    "stars": 28497,
+    "forks": 2012,
+    "today_stars": 969,
     "topics": [
       "antigravity",
       "claude",
@@ -88,62 +120,16 @@
       "zed-extension"
     ],
     "homepage": "https://context-mode.com",
-    "learning_score": 13
-  },
-  {
-    "full_name": "storytold/artcraft",
-    "url": "https://github.com/storytold/artcraft",
-    "description": "ArtCraft is an intentional crafting engine for artists, designers, and filmmakers",
-    "language": "Rust",
-    "stars": 23432,
-    "forks": 3738,
-    "today_stars": 4095,
-    "topics": [
-      "3d-graphics",
-      "ai",
-      "aivideo",
-      "filmmaking",
-      "imagegeneration"
-    ],
-    "homepage": "https://getartcraft.com",
-    "learning_score": 11
-  },
-  {
-    "full_name": "open-webui/open-webui",
-    "url": "https://github.com/open-webui/open-webui",
-    "description": "User-friendly AI Interface (Supports Ollama, OpenAI API, ...)",
-    "language": "Python",
-    "stars": 155420,
-    "forks": 22664,
-    "today_stars": 157,
-    "topics": [
-      "ai",
-      "llm",
-      "llm-ui",
-      "llm-webui",
-      "llms",
-      "mcp",
-      "ollama",
-      "ollama-webui",
-      "open-webui",
-      "openai",
-      "openapi",
-      "rag",
-      "self-hosted",
-      "ui",
-      "webui"
-    ],
-    "homepage": "https://openwebui.com",
-    "learning_score": 13
+    "learning_score": 15
   },
   {
     "full_name": "cathrynlavery/diagram-design",
     "url": "https://github.com/cathrynlavery/diagram-design",
     "description": "Editorial diagram design for Claude Code, Codex, GitHub Copilot, Cursor, Factory Droid, and Pi. 44 diagram types. Self-contained HTML + SVG. No shadows. No Mermaid slop.",
     "language": "HTML",
-    "stars": 53190,
-    "forks": 3363,
-    "today_stars": 2081,
+    "stars": 54629,
+    "forks": 3453,
+    "today_stars": 1815,
     "topics": [
       "agent-skills",
       "claude-code",
@@ -158,13 +144,25 @@
     "learning_score": 7
   },
   {
+    "full_name": "vercel-labs/skills",
+    "url": "https://github.com/vercel-labs/skills",
+    "description": "The open agent skills tool - npx skills",
+    "language": "TypeScript",
+    "stars": 34713,
+    "forks": 2964,
+    "today_stars": 190,
+    "topics": [],
+    "homepage": "https://skills.sh",
+    "learning_score": 8
+  },
+  {
     "full_name": "lyogavin/airllm",
     "url": "https://github.com/lyogavin/airllm",
     "description": "AirLLM 2.8T LLM inference with single 4GB GPU",
     "language": "Jupyter Notebook",
-    "stars": 37850,
-    "forks": 3890,
-    "today_stars": 879,
+    "stars": 38491,
+    "forks": 3933,
+    "today_stars": 1001,
     "topics": [
       "chinese-llm",
       "chinese-nlp",
@@ -184,27 +182,40 @@
     "learning_score": 11
   },
   {
-    "full_name": "microsoft/BitNet",
-    "url": "https://github.com/microsoft/BitNet",
-    "description": "Official inference framework for 1-bit LLMs",
-    "language": "C++",
-    "stars": 41050,
-    "forks": 3819,
-    "today_stars": 97,
-    "topics": [],
-    "homepage": "",
-    "learning_score": 4
+    "full_name": "storytold/artcraft",
+    "url": "https://github.com/storytold/artcraft",
+    "description": "ArtCraft is an intentional crafting engine for artists, designers, and filmmakers",
+    "language": "Rust",
+    "stars": 26458,
+    "forks": 4132,
+    "today_stars": 4081,
+    "topics": [
+      "3d-graphics",
+      "ai",
+      "aivideo",
+      "filmmaking",
+      "imagegeneration"
+    ],
+    "homepage": "https://getartcraft.com",
+    "learning_score": 11
   },
   {
-    "full_name": "Alishahryar1/free-claude-code",
-    "url": "https://github.com/Alishahryar1/free-claude-code",
-    "description": "Use Claude Code, Codex, VSCode, Pi, and OpenCode (and 6 other harnesses) for free (1.3B+ free tokens) from your terminal, app, IDE, or phone, and now from the browser with native browser sessions (multi-harness + multi-model) like OpenClaw (voice supported + ToS friendly)",
-    "language": "Python",
-    "stars": 59644,
-    "forks": 9367,
-    "today_stars": 626,
-    "topics": [],
-    "homepage": "",
-    "learning_score": 6
+    "full_name": "xtool-org/xtool",
+    "url": "https://github.com/xtool-org/xtool",
+    "description": "Cross-platform Xcode replacement. Build and deploy iOS apps with SwiftPM on Linux, Windows, macOS.",
+    "language": "Swift",
+    "stars": 9788,
+    "forks": 413,
+    "today_stars": 1198,
+    "topics": [
+      "ios",
+      "linux",
+      "swift",
+      "swift-package-manager",
+      "windows",
+      "xcode"
+    ],
+    "homepage": "https://xtool.sh",
+    "learning_score": 5
   }
 ]
