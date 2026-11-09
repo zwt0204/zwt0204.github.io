@@ -1,110 +1,12 @@
 [
   {
-    "full_name": "vercel-labs/agent-browser",
-    "url": "https://github.com/vercel-labs/agent-browser",
-    "description": "Browser automation CLI for AI agents",
-    "language": "Rust",
-    "stars": 47080,
-    "forks": 3227,
-    "today_stars": 190,
-    "topics": [],
-    "homepage": "https://agent-browser.dev",
-    "learning_score": 14
-  },
-  {
-    "full_name": "cloudflare/security-audit-skill",
-    "url": "https://github.com/cloudflare/security-audit-skill",
-    "description": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
-    "language": "JavaScript",
-    "stars": 66137,
-    "forks": 4302,
-    "today_stars": 2085,
-    "topics": [],
-    "homepage": "",
-    "learning_score": 14
-  },
-  {
-    "full_name": "google/skills",
-    "url": "https://github.com/google/skills",
-    "description": "Agent Skills for Google products and technologies",
-    "language": "Python",
-    "stars": 23558,
-    "forks": 1968,
-    "today_stars": 443,
-    "topics": [
-      "google",
-      "googlecloud",
-      "skills"
-    ],
-    "homepage": "",
-    "learning_score": 9
-  },
-  {
-    "full_name": "mattpocock/skills",
-    "url": "https://github.com/mattpocock/skills",
-    "description": "Skills for Real Engineers. Straight from my .agents directory.",
-    "language": "Shell",
-    "stars": 318013,
-    "forks": 26607,
-    "today_stars": 1100,
-    "topics": [],
-    "homepage": "https://aihero.dev/skills",
-    "learning_score": 10
-  },
-  {
-    "full_name": "anthropics/skills",
-    "url": "https://github.com/anthropics/skills",
-    "description": "Public repository for Agent Skills",
-    "language": "Python",
-    "stars": 189000,
-    "forks": 22280,
-    "today_stars": 390,
-    "topics": [
-      "agent-skills"
-    ],
-    "homepage": "",
-    "learning_score": 9
-  },
-  {
-    "full_name": "meta/astryx",
-    "url": "https://github.com/meta/astryx",
-    "description": "An open source design system that's fully customizable and agent ready",
-    "language": "TypeScript",
-    "stars": 14837,
-    "forks": 1214,
-    "today_stars": 96,
-    "topics": [],
-    "homepage": "http://astryx.atmeta.com",
-    "learning_score": 6
-  },
-  {
-    "full_name": "prometheus/prometheus",
-    "url": "https://github.com/prometheus/prometheus",
-    "description": "The Prometheus monitoring system and time series database.",
-    "language": "Go",
-    "stars": 67511,
-    "forks": 11011,
-    "today_stars": 322,
-    "topics": [
-      "alerting",
-      "graphing",
-      "hacktoberfest",
-      "metrics",
-      "monitoring",
-      "prometheus",
-      "time-series"
-    ],
-    "homepage": "https://prometheus.io/",
-    "learning_score": 11
-  },
-  {
     "full_name": "sherlock-project/sherlock",
     "url": "https://github.com/sherlock-project/sherlock",
     "description": "Hunt down social media accounts by username across social networks",
     "language": "Python",
-    "stars": 101288,
-    "forks": 11977,
-    "today_stars": 1766,
+    "stars": 105297,
+    "forks": 12247,
+    "today_stars": 2373,
     "topics": [
       "cli",
       "cti",
@@ -127,136 +29,13 @@
     "learning_score": 16
   },
   {
-    "full_name": "milind-soni/OpenMausBot",
-    "url": "https://github.com/milind-soni/OpenMausBot",
-    "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
-    "language": "TypeScript",
-    "stars": 17422,
-    "forks": 2452,
-    "today_stars": 1955,
-    "topics": [
-      "ai-agents",
-      "claude-code",
-      "codex",
-      "computer-use",
-      "docker",
-      "electron",
-      "expo",
-      "grok",
-      "grok-bot",
-      "grok-bot-alternative",
-      "self-hosted",
-      "typescript"
-    ],
-    "homepage": "https://www.openmausbot.com/",
-    "learning_score": 14
-  },
-  {
-    "full_name": "astral-sh/ruff",
-    "url": "https://github.com/astral-sh/ruff",
-    "description": "An extremely fast Python linter and code formatter, written in Rust.",
-    "language": "Rust",
-    "stars": 51054,
-    "forks": 2634,
-    "today_stars": 350,
-    "topics": [
-      "linter",
-      "pep8",
-      "python",
-      "python3",
-      "ruff",
-      "rust",
-      "rustpython",
-      "static-analysis",
-      "static-code-analysis",
-      "style-guide",
-      "styleguide"
-    ],
-    "homepage": "https://docs.astral.sh/ruff",
-    "learning_score": 11
-  },
-  {
-    "full_name": "tailwindlabs/tailwindcss",
-    "url": "https://github.com/tailwindlabs/tailwindcss",
-    "description": "A utility-first CSS framework for rapid UI development.",
-    "language": "TypeScript",
-    "stars": 98601,
-    "forks": 7116,
-    "today_stars": 122,
-    "topics": [
-      "css",
-      "css-framework",
-      "functional-css",
-      "postcss",
-      "responsive",
-      "tailwindcss",
-      "utility-classes"
-    ],
-    "homepage": "https://tailwindcss.com/",
-    "learning_score": 5
-  },
-  {
-    "full_name": "mbillow/localthings",
-    "url": "https://github.com/mbillow/localthings",
-    "description": "Control your Samsung appliances from Home Assistant over your home network, with no cloud account.",
-    "language": "Python",
-    "stars": 1113,
-    "forks": 114,
-    "today_stars": 186,
-    "topics": [
-      "coap-protocol",
-      "coap-server",
-      "custom-component",
-      "dtls",
-      "hacs",
-      "hacs-integration",
-      "home-assistant",
-      "home-automation",
-      "samsung",
-      "smartthings"
-    ],
-    "homepage": "",
-    "learning_score": 3
-  },
-  {
-    "full_name": "zed-industries/zed",
-    "url": "https://github.com/zed-industries/zed",
-    "description": "Code at the speed of thought – Zed is a high-performance, multiplayer code editor from the creators of Atom and Tree-sitter.",
-    "language": "Rust",
-    "stars": 94380,
-    "forks": 11558,
-    "today_stars": 1114,
-    "topics": [
-      "gpui",
-      "rust-lang",
-      "text-editor",
-      "zed"
-    ],
-    "homepage": "https://zed.dev",
-    "learning_score": 7
-  },
-  {
-    "full_name": "ranxianglei/billion-context",
-    "url": "https://github.com/ranxianglei/billion-context",
-    "description": "A context-compression plugin for month-long single sessions (billions of tokens) ,small context windows (a 100K context is enough) and token savings (5x fewer tokens) .上下文压缩插件，月级长会话会话， 兼顾小窗口(100k上下文足矣)省token(省5倍token) . billion-context is all you need",
-    "language": "TypeScript",
-    "stars": 4769,
-    "forks": 384,
-    "today_stars": 191,
-    "topics": [
-      "dsh-plugin"
-    ],
-    "homepage": "",
-    "learning_score": 3
-  },
-  {
     "full_name": "dsx-ai-factory/nvke",
     "url": "https://github.com/dsx-ai-factory/nvke",
     "description": "NVIDIA Kubernetes Engine (NVKE). A management plane for GPU Kubernetes on bare metal.",
     "language": "Go",
-    "stars": 636,
-    "forks": 98,
-    "today_stars": 123,
+    "stars": 968,
+    "forks": 113,
+    "today_stars": 345,
     "topics": [
       "bare-metal",
       "cluster-api",
@@ -265,6 +44,110 @@
       "nvidia"
     ],
     "homepage": "https://docs.nvidia.com/nvke/",
-    "learning_score": 8
+    "learning_score": 10
+  },
+  {
+    "full_name": "milind-soni/OpenMausBot",
+    "url": "https://github.com/milind-soni/OpenMausBot",
+    "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
+    "language": "TypeScript",
+    "stars": 18959,
+    "forks": 2613,
+    "today_stars": 1439,
+    "topics": [
+      "ai-agents",
+      "claude-code",
+      "codex",
+      "computer-use",
+      "docker",
+      "electron",
+      "grok",
+      "grok-bot",
+      "grok-bot-alternative",
+      "self-hosted",
+      "typescript"
+    ],
+    "homepage": "https://www.mausbot.com/",
+    "learning_score": 14
+  },
+  {
+    "full_name": "anthropics/claude-quickstarts",
+    "url": "https://github.com/anthropics/claude-quickstarts",
+    "description": "A collection of projects designed to help developers quickly get started with building deployable applications using the Claude API",
+    "language": "Python",
+    "stars": 19648,
+    "forks": 3291,
+    "today_stars": 32,
+    "topics": [],
+    "homepage": "",
+    "learning_score": 2
+  },
+  {
+    "full_name": "vercel-labs/agent-browser",
+    "url": "https://github.com/vercel-labs/agent-browser",
+    "description": "Browser automation CLI for AI agents",
+    "language": "Rust",
+    "stars": 47995,
+    "forks": 3278,
+    "today_stars": 815,
+    "topics": [],
+    "homepage": "https://agent-browser.dev",
+    "learning_score": 16
+  },
+  {
+    "full_name": "meta/astryx",
+    "url": "https://github.com/meta/astryx",
+    "description": "An open source design system that's fully customizable and agent ready",
+    "language": "TypeScript",
+    "stars": 17952,
+    "forks": 1403,
+    "today_stars": 875,
+    "topics": [],
+    "homepage": "http://astryx.atmeta.com",
+    "learning_score": 10
+  },
+  {
+    "full_name": "anthropics/skills",
+    "url": "https://github.com/anthropics/skills",
+    "description": "Public repository for Agent Skills",
+    "language": "Python",
+    "stars": 190000,
+    "forks": 22384,
+    "today_stars": 792,
+    "topics": [
+      "agent-skills"
+    ],
+    "homepage": "",
+    "learning_score": 11
+  },
+  {
+    "full_name": "google-deepmind/mujoco",
+    "url": "https://github.com/google-deepmind/mujoco",
+    "description": "Multi-Joint dynamics with Contact. A general purpose physics simulator.",
+    "language": "C++",
+    "stars": 16649,
+    "forks": 1964,
+    "today_stars": 41,
+    "topics": [
+      "mujoco",
+      "physics",
+      "robotics"
+    ],
+    "homepage": "https://mujoco.org",
+    "learning_score": 3
+  },
+  {
+    "full_name": "ranxianglei/billion-context",
+    "url": "https://github.com/ranxianglei/billion-context",
+    "description": "A context-compression plugin for month-long single sessions (billions of tokens) ,small context windows (a 100K context is enough) and token savings (5x fewer tokens) .上下文压缩插件，月级长会话会话， 兼顾小窗口(100k上下文足矣)省token(省5倍token) . billion-context is all you need",
+    "language": "TypeScript",
+    "stars": 5480,
+    "forks": 421,
+    "today_stars": 460,
+    "topics": [
+      "dsh-plugin"
+    ],
+    "homepage": "",
+    "learning_score": 3
   }
 ]
