@@ -1,12 +1,38 @@
 [
   {
+    "full_name": "anthropics/skills",
+    "url": "https://github.com/anthropics/skills",
+    "description": "Public repository for Agent Skills",
+    "language": "Python",
+    "stars": 191559,
+    "forks": 22492,
+    "today_stars": 1038,
+    "topics": [
+      "agent-skills"
+    ],
+    "homepage": "",
+    "learning_score": 11
+  },
+  {
+    "full_name": "meta/astryx",
+    "url": "https://github.com/meta/astryx",
+    "description": "An open source design system that's fully customizable and agent ready",
+    "language": "TypeScript",
+    "stars": 21104,
+    "forks": 1610,
+    "today_stars": 3278,
+    "topics": [],
+    "homepage": "http://astryx.atmeta.com",
+    "learning_score": 10
+  },
+  {
     "full_name": "sherlock-project/sherlock",
     "url": "https://github.com/sherlock-project/sherlock",
     "description": "Hunt down social media accounts by username across social networks",
     "language": "Python",
-    "stars": 105297,
-    "forks": 12247,
-    "today_stars": 2373,
+    "stars": 107952,
+    "forks": 12488,
+    "today_stars": 4267,
     "topics": [
       "cli",
       "cti",
@@ -29,31 +55,138 @@
     "learning_score": 16
   },
   {
-    "full_name": "dsx-ai-factory/nvke",
-    "url": "https://github.com/dsx-ai-factory/nvke",
-    "description": "NVIDIA Kubernetes Engine (NVKE). A management plane for GPU Kubernetes on bare metal.",
-    "language": "Go",
-    "stars": 968,
-    "forks": 113,
-    "today_stars": 345,
+    "full_name": "google-deepmind/mujoco",
+    "url": "https://github.com/google-deepmind/mujoco",
+    "description": "Multi-Joint dynamics with Contact. A general purpose physics simulator.",
+    "language": "C++",
+    "stars": 17111,
+    "forks": 2028,
+    "today_stars": 574,
     "topics": [
-      "bare-metal",
-      "cluster-api",
-      "gpu",
-      "kubernetes",
-      "nvidia"
+      "mujoco",
+      "physics",
+      "robotics"
     ],
-    "homepage": "https://docs.nvidia.com/nvke/",
-    "learning_score": 10
+    "homepage": "https://mujoco.org",
+    "learning_score": 7
+  },
+  {
+    "full_name": "anthropics/claude-quickstarts",
+    "url": "https://github.com/anthropics/claude-quickstarts",
+    "description": "A collection of projects designed to help developers quickly get started with building deployable applications using the Claude API",
+    "language": "Python",
+    "stars": 20198,
+    "forks": 3344,
+    "today_stars": 551,
+    "topics": [],
+    "homepage": "",
+    "learning_score": 6
+  },
+  {
+    "full_name": "garrytan/gbrain",
+    "url": "https://github.com/garrytan/gbrain",
+    "description": "Garry's Opinionated OpenClaw/Hermes Agent Brain",
+    "language": "TypeScript",
+    "stars": 32356,
+    "forks": 4793,
+    "today_stars": 216,
+    "topics": [],
+    "homepage": "",
+    "learning_score": 8
+  },
+  {
+    "full_name": "vercel-labs/agent-browser",
+    "url": "https://github.com/vercel-labs/agent-browser",
+    "description": "Browser automation CLI for AI agents",
+    "language": "Rust",
+    "stars": 48800,
+    "forks": 3331,
+    "today_stars": 916,
+    "topics": [],
+    "homepage": "https://agent-browser.dev",
+    "learning_score": 16
+  },
+  {
+    "full_name": "ruvnet/RuView",
+    "url": "https://github.com/ruvnet/RuView",
+    "description": "π RuView turns commodity WiFi signals into real-time spatial intelligence, vital sign monitoring, and presence detection — all without a single pixel of video.",
+    "language": "Rust",
+    "stars": 103726,
+    "forks": 13446,
+    "today_stars": 172,
+    "topics": [
+      "claude",
+      "claude-code",
+      "esp32",
+      "firmware",
+      "home-assistant",
+      "home-automation",
+      "iot",
+      "mcp",
+      "monitoring",
+      "networking",
+      "pose-estimation",
+      "react",
+      "rf",
+      "self-learning",
+      "spatial-intelligence",
+      "typescript",
+      "webassembly",
+      "wifi",
+      "wifi-security"
+    ],
+    "homepage": "https://cognitum.one",
+    "learning_score": 8
+  },
+  {
+    "full_name": "ZhuLinsen/daily_stock_analysis",
+    "url": "https://github.com/ZhuLinsen/daily_stock_analysis",
+    "description": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。  LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.",
+    "language": "Python",
+    "stars": 69357,
+    "forks": 56528,
+    "today_stars": 506,
+    "topics": [
+      "a-stock",
+      "ai-agent",
+      "aigc",
+      "llm",
+      "quant",
+      "quantitative-finance",
+      "quantitative-trading"
+    ],
+    "homepage": "https://dsa.zhulinsen.tech",
+    "learning_score": 15
+  },
+  {
+    "full_name": "homeassistant-ai/ha-mcp",
+    "url": "https://github.com/homeassistant-ai/ha-mcp",
+    "description": "Configure and automate Home Assistant with Claude, ChatGPT, and other AI assistants.",
+    "language": "Python",
+    "stars": 6246,
+    "forks": 316,
+    "today_stars": 31,
+    "topics": [
+      "ai",
+      "claude",
+      "hacs",
+      "home-assistant",
+      "home-automation",
+      "llm",
+      "mcp",
+      "model-context-protocol"
+    ],
+    "homepage": "https://homeassistant-ai.github.io/ha-mcp/",
+    "learning_score": 9
   },
   {
     "full_name": "milind-soni/OpenMausBot",
     "url": "https://github.com/milind-soni/OpenMausBot",
     "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
     "language": "TypeScript",
-    "stars": 18959,
-    "forks": 2613,
-    "today_stars": 1439,
+    "stars": 20210,
+    "forks": 2773,
+    "today_stars": 1587,
     "topics": [
       "ai-agents",
       "claude-code",
@@ -69,85 +202,5 @@
     ],
     "homepage": "https://www.mausbot.com/",
     "learning_score": 14
-  },
-  {
-    "full_name": "anthropics/claude-quickstarts",
-    "url": "https://github.com/anthropics/claude-quickstarts",
-    "description": "A collection of projects designed to help developers quickly get started with building deployable applications using the Claude API",
-    "language": "Python",
-    "stars": 19648,
-    "forks": 3291,
-    "today_stars": 32,
-    "topics": [],
-    "homepage": "",
-    "learning_score": 2
-  },
-  {
-    "full_name": "vercel-labs/agent-browser",
-    "url": "https://github.com/vercel-labs/agent-browser",
-    "description": "Browser automation CLI for AI agents",
-    "language": "Rust",
-    "stars": 47995,
-    "forks": 3278,
-    "today_stars": 815,
-    "topics": [],
-    "homepage": "https://agent-browser.dev",
-    "learning_score": 16
-  },
-  {
-    "full_name": "meta/astryx",
-    "url": "https://github.com/meta/astryx",
-    "description": "An open source design system that's fully customizable and agent ready",
-    "language": "TypeScript",
-    "stars": 17952,
-    "forks": 1403,
-    "today_stars": 875,
-    "topics": [],
-    "homepage": "http://astryx.atmeta.com",
-    "learning_score": 10
-  },
-  {
-    "full_name": "anthropics/skills",
-    "url": "https://github.com/anthropics/skills",
-    "description": "Public repository for Agent Skills",
-    "language": "Python",
-    "stars": 190000,
-    "forks": 22384,
-    "today_stars": 792,
-    "topics": [
-      "agent-skills"
-    ],
-    "homepage": "",
-    "learning_score": 11
-  },
-  {
-    "full_name": "google-deepmind/mujoco",
-    "url": "https://github.com/google-deepmind/mujoco",
-    "description": "Multi-Joint dynamics with Contact. A general purpose physics simulator.",
-    "language": "C++",
-    "stars": 16649,
-    "forks": 1964,
-    "today_stars": 41,
-    "topics": [
-      "mujoco",
-      "physics",
-      "robotics"
-    ],
-    "homepage": "https://mujoco.org",
-    "learning_score": 3
-  },
-  {
-    "full_name": "ranxianglei/billion-context",
-    "url": "https://github.com/ranxianglei/billion-context",
-    "description": "A context-compression plugin for month-long single sessions (billions of tokens) ,small context windows (a 100K context is enough) and token savings (5x fewer tokens) .上下文压缩插件，月级长会话会话， 兼顾小窗口(100k上下文足矣)省token(省5倍token) . billion-context is all you need",
-    "language": "TypeScript",
-    "stars": 5480,
-    "forks": 421,
-    "today_stars": 460,
-    "topics": [
-      "dsh-plugin"
-    ],
-    "homepage": "",
-    "learning_score": 3
   }
 ]
